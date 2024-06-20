@@ -15,6 +15,13 @@ import { AuthenticationDomainFacade } from '../authentication/authentication.dom
     UserDomainModule,
   ],
   controllers: [TowingRequestController, TowingRequestByUserController],
-  providers: [EventService, TowingRequestDomainFacade, AuthenticationDomainFacade],
+  providers: [
+    EventService,
+    TowingRequestDomainFacade,
+    {
+      provide: 'AuthenticationDomainFacade',
+      useClass: AuthenticationDomainFacade,
+    },
+  ],
 })
 export class TowingRequestApplicationModule {}

@@ -64,7 +64,6 @@ const BookingForm = () => {
       return;
     }
 
-    // Calculate total cost
     const baseCost = 558;
     const costPerKm = 19;
     const totalCost = baseCost + (distance * costPerKm) + tollCost;
