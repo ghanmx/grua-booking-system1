@@ -36,6 +36,7 @@ const BookingForm = () => {
     if (location.state) {
       const { origin, pickupLocation, destinationLocation } = location.state;
       setFormData((prevData) => ({ ...prevData, origin, pickupLocation, destinationLocation }));
+      console.log('location.state:', location.state);
     }
   }, [location.state]);
 
@@ -69,6 +70,7 @@ const BookingForm = () => {
     const totalCost = baseCost + (distance * costPerKm) + tollCost;
 
     try {
+      console.log('Submitting form with data:', formData);
       const response = await fetch('https://valid-endpoint-for-booking.com/bookings', {
         method: 'POST',
         headers: {
@@ -82,6 +84,7 @@ const BookingForm = () => {
       }
 
       const data = await response.json();
+      console.log('Booking response:', data);
       navigate('/payment', { state: { formData, totalCost, serviceDetails: { serviceType, distance, pickupLocation, destinationLocation } } });
     } catch (error) {
       console.error('Error processing booking:', error);
@@ -102,6 +105,7 @@ const BookingForm = () => {
       } else if (!destinationLocation) {
         setDestinationLocation({ lat: event.latLng.lat(), lng: event.latLng.lng() });
       }
+      console.log('Map clicked at:', event.latLng.lat(), event.latLng.lng());
     } catch (error) {
       console.error('Error handling map click:', error);
       toast({
@@ -132,6 +136,7 @@ const BookingForm = () => {
           if (mapRef.current) {
             mapRef.current.panTo(userLocation);
           }
+          console.log('User location centered at:', userLocation);
         },
         (error) => {
           console.error('Error getting user location:', error);
