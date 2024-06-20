@@ -20,11 +20,7 @@ const BookingForm = () => {
     distance: 0,
   });
 
-  const [origin, setOrigin] = useState({ lat: 26.509672, lng: -100.0095504 });
-  const [pickupLocation, setPickupLocation] = useState(null);
-  const [destinationLocation, setDestinationLocation] = useState(null);
   const [directions, setDirections] = useState(null);
-  const [totalDistance, setTotalDistance] = useState(0);
   const [tollCost, setTollCost] = useState(0);
 
   const toast = useToast();
@@ -36,13 +32,8 @@ const BookingForm = () => {
     if (location.state) {
       const { origin, pickupLocation, destinationLocation } = location.state;
       setFormData((prevData) => ({ ...prevData, origin, pickupLocation, destinationLocation }));
-      console.log('location.state:', location.state);
     }
   }, [location.state]);
-
-  useEffect(() => {
-    console.log('formData:', formData);
-  }, [formData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,7 +60,7 @@ const BookingForm = () => {
     const totalCost = baseCost + (distance * costPerKm) + tollCost;
 
     try {
-      console.log('Submitting form with data:', formData);
+      console.log('Submitting form with data:', formData); // Added console.log to verify form data handling
       const response = await fetch('https://valid-endpoint-for-booking.com/bookings', {
         method: 'POST',
         headers: {
@@ -83,10 +74,8 @@ const BookingForm = () => {
       }
 
       const data = await response.json();
-      console.log('Booking response:', data);
       navigate('/payment', { state: { formData, totalCost, serviceDetails: { serviceType, distance, pickupLocation, destinationLocation } } });
     } catch (error) {
-      console.error('Error processing booking:', error);
       toast({
         title: 'Error',
         description: 'There was a problem processing your booking. Please try again later.',
@@ -99,14 +88,12 @@ const BookingForm = () => {
 
   const handleMapClick = (event) => {
     try {
-      if (!pickupLocation) {
-        setPickupLocation({ lat: event.latLng.lat(), lng: event.latLng.lng() });
-      } else if (!destinationLocation) {
-        setDestinationLocation({ lat: event.latLng.lat(), lng: event.latLng.lng() });
+      if (!formData.pickupLocation) {
+        setFormData({ ...formData, pickupLocation: { lat: event.latLng.lat(), lng: event.latLng.lng() } });
+      } else if (!formData.destinationLocation) {
+        setFormData({ ...formData, destinationLocation: { lat: event.latLng.lat(), lng: event.latLng.lng() } });
       }
-      console.log('Map clicked at:', event.latLng.lat(), event.latLng.lng());
     } catch (error) {
-      console.error('Error handling map click:', error);
       toast({
         title: 'Error',
         description: 'There was a problem handling the map click. Please try again later.',
@@ -118,8 +105,7 @@ const BookingForm = () => {
   };
 
   const handleReset = () => {
-    setPickupLocation(null);
-    setDestinationLocation(null);
+    setFormData({ ...formData, pickupLocation: null, destinationLocation: null });
     setDirections(null);
   };
 
@@ -131,14 +117,12 @@ const BookingForm = () => {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           };
-          setPickupLocation(userLocation);
+          setFormData({ ...formData, pickupLocation: userLocation });
           if (mapRef.current) {
             mapRef.current.panTo(userLocation);
           }
-          console.log('User location centered at:', userLocation);
         },
         (error) => {
-          console.error('Error getting user location:', error);
           toast({
             title: 'Error',
             description: 'There was a problem getting your location. Please try again later.',
@@ -149,7 +133,6 @@ const BookingForm = () => {
         }
       );
     } else {
-      console.error('Geolocation is not supported by this browser.');
       toast({
         title: 'Error',
         description: 'Geolocation is not supported by this browser.',
@@ -161,12 +144,12 @@ const BookingForm = () => {
   };
 
   const calculateRoute = () => {
-    if (pickupLocation && destinationLocation) {
+    if (formData.pickupLocation && formData.destinationLocation) {
       return (
         <DirectionsService
           options={{
-            origin: pickupLocation,
-            destination: destinationLocation,
+            origin: formData.pickupLocation,
+            destination: formData.destinationLocation,
             travelMode: 'DRIVING',
           }}
           callback={(response, status) => {
@@ -174,9 +157,8 @@ const BookingForm = () => {
               setDirections(response);
               const distanceInKm = response.routes[0].legs[0].distance.value / 1000;
               setFormData((prevData) => ({ ...prevData, distance: distanceInKm }));
-              fetchTollData(pickupLocation, destinationLocation);
+              fetchTollData(formData.pickupLocation, formData.destinationLocation);
             } else if (status === 'REQUEST_DENIED') {
-              console.error('Directions request was denied:', response);
               toast({
                 title: 'Error',
                 description: 'Directions request was denied. Please check your API key and permissions.',
@@ -185,7 +167,6 @@ const BookingForm = () => {
                 isClosable: true,
               });
             } else {
-              console.error('Error calculating route:', response);
               toast({
                 title: 'Error',
                 description: 'There was a problem calculating the route. Please try again later.',
@@ -208,7 +189,6 @@ const BookingForm = () => {
       const tolls = data.tolls || 0;
       setTollCost(tolls);
     } catch (error) {
-      console.error('Error fetching toll data:', error);
       toast({
         title: 'Error',
         description: 'There was a problem fetching toll data. Please try again later.',
@@ -279,7 +259,7 @@ const BookingForm = () => {
             });
           }}>
             <GoogleMap
-              center={origin}
+              center={formData.origin}
               zoom={10}
               mapContainerStyle={{ height: '400px', width: '100%' }}
               onClick={handleMapClick}
@@ -294,23 +274,22 @@ const BookingForm = () => {
                 fullscreenControl: false,
               }}
             >
-              {pickupLocation && (
+              {formData.pickupLocation && (
                 <Marker
-                  position={pickupLocation}
+                  position={formData.pickupLocation}
                   draggable={true}
-                  onDragEnd={(e) => setPickupLocation({ lat: e.latLng.lat(), lng: e.latLng.lng() })}
+                  onDragEnd={(e) => setFormData({ ...formData, pickupLocation: { lat: e.latLng.lat(), lng: e.latLng.lng() } })}
                 />
               )}
-              {destinationLocation && (
+              {formData.destinationLocation && (
                 <Marker
-                  position={destinationLocation}
+                  position={formData.destinationLocation}
                   draggable={true}
-                  onDragEnd={(e) => setDestinationLocation({ lat: e.latLng.lat(), lng: e.latLng.lng() })}
+                  onDragEnd={(e) => setFormData({ ...formData, destinationLocation: { lat: e.latLng.lat(), lng: e.latLng.lng() } })}
                 />
               )}
               {calculateRoute()}
               {directions && <DirectionsRenderer directions={directions} onError={(error) => {
-                console.error('Error rendering directions:', error);
                 toast({
                   title: 'Error',
                   description: 'There was a problem rendering the directions. Please try again later.',
@@ -322,7 +301,7 @@ const BookingForm = () => {
             </GoogleMap>
           </LoadScript>
           <Button onClick={handleReset} mt={4}>Reset</Button>
-          <Button onClick={centerPickupMarker} mt={4} ml={4} colorScheme="blue">Centrar usuario</Button>
+          <Button onClick={centerPickupMarker} mt={4} ml={4} colorScheme="blue">Center User</Button>
           <Button colorScheme="blue" type="submit">Book Now</Button>
         </VStack>
       </form>
