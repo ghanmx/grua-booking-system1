@@ -69,7 +69,7 @@ const BookingForm = () => {
     const totalCost = baseCost + (distance * costPerKm) + tollCost;
 
     // Send booking request to the backend
-    fetch('https://your-backend-api.com/bookings', {
+    fetch('https://placeholder-url-for-testing.com/bookings', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -98,10 +98,21 @@ const BookingForm = () => {
   };
 
   const handleMapClick = (event) => {
-    if (!pickupLocation) {
-      setPickupLocation({ lat: event.latLng.lat(), lng: event.latLng.lng() });
-    } else if (!destinationLocation) {
-      setDestinationLocation({ lat: event.latLng.lat(), lng: event.latLng.lng() });
+    try {
+      if (!pickupLocation) {
+        setPickupLocation({ lat: event.latLng.lat(), lng: event.latLng.lng() });
+      } else if (!destinationLocation) {
+        setDestinationLocation({ lat: event.latLng.lat(), lng: event.latLng.lng() });
+      }
+    } catch (error) {
+      console.error('Error handling map click:', error);
+      toast({
+        title: 'Error',
+        description: 'There was a problem handling the map click. Please try again later.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
@@ -126,10 +137,24 @@ const BookingForm = () => {
         },
         (error) => {
           console.error('Error getting user location:', error);
+          toast({
+            title: 'Error',
+            description: 'There was a problem getting your location. Please try again later.',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
         }
       );
     } else {
       console.error('Geolocation is not supported by this browser.');
+      toast({
+        title: 'Error',
+        description: 'Geolocation is not supported by this browser.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
@@ -182,6 +207,13 @@ const BookingForm = () => {
       setTollCost(tolls);
     } catch (error) {
       console.error('Error fetching toll data:', error);
+      toast({
+        title: 'Error',
+        description: 'There was a problem fetching toll data. Please try again later.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
