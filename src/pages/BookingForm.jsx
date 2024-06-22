@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast, Heading, Text } from '@chakra-ui/react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { LoadScript, GoogleMap, Marker, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
 
@@ -151,7 +151,7 @@ const BookingForm = () => {
       return (
         <DirectionsService
           options={{
-            origin: { lat: 26.509672, lng: -100.0095504 },
+            origin: formData.pickupLocation,
             destination: formData.destinationLocation,
             travelMode: 'DRIVING',
           }}
@@ -199,6 +199,7 @@ const BookingForm = () => {
   return (
     <Box p={4}>
       <VStack spacing={4} align="stretch">
+        <Heading as="h1" mb={4}>Booking Form</Heading>
         <form onSubmit={handleSubmit}>
           <FormControl id="serviceType" isRequired>
             <FormLabel>Service Type</FormLabel>
