@@ -22,6 +22,7 @@ const BookingForm = () => {
 
   const [directions, setDirections] = useState(null);
   const [tollCost, setTollCost] = useState(0);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
 
   const toast = useToast();
   const navigate = useNavigate();
@@ -249,57 +250,65 @@ const BookingForm = () => {
           </FormControl>
           <Button colorScheme="blue" type="submit">Book Now</Button>
         </form>
-        <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY} onError={() => {
-          toast({
-            title: 'Error',
-            description: 'Failed to load Google Maps API. Please check your API key and internet connection.',
-            status: 'error',
-            duration: 5000,
-            isClosable: true,
-          });
-        }}>
-          <GoogleMap
-            center={formData.origin}
-            zoom={10}
-            mapContainerStyle={{ height: '400px', width: '100%' }}
-            onClick={handleMapClick}
-            onLoad={(map) => (mapRef.current = map)}
-            options={{
-              zoomControl: true,
-              zoomControlOptions: {
-                position: window.google.maps.ControlPosition.RIGHT_CENTER,
-              },
-              streetViewControl: false,
-              mapTypeControl: false,
-              fullscreenControl: false,
-            }}
-          >
-            {formData.pickupLocation && (
-              <Marker
-                position={formData.pickupLocation}
-                draggable={true}
-                onDragEnd={(e) => setFormData({ ...formData, pickupLocation: { lat: e.latLng.lat(), lng: e.latLng.lng() } })}
-              />
-            )}
-            {formData.destinationLocation && (
-              <Marker
-                position={formData.destinationLocation}
-                draggable={true}
-                onDragEnd={(e) => setFormData({ ...formData, destinationLocation: { lat: e.latLng.lat(), lng: e.latLng.lng() } })}
-              />
-            )}
-            {calculateRoute()}
-            {directions && <DirectionsRenderer directions={directions} onError={(error) => {
-              console.error('Error rendering directions:', error);
-              toast({
-                title: 'Error',
-                description: 'There was a problem rendering the directions. Please try again later.',
-                status: 'error',
-                duration: 5000,
-                isClosable: true,
-              });
-            }} />}
-          </GoogleMap>
+        <LoadScript
+          googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
+          onLoad={() => setIsMapLoaded(true)}
+          onError={() => {
+            toast({
+              title: 'Error',
+              description: 'Failed to load Google Maps API. Please check your API key and internet connection.',
+              status: 'error',
+              duration: 5000,
+              isClosable: true,
+            });
+          }}
+        >
+          {isMapLoaded ? (
+            <GoogleMap
+              center={formData.origin}
+              zoom={10}
+              mapContainerStyle={{ height: '400px', width: '100%' }}
+              onClick={handleMapClick}
+              onLoad={(map) => (mapRef.current = map)}
+              options={{
+                zoomControl: true,
+                zoomControlOptions: {
+                  position: window.google.maps.ControlPosition.RIGHT_CENTER,
+                },
+                streetViewControl: false,
+                mapTypeControl: false,
+                fullscreenControl: false,
+              }}
+            >
+              {formData.pickupLocation && (
+                <Marker
+                  position={formData.pickupLocation}
+                  draggable={true}
+                  onDragEnd={(e) => setFormData({ ...formData, pickupLocation: { lat: e.latLng.lat(), lng: e.latLng.lng() } })}
+                />
+              )}
+              {formData.destinationLocation && (
+                <Marker
+                  position={formData.destinationLocation}
+                  draggable={true}
+                  onDragEnd={(e) => setFormData({ ...formData, destinationLocation: { lat: e.latLng.lat(), lng: e.latLng.lng() } })}
+                />
+              )}
+              {calculateRoute()}
+              {directions && <DirectionsRenderer directions={directions} onError={(error) => {
+                console.error('Error rendering directions:', error);
+                toast({
+                  title: 'Error',
+                  description: 'There was a problem rendering the directions. Please try again later.',
+                  status: 'error',
+                  duration: 5000,
+                  isClosable: true,
+                });
+              }} />}
+            </GoogleMap>
+          ) : (
+            <Text>Loading map...</Text>
+          )}
         </LoadScript>
         <Button onClick={handleReset} mt={4}>Reset</Button>
         <Button onClick={centerPickupMarker} mt={4} ml={4} colorScheme="blue">Center User</Button>
