@@ -60,7 +60,7 @@ const BookingForm = () => {
     const totalCost = baseCost + (distance * costPerKm) + tollCost;
 
     try {
-      console.log('Submitting form with data:', formData); // Added console.log to verify form data handling
+      console.log('Submitting form with data:', formData);
       const response = await fetch('https://valid-endpoint-for-booking.com/bookings', {
         method: 'POST',
         headers: {
@@ -76,6 +76,7 @@ const BookingForm = () => {
       const data = await response.json();
       navigate('/payment', { state: { formData, totalCost, serviceDetails: { serviceType, distance, pickupLocation, destinationLocation } } });
     } catch (error) {
+      console.error('Error submitting form:', error);
       toast({
         title: 'Error',
         description: 'There was a problem processing your booking. Please try again later.',
@@ -94,6 +95,7 @@ const BookingForm = () => {
         setFormData({ ...formData, destinationLocation: { lat: event.latLng.lat(), lng: event.latLng.lng() } });
       }
     } catch (error) {
+      console.error('Error handling map click:', error);
       toast({
         title: 'Error',
         description: 'There was a problem handling the map click. Please try again later.',
@@ -123,6 +125,7 @@ const BookingForm = () => {
           }
         },
         (error) => {
+          console.error('Error getting user location:', error);
           toast({
             title: 'Error',
             description: 'There was a problem getting your location. Please try again later.',
@@ -158,15 +161,8 @@ const BookingForm = () => {
               const distanceInKm = response.routes[0].legs[0].distance.value / 1000;
               setFormData((prevData) => ({ ...prevData, distance: distanceInKm }));
               fetchTollData(formData.pickupLocation, formData.destinationLocation);
-            } else if (status === 'REQUEST_DENIED') {
-              toast({
-                title: 'Error',
-                description: 'Directions request was denied. Please check your API key and permissions.',
-                status: 'error',
-                duration: 5000,
-                isClosable: true,
-              });
             } else {
+              console.error('Error calculating route:', status);
               toast({
                 title: 'Error',
                 description: 'There was a problem calculating the route. Please try again later.',
@@ -189,6 +185,7 @@ const BookingForm = () => {
       const tolls = data.tolls || 0;
       setTollCost(tolls);
     } catch (error) {
+      console.error('Error fetching toll data:', error);
       toast({
         title: 'Error',
         description: 'There was a problem fetching toll data. Please try again later.',
@@ -290,6 +287,7 @@ const BookingForm = () => {
               )}
               {calculateRoute()}
               {directions && <DirectionsRenderer directions={directions} onError={(error) => {
+                console.error('Error rendering directions:', error);
                 toast({
                   title: 'Error',
                   description: 'There was a problem rendering the directions. Please try again later.',
