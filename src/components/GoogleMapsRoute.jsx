@@ -61,6 +61,9 @@ const GoogleMapsRoute = ({ setDistance }) => {
           const price = calculatePrice(distanceToDestination);
           setTotalPrice(price);
           fetchTollData(pickup, destination);
+        } else if (status === window.google.maps.DirectionsStatus.REQUEST_DENIED) {
+          setError('Request denied. Please check your API key and permissions.');
+          console.error('Request denied:', status, result);
         } else {
           setError('Error calculating the route: ' + status);
           console.error('Error calculating the route:', status, result);
