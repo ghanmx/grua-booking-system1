@@ -18,11 +18,11 @@ const theme = extendTheme({ colors });
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <SupabaseProvider>
-      <SupabaseAuthProvider>
-        <ChakraProvider theme={theme}>
+      <ChakraProvider theme={theme}>
+        <SupabaseAuthProvider>
           <App />
-        </ChakraProvider>
-      </SupabaseAuthProvider>
+        </SupabaseAuthProvider>
+      </ChakraProvider>
     </SupabaseProvider>
   </React.StrictMode>
 );

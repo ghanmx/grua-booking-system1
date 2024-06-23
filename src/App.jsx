@@ -9,7 +9,6 @@ import Payment from "./pages/Payment.jsx"; // Import Payment component
 import { useSupabaseAuth } from './integrations/supabase/auth.jsx';
 import Login from "./pages/Login.jsx"; // Import Login component
 
-
 function App() {
   const { session, logout } = useSupabaseAuth();
 
@@ -24,8 +23,7 @@ function App() {
           <Route exact path="/booking" element={<BookingForm />} />
           <Route exact path="/confirmation" element={<Confirmation />} />
           <Route exact path="/payment" element={<Payment />} /> {/* Add Payment route */}
-          
-        <Route exact path="/login" element={<Login />} /> {/* Add Login route */}
+          <Route exact path="/login" element={<Login />} /> {/* Add Login route */}
         </Routes>
         {session && <button onClick={logout}>Logout</button>}
       </Router>
