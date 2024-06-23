@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast, Heading, Text } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast, Heading, Text, Checkbox, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton } from '@chakra-ui/react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { LoadScript, GoogleMap, Marker, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
 
@@ -8,7 +8,7 @@ const BookingForm = () => {
     serviceType: '',
     userName: '',
     phoneNumber: '',
-    vehicleMake: '',
+    carBrand: '',
     vehicleModel: '',
     vehicleSize: '',
     additionalInfo: '',
@@ -18,11 +18,16 @@ const BookingForm = () => {
     pickupLocation: null,
     destinationLocation: null,
     distance: 0,
+    streetLevel: '',
+    neutralPossible: '',
+    adaptations: '',
+    passengers: '',
   });
 
   const [directions, setDirections] = useState(null);
   const [tollCost, setTollCost] = useState(0);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   const toast = useToast();
   const navigate = useNavigate();
@@ -43,9 +48,9 @@ const BookingForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { serviceType, userName, phoneNumber, vehicleMake, vehicleModel, vehicleSize, pickupDate, pickupTime, origin, pickupLocation, destinationLocation, distance } = formData;
+    const { serviceType, userName, phoneNumber, carBrand, vehicleModel, vehicleSize, pickupDate, pickupTime, origin, pickupLocation, destinationLocation, distance, streetLevel, neutralPossible, adaptations, passengers } = formData;
 
-    if (!serviceType || !userName || !phoneNumber || !vehicleMake || !vehicleModel || !vehicleSize || !pickupDate || !pickupTime || !origin || !pickupLocation || !destinationLocation) {
+    if (!serviceType || !userName || !phoneNumber || !carBrand || !vehicleModel || !vehicleSize || !pickupDate || !pickupTime || !origin || !pickupLocation || !destinationLocation || !streetLevel || !neutralPossible || !adaptations || !passengers) {
       toast({
         title: 'Error',
         description: 'Please fill in all required fields.',
@@ -219,9 +224,9 @@ const BookingForm = () => {
             <FormLabel>Phone Number</FormLabel>
             <Input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
           </FormControl>
-          <FormControl id="vehicleMake" isRequired>
-            <FormLabel>Vehicle Make</FormLabel>
-            <Input type="text" name="vehicleMake" value={formData.vehicleMake} onChange={handleChange} />
+          <FormControl id="carBrand" isRequired>
+            <FormLabel>Car Brand</FormLabel>
+            <Input type="text" name="carBrand" value={formData.carBrand} onChange={handleChange} />
           </FormControl>
           <FormControl id="vehicleModel" isRequired>
             <FormLabel>Vehicle Model</FormLabel>
@@ -247,6 +252,37 @@ const BookingForm = () => {
           <FormControl id="pickupTime" isRequired>
             <FormLabel>Pickup Time</FormLabel>
             <Input type="time" name="pickupTime" value={formData.pickupTime} onChange={handleChange} />
+          </FormControl>
+          <FormControl id="streetLevel" isRequired>
+            <FormLabel>Is the vehicle at street level?</FormLabel>
+            <Select name="streetLevel" value={formData.streetLevel} onChange={handleChange}>
+              <option value="">Select</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </Select>
+          </FormControl>
+          <FormControl id="neutralPossible" isRequired>
+            <FormLabel>Is it possible to put neutral?</FormLabel>
+            <Select name="neutralPossible" value={formData.neutralPossible} onChange={handleChange}>
+              <option value="">Select</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </Select>
+          </FormControl>
+          <FormControl id="adaptations" isRequired>
+            <FormLabel>Does the vehicle have adaptations that increase its length or width?</FormLabel>
+            <Select name="adaptations" value={formData.adaptations} onChange={handleChange}>
+              <option value="">Select</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </Select>
+          </FormControl>
+          <FormControl id="passengers" isRequired>
+            <FormLabel>Number of passengers</FormLabel>
+            <Input type="number" name="passengers" value={formData.passengers} onChange={handleChange} />
+          </FormControl>
+          <FormControl id="terms" isRequired>
+            <Checkbox onChange={() => setIsTermsOpen(true)}>I accept terms and conditions</Checkbox>
           </FormControl>
           <Button colorScheme="blue" type="submit">Book Now</Button>
         </form>
@@ -313,6 +349,17 @@ const BookingForm = () => {
         <Button onClick={handleReset} mt={4}>Reset</Button>
         <Button onClick={centerPickupMarker} mt={4} ml={4} colorScheme="blue">Center User</Button>
       </VStack>
+      <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Terms and Conditions</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>The services may have a higher cost which must be paid when arriving at the destination, otherwise the vehicle will not leave the platform and will be taken to the corralon.</Text>
+            <Text>Remember that only two passengers can go in the tow truck, if you require a taxi we can provide it.</Text>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
