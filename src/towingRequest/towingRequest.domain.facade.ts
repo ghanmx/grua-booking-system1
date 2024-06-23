@@ -5,21 +5,21 @@ import { TowingRequest } from './towingRequest.entity';
 export class TowingRequestDomainFacade {
   private towingRequests: TowingRequest[] = [];
 
-  public findMany(): TowingRequest[] {
+  public findAll(): TowingRequest[] {
     return this.towingRequests;
   }
 
-  public create(createDto: TowingRequest): TowingRequest {
+  public createOne(createDto: TowingRequest): TowingRequest {
     const newRequest = { ...createDto, id: Date.now().toString() };
     this.towingRequests.push(newRequest);
     return newRequest;
   }
 
-  public findOne(id: string): TowingRequest | undefined {
+  public findById(id: string): TowingRequest | undefined {
     return this.towingRequests.find(request => request.id === id);
   }
 
-  public update(id: string, updateDto: Partial<TowingRequest>): TowingRequest | undefined {
+  public updateOne(id: string, updateDto: Partial<TowingRequest>): TowingRequest | undefined {
     const requestIndex = this.towingRequests.findIndex(request => request.id === id);
     if (requestIndex > -1) {
       this.towingRequests[requestIndex] = { ...this.towingRequests[requestIndex], ...updateDto };
@@ -28,7 +28,7 @@ export class TowingRequestDomainFacade {
     return undefined;
   }
 
-  public delete(id: string): boolean {
+  public deleteOne(id: string): boolean {
     const requestIndex = this.towingRequests.findIndex(request => request.id === id);
     if (requestIndex > -1) {
       this.towingRequests.splice(requestIndex, 1);
@@ -37,7 +37,7 @@ export class TowingRequestDomainFacade {
     return false;
   }
 
-  public findByUser(userId: string): TowingRequest[] {
+  public findByUserId(userId: string): TowingRequest[] {
     return this.towingRequests.filter(request => request.userId === userId);
   }
 }
