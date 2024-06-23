@@ -1,7 +1,7 @@
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Box, Button, FormControl, FormLabel, Heading, Input, Text } from '@chakra-ui/react';
 import { GoogleMap, LoadScript, Marker, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
-import PropTypes from 'prop-types';
-import React, { useState, useEffect } from 'react';
 
 const GoogleMapsRoute = ({ setDistance }) => {
   const [pickup, setPickup] = useState(null);
@@ -11,10 +11,12 @@ const GoogleMapsRoute = ({ setDistance }) => {
   const [directions, setDirections] = useState(null);
   const [map, setMap] = useState(null);
   const [tollCost, setTollCost] = useState(0);
-  const origin = { lng: -100.0095504, lat: 26.509672 }; // Updated starting point
+
+  const start = { lng: -100.0095504, lat: 26.509672 }; // Punto de inicio fijo
   const pricePerKm = 19;
 
   useEffect(() => {
+    // Obtener la ubicación actual del usuario
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -48,22 +50,22 @@ const GoogleMapsRoute = ({ setDistance }) => {
     const directionsService = new window.google.maps.DirectionsService();
     directionsService.route(
       {
-        origin: pickup,
+        origin: start,
         destination: destination,
         travelMode: window.google.maps.TravelMode.DRIVING,
-        waypoints: [{ location: pickup, stopover: true }],
+        waypoints: [
+          { location: pickup, stopover: true }
+        ],
       },
       (result, status) => {
         if (status === window.google.maps.DirectionsStatus.OK) {
           setDirections(result);
-          const distanceToDestination = result.routes[0].legs[0].distance.value / 1000; // Distance in kilometers
+          const legs = result.routes[0].legs;
+          const distanceToDestination = legs.reduce((total, leg) => total + leg.distance.value, 0) / 1000; // Distancia en kilómetros
           setDistance(distanceToDestination);
           const price = calculatePrice(distanceToDestination);
           setTotalPrice(price);
-          fetchTollData(pickup, destination);
-        } else if (status === window.google.maps.DirectionsStatus.REQUEST_DENIED) {
-          setError('Request denied. Please check your API key and permissions.');
-          console.error('Request denied:', status, result);
+          fetchTollData(start, destination);
         } else {
           setError('Error calculating the route: ' + status);
           console.error('Error calculating the route:', status, result);
@@ -114,9 +116,9 @@ const GoogleMapsRoute = ({ setDistance }) => {
       </Text>
       <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY} libraries={['places', 'geometry']}>
         <GoogleMap
-          center={{ lat: origin.lat, lng: origin.lng }}
+          center={start}
           zoom={7}
-          maxZoom={20} // Allow more zoom
+          maxZoom={20} // Permitir más zoom
           mapContainerStyle={{ height: '400px', width: '100%', marginTop: '20px' }}
           onLoad={(map) => setMap(map)}
           onClick={(event) => {
@@ -137,10 +139,12 @@ const GoogleMapsRoute = ({ setDistance }) => {
           {pickup && destination && (
             <DirectionsService
               options={{
-                origin: pickup,
+                origin: start,
                 destination: destination,
                 travelMode: window.google.maps.TravelMode.DRIVING,
-                waypoints: [{ location: pickup, stopover: true }],
+                waypoints: [
+                  { location: pickup, stopover: true }
+                ],
               }}
               callback={(response, status) => {
                 if (status === window.google.maps.DirectionsStatus.OK) {
