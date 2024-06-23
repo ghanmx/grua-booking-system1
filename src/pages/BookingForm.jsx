@@ -73,7 +73,7 @@ const BookingForm = () => {
 
     try {
       console.log('Submitting form with data:', formData);
-      const response = await fetch('https://valid-endpoint-for-booking.com/bookings', {
+      const response = await fetch('https://placeholder-url-for-testing.com/bookings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
