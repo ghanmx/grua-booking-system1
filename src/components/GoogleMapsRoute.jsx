@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Button, FormControl, FormLabel, Heading, Input, Text } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, Heading, Input, Text, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton } from '@chakra-ui/react';
 import { GoogleMap, LoadScript, Marker, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
 
 const GoogleMapsRoute = ({ setDistance }) => {
@@ -11,12 +11,12 @@ const GoogleMapsRoute = ({ setDistance }) => {
   const [directions, setDirections] = useState(null);
   const [map, setMap] = useState(null);
   const [tollCost, setTollCost] = useState(0);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
   const start = { lng: -100.0095504, lat: 26.509672 }; // Punto de inicio fijo
   const pricePerKm = 19;
 
   useEffect(() => {
-    // Obtener la ubicación actual del usuario
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -66,6 +66,7 @@ const GoogleMapsRoute = ({ setDistance }) => {
           const price = calculatePrice(distanceToDestination);
           setTotalPrice(price);
           fetchTollData(start, destination);
+          setIsConfirmationOpen(true);
         } else {
           setError('Error calculating the route: ' + status);
           console.error('Error calculating the route:', status, result);
@@ -92,6 +93,13 @@ const GoogleMapsRoute = ({ setDistance }) => {
       console.error('Error fetching toll data:', error);
       setError('Error fetching toll data: ' + error.message);
     }
+  };
+
+  const handleBooking = () => {
+    // Implement payment gateway integration here
+    // Handle payment transaction and error scenarios
+    // For now, just close the confirmation modal
+    setIsConfirmationOpen(false);
   };
 
   return (
@@ -165,6 +173,25 @@ const GoogleMapsRoute = ({ setDistance }) => {
           )}
         </GoogleMap>
       </LoadScript>
+
+      <Modal isOpen={isConfirmationOpen} onClose={() => setIsConfirmationOpen(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Confirmar Ruta</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>Recogida: {pickup ? `${pickup.lat}, ${pickup.lng}` : ''}</Text>
+            <Text>Destino: {destination ? `${destination.lat}, ${destination.lng}` : ''}</Text>
+            <Text>Precio total estimado: ${totalPrice.toFixed(2)}</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={handleBooking}>
+              Confirmar y Reservar
+            </Button>
+            <Button variant="ghost" onClick={() => setIsConfirmationOpen(false)}>Cancelar</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
