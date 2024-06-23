@@ -3,7 +3,7 @@ import { EventService } from '../event/event.service';
 import { TowingRequestDomainFacade } from '../towingRequest/towingRequest.domain.facade';
 import { AuthenticationDomainFacade } from '../authentication/authentication.domain.facade';
 import { TowingRequestCreateDto, TowingRequestUpdateDto } from './towingRequest.dto';
-import { TowingRequestApplicationEvent } from './towingRequest.application.event';
+import { TowingRequestApplicationEvent } from './towingRequest.application.event;
 
 @Controller('/v1/towingRequests')
 export class TowingRequestController {

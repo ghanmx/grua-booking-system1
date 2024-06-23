@@ -7,6 +7,7 @@ import { TowingRequestByUserController } from './towingRequestByUser.controller'
 import { EventService } from '../event/event.service';
 import { TowingRequestDomainFacade } from '../towingRequest/towingRequest.domain.facade';
 import { AuthenticationDomainFacade } from '../authentication/authentication.domain.facade';
+import { NewService } from '../new/new.service';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AuthenticationDomainFacade } from '../authentication/authentication.dom
       provide: 'AuthenticationDomainFacade',
       useClass: AuthenticationDomainFacade,
     },
+    NewService,
   ],
 })
 export class TowingRequestApplicationModule {}

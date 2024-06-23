@@ -1,3 +1,6 @@
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
 export class AuthenticationDomainFacade {
   private users: Map<string, string> = new Map();
 
