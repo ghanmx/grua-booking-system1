@@ -16,6 +16,7 @@ const GoogleMapsRoute = ({ setDistance }) => {
   const start = { lng: -100.0095504, lat: 26.509672 }; // Punto de inicio fijo
   const pricePerKm = 19;
 
+  // Efecto para obtener la ubicación actual del usuario al cargar el mapa
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -40,6 +41,7 @@ const GoogleMapsRoute = ({ setDistance }) => {
     }
   }, [map]);
 
+  // Función para calcular la ruta desde start hasta destination a través de pickup
   const calculateRoute = () => {
     setError(null);
     if (!pickup || !destination) {
@@ -75,10 +77,12 @@ const GoogleMapsRoute = ({ setDistance }) => {
     );
   };
 
+  // Función para calcular el precio total estimado
   const calculatePrice = (distance) => {
     return distance * pricePerKm + 558 + tollCost; // Tarifa base de $558 más $19 por kilómetro más el costo de las casetas
   };
 
+  // Función para obtener el costo de las casetas utilizando la API de TollGuru
   const fetchTollData = async (origin, destination) => {
     try {
       const response = await fetch(`https://api.tollguru.com/v1/calc/route?source=${origin.lat},${origin.lng}&destination=${destination.lat},${destination.lng}`, {
@@ -95,10 +99,11 @@ const GoogleMapsRoute = ({ setDistance }) => {
     }
   };
 
+  // Función para manejar la confirmación y reserva
   const handleBooking = () => {
-    // Implement payment gateway integration here
-    // Handle payment transaction and error scenarios
-    // For now, just close the confirmation modal
+    // Implementar integración de pasarela de pago aquí
+    // Manejar transacción de pago y escenarios de error
+    // Por ahora, solo cerrar el modal de confirmación
     setIsConfirmationOpen(false);
   };
 
@@ -174,6 +179,7 @@ const GoogleMapsRoute = ({ setDistance }) => {
         </GoogleMap>
       </LoadScript>
 
+      {/* Modal de confirmación */}
       <Modal isOpen={isConfirmationOpen} onClose={() => setIsConfirmationOpen(false)}>
         <ModalOverlay />
         <ModalContent>
