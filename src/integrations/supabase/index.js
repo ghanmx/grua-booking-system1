@@ -28,38 +28,10 @@ const fromSupabase = async (query) => {
 
 */
 
-// Example hook for models
-
-export const useFoo = ()=> useQuery({
-    queryKey: ['foos'],
-    queryFn: fromSupabase(supabase.from('foos')),
-})
-export const useAddFoo = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (newFoo)=> fromSupabase(supabase.from('foos').insert([{ title: newFoo.title }])),
-        onSuccess: ()=> {
-            queryClient.invalidateQueries('foos');
-        },
-    });
-};
-
-export const useBar = ()=> useQuery({
-    queryKey: ['bars'],
-    queryFn: fromSupabase(supabase.from('bars')),
-})
-export const useAddBar = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (newBar)=> fromSupabase(supabase.from('bars').insert([{ foo_id: newBar.foo_id }])),
-        onSuccess: ()=> {
-            queryClient.invalidateQueries('bars');
-        },
-    });
-};
+// Hooks for TOW table
 
 export const useTOWs = () => useQuery({
-    queryKey: ['TOWs'],
+    queryKey: ['TOW'],
     queryFn: () => fromSupabase(supabase.from('TOW').select('*')),
 });
 
@@ -73,7 +45,7 @@ export const useAddTOW = () => {
     return useMutation({
         mutationFn: (newTOW) => fromSupabase(supabase.from('TOW').insert([newTOW])),
         onSuccess: () => {
-            queryClient.invalidateQueries('TOWs');
+            queryClient.invalidateQueries('TOW');
         },
     });
 };
@@ -83,8 +55,7 @@ export const useUpdateTOW = () => {
     return useMutation({
         mutationFn: (updatedTOW) => fromSupabase(supabase.from('TOW').update(updatedTOW).eq('id', updatedTOW.id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('TOWs');
-            queryClient.invalidateQueries(['TOW', updatedTOW.id]);
+            queryClient.invalidateQueries('TOW');
         },
     });
 };
@@ -94,7 +65,7 @@ export const useDeleteTOW = () => {
     return useMutation({
         mutationFn: (id) => fromSupabase(supabase.from('TOW').delete().eq('id', id)),
         onSuccess: () => {
-            queryClient.invalidateQueries('TOWs');
+            queryClient.invalidateQueries('TOW');
         },
     });
 };
