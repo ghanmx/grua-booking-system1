@@ -2,6 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast, Heading, Text, Checkbox, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton } from '@chakra-ui/react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { LoadScript, GoogleMap, Marker, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+
+const stripePromise = loadStripe('your-publishable-key-here');
 
 const BookingForm = () => {
   const [formData, setFormData] = useState({
@@ -33,6 +37,8 @@ const BookingForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const mapRef = useRef(null);
+  const stripe = useStripe();
+  const elements = useElements();
 
   useEffect(() => {
     if (location.state) {
@@ -80,7 +86,27 @@ const BookingForm = () => {
       }
 
       const data = await response.json();
-      navigate('/payment', { state: { formData, totalCost, serviceDetails: { serviceType, distance, pickupLocation, destinationLocation } } });
+      const cardElement = elements.getElement(CardElement);
+
+      const paymentIntent = await stripe.createPaymentIntent({
+        amount: totalCost * 100, // Amount in cents
+        currency: 'usd',
+      });
+
+      const paymentResult = await stripe.confirmCardPayment(paymentIntent.client_secret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: {
+            name: userName,
+          },
+        },
+      });
+
+      if (paymentResult.error) {
+        throw new Error(paymentResult.error.message);
+      }
+
+      navigate('/confirmation', { state: { formData, totalCost, serviceDetails: { serviceType, distance, pickupLocation, destinationLocation } } });
     } catch (error) {
       console.error('Error submitting form:', error);
       toast({
@@ -284,6 +310,7 @@ const BookingForm = () => {
           <FormControl id="terms" isRequired>
             <Checkbox onChange={() => setIsTermsOpen(true)}>I accept terms and conditions</Checkbox>
           </FormControl>
+          <CardElement />
           <Button colorScheme="blue" type="submit">Book Now</Button>
         </form>
         <LoadScript
@@ -364,4 +391,10 @@ const BookingForm = () => {
   );
 };
 
-export default BookingForm;
+const BookingFormWrapper = () => (
+  <Elements stripe={stripePromise}>
+    <BookingForm />
+  </Elements>
+);
+
+export default BookingFormWrapper;
