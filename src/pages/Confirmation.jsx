@@ -15,6 +15,7 @@ const Confirmation = () => {
             <Text>User Name: {formData.userName}</Text>
             <Text>Phone Number: {formData.phoneNumber}</Text>
             <Text>Vehicle Make: {formData.vehicleMake}</Text>
+            <Text>Vehicle Make: {formData.vehicleMake}</Text>
             <Text>Vehicle Model: {formData.vehicleModel}</Text>
             <Text>Vehicle Size: {formData.vehicleSize}</Text>
             <Text>Additional Information: {formData.additionalInfo}</Text>

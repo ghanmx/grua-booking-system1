@@ -6,7 +6,7 @@ import { LoadScript, GoogleMap, Marker, DirectionsService, DirectionsRenderer } 
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-const stripePromise = loadStripe('your-publishable-key-here');
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
 const BookingForm = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +14,7 @@ const BookingForm = () => {
     userName: '',
     phoneNumber: '',
     carBrand: '',
+    vehicleMake: '',
     vehicleModel: '',
     vehicleSize: '',
     additionalInfo: '',
@@ -54,28 +55,33 @@ const BookingForm = () => {
   };
 
   const createBooking = async (bookingData) => {
-    const response = await fetch(`${supabaseUrl}/functions/v1/create_booking`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${supabaseKey}`
-      },
-      body: JSON.stringify(bookingData)
-    });
+    try {
+      const response = await fetch(`${supabaseUrl}/functions/v1/create_booking`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseKey}`
+        },
+        body: JSON.stringify(bookingData)
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error);
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      throw error;
     }
-
-    return response.json();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { serviceType, userName, phoneNumber, carBrand, vehicleModel, vehicleSize, pickupDate, pickupTime, origin, pickupLocation, destinationLocation, distance, streetLevel, neutralPossible, adaptations, passengers } = formData;
+    const { serviceType, userName, phoneNumber, carBrand, vehicleMake, vehicleModel, vehicleSize, pickupDate, pickupTime, origin, pickupLocation, destinationLocation, distance, streetLevel, neutralPossible, adaptations, passengers } = formData;
 
-    if (!serviceType || !userName || !phoneNumber || !carBrand || !vehicleModel || !vehicleSize || !pickupDate || !pickupTime || !origin || !pickupLocation || !destinationLocation || !streetLevel || !neutralPossible || !adaptations || !passengers) {
+    if (!serviceType || !userName || !phoneNumber || !carBrand || !vehicleMake || !vehicleModel || !vehicleSize || !pickupDate || !pickupTime || !origin || !pickupLocation || !destinationLocation || !streetLevel || !neutralPossible || !adaptations || !passengers) {
       toast({
         title: 'Error',
         description: 'Please fill in all required fields.',
@@ -218,7 +224,11 @@ const BookingForm = () => {
 
   const fetchTollData = async (origin, destination) => {
     try {
-      const response = await fetch(`https://api.tollguru.com/v1/calc/route?source=${origin.lat},${origin.lng}&destination=${destination.lat},${destination.lng}`);
+      const response = await fetch(`https://api.tollguru.com/v1/calc/route?source=${origin.lat},${origin.lng}&destination=${destination.lat},${destination.lng}`, {
+        headers: {
+          'x-api-key': process.env.REACT_APP_TOLLGURU_API_KEY
+        }
+      });
       const data = await response.json();
       const tolls = data.tolls || 0;
       setTollCost(tolls);
@@ -259,6 +269,10 @@ const BookingForm = () => {
           <FormControl id="carBrand" isRequired>
             <FormLabel>Car Brand</FormLabel>
             <Input type="text" name="carBrand" value={formData.carBrand} onChange={handleChange} />
+          </FormControl>
+          <FormControl id="vehicleMake" isRequired>
+            <FormLabel>Vehicle Make</FormLabel>
+            <Input type="text" name="vehicleMake" value={formData.vehicleMake} onChange={handleChange} />
           </FormControl>
           <FormControl id="vehicleModel" isRequired>
             <FormLabel>Vehicle Model</FormLabel>
