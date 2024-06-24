@@ -63,6 +63,12 @@ const GoogleMapsRoute = ({ setDistance }) => {
     console.log('Directions changed:', directions);
   }, [directions]);
 
+  useEffect(() => {
+    if (error) {
+      console.error('An unexpected error occurred:', error);
+    }
+  }, [error]);
+
   // Función para calcular la ruta desde start hasta destination a través de pickup
   const calculateRoute = () => {
     setError(null);
@@ -92,7 +98,7 @@ const GoogleMapsRoute = ({ setDistance }) => {
           fetchTollData(start, destination);
           setIsConfirmationOpen(true);
         } else {
-          setError('Error calculating the route: ' + status);
+          setError('Error calculating the route: ' + status + ' - ' + (result || 'No result'));
           console.error('Error calculating the route:', status, result);
         }
       }
