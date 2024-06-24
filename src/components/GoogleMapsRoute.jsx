@@ -140,11 +140,11 @@ const GoogleMapsRoute = ({ setDistance }) => {
       {error && <Text color="red.500">Error: {error}</Text>}
       <FormControl mb={4}>
         <FormLabel htmlFor="pickup">Punto de recogida:</FormLabel>
-        <Input type="text" id="pickup" value={pickup ? `${pickup.lat}, ${pickup.lng}` : ''} readOnly />
+        <Input type="text" id="pickup" value={pickup ? `${pickup.lat}, ${pickup.lng}` : ''} readOnly autoComplete="off" />
       </FormControl>
       <FormControl mb={4}>
         <FormLabel htmlFor="destination">Destino:</FormLabel>
-        <Input type="text" id="destination" value={destination ? `${destination.lat}, ${destination.lng}` : ''} readOnly />
+        <Input type="text" id="destination" value={destination ? `${destination.lat}, ${destination.lng}` : ''} readOnly autoComplete="off" />
       </FormControl>
       <Button onClick={calculateRoute} colorScheme="blue" disabled={!pickup || !destination}>
         Calcular Ruta
@@ -152,7 +152,7 @@ const GoogleMapsRoute = ({ setDistance }) => {
       <Text mt={4} fontSize="xl">
         Precio total: ${totalPrice.toFixed(2)}
       </Text>
-      <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY} libraries={['places', 'geometry']}>
+      <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY} libraries={['places', 'geometry']} loadingElement={<div>Loading...</div>} async defer>
         <GoogleMap
           center={start}
           zoom={7}
