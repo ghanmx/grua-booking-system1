@@ -41,6 +41,18 @@ const GoogleMapsRoute = ({ setDistance }) => {
     }
   }, [map]);
 
+  useEffect(() => {
+    console.log('Pickup location changed:', pickup);
+  }, [pickup]);
+
+  useEffect(() => {
+    console.log('Destination location changed:', destination);
+  }, [destination]);
+
+  useEffect(() => {
+    console.log('Directions changed:', directions);
+  }, [directions]);
+
   // Función para calcular la ruta desde start hasta destination a través de pickup
   const calculateRoute = () => {
     setError(null);
@@ -107,6 +119,19 @@ const GoogleMapsRoute = ({ setDistance }) => {
     setIsConfirmationOpen(false);
   };
 
+  const handleMapClick = (event) => {
+    try {
+      if (!pickup) {
+        setPickup(event.latLng.toJSON());
+      } else if (!destination) {
+        setDestination(event.latLng.toJSON());
+      }
+    } catch (err) {
+      setError('Error setting location: ' + err.message);
+      console.error('Error setting location:', err);
+    }
+  };
+
   return (
     <Box>
       <Heading as="h1" mb={4}>
@@ -134,18 +159,7 @@ const GoogleMapsRoute = ({ setDistance }) => {
           maxZoom={20} // Permitir más zoom
           mapContainerStyle={{ height: '400px', width: '100%', marginTop: '20px' }}
           onLoad={(map) => setMap(map)}
-          onClick={(event) => {
-            try {
-              if (!pickup) {
-                setPickup(event.latLng.toJSON());
-              } else if (!destination) {
-                setDestination(event.latLng.toJSON());
-              }
-            } catch (err) {
-              setError('Error setting location: ' + err.message);
-              console.error('Error setting location:', err);
-            }
-          }}
+          onClick={handleMapClick}
         >
           {pickup && <Marker position={pickup} draggable={true} onDragEnd={(e) => setPickup(e.latLng.toJSON())} />}
           {destination && <Marker position={destination} draggable={true} onDragEnd={(e) => setDestination(e.latLng.toJSON())} />}
