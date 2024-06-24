@@ -3,7 +3,11 @@ import { EventService } from '../event/event.service';
 import { TowingRequestDomainFacade } from '../towingRequest/towingRequest.domain.facade';
 import { AuthenticationDomainFacade } from '../authentication/authentication.domain.facade';
 import { TowingRequestCreateDto, TowingRequestUpdateDto } from './towingRequest.dto';
-import { TowingRequestApplicationEvent } from './towingRequest.application.event;
+import { TowingRequestApplicationEvent } from './towingRequest.application.event';
+import { supabaseUrl, supabaseKey } from '../../config/supabase.config';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 @Controller('/v1/towingRequests')
 export class TowingRequestController {
@@ -23,6 +27,19 @@ export class TowingRequestController {
     const towingRequest = await this.towingRequestDomainFacade.create(createDto);
     this.eventService.emit(new TowingRequestApplicationEvent.TowingRequestCreated(towingRequest.id, towingRequest.userId));
     return towingRequest;
+  }
+
+  @Post('/create')
+  async createTowingRequest(@Body() createDto: TowingRequestCreateDto) {
+    const { data, error } = await supabase
+      .from('TOW')
+      .insert([createDto]);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
   }
 
   @Get(':id')

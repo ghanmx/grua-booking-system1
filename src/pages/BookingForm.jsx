@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast, Heading, Text, Checkbox, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton } from '@chakra-ui/react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { supabaseUrl, supabaseKey } from '../config/supabase.config';
 import { LoadScript, GoogleMap, Marker, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -52,6 +53,24 @@ const BookingForm = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const createBooking = async (bookingData) => {
+    const response = await fetch(`${supabaseUrl}/functions/v1/create_booking`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseKey}`
+      },
+      body: JSON.stringify(bookingData)
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error);
+    }
+
+    return response.json();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { serviceType, userName, phoneNumber, carBrand, vehicleModel, vehicleSize, pickupDate, pickupTime, origin, pickupLocation, destinationLocation, distance, streetLevel, neutralPossible, adaptations, passengers } = formData;
@@ -73,38 +92,25 @@ const BookingForm = () => {
 
     try {
       console.log('Submitting form with data:', formData);
-      const response = await fetch('https://placeholder-url-for-testing.com/bookings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...formData, totalCost }),
-      });
+      const bookingData = {
+        service_type_id: 1,
+        user_id: 1,
+        status_id: 1,
+        pickup_location_id: 1,
+        destination_location_id: 2,
+        distance,
+        price_hourly: 20.0,
+        pickup_date: pickupDate,
+        pickup_time: pickupTime,
+        additional_info: formData.additionalInfo,
+        street_level: formData.streetLevel === 'Yes',
+        neutral_possible: formData.neutralPossible === 'Yes',
+        adaptations: formData.adaptations === 'Yes',
+        passengers: parseInt(formData.passengers, 10)
+      };
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const data = await response.json();
-      const cardElement = elements.getElement(CardElement);
-
-      const paymentIntent = await stripe.createPaymentIntent({
-        amount: totalCost * 100, // Amount in cents
-        currency: 'usd',
-      });
-
-      const paymentResult = await stripe.confirmCardPayment(paymentIntent.client_secret, {
-        payment_method: {
-          card: cardElement,
-          billing_details: {
-            name: userName,
-          },
-        },
-      });
-
-      if (paymentResult.error) {
-        throw new Error(paymentResult.error.message);
-      }
+      const data = await createBooking(bookingData);
+      console.log('Booking created:', data);
 
       navigate('/confirmation', { state: { formData, totalCost, serviceDetails: { serviceType, distance, pickupLocation, destinationLocation } } });
     } catch (error) {
