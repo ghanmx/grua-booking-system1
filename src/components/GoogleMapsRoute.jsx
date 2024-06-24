@@ -16,6 +16,16 @@ const GoogleMapsRoute = ({ setDistance }) => {
   const start = { lng: -100.0095504, lat: 26.509672 }; // Punto de inicio fijo
   const pricePerKm = 19;
 
+  const pickupIcon = {
+    url: 'http://labs.google.com/ridefinder/images/mm_20_blue.png',
+    scaledSize: new window.google.maps.Size(40, 40), // Size of the icon
+  };
+
+  const destinationIcon = {
+    url: 'http://labs.google.com/ridefinder/images/mm_20_yellow.png',
+    scaledSize: new window.google.maps.Size(40, 40), // Size of the icon
+  };
+
   // Efecto para obtener la ubicación actual del usuario al cargar el mapa
   useEffect(() => {
     if (navigator.geolocation) {
@@ -161,8 +171,22 @@ const GoogleMapsRoute = ({ setDistance }) => {
           onLoad={(map) => setMap(map)}
           onClick={handleMapClick}
         >
-          {pickup && <Marker position={pickup} draggable={true} onDragEnd={(e) => setPickup(e.latLng.toJSON())} />}
-          {destination && <Marker position={destination} draggable={true} onDragEnd={(e) => setDestination(e.latLng.toJSON())} />}
+          {pickup && (
+            <Marker
+              position={pickup}
+              draggable={true}
+              icon={pickupIcon}
+              onDragEnd={(e) => setPickup(e.latLng.toJSON())}
+            />
+          )}
+          {destination && (
+            <Marker
+              position={destination}
+              draggable={true}
+              icon={destinationIcon}
+              onDragEnd={(e) => setDestination(e.latLng.toJSON())}
+            />
+          )}
           {pickup && destination && (
             <DirectionsService
               options={{
