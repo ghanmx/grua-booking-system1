@@ -159,6 +159,9 @@ const GoogleMapsRoute = ({ setDistance }) => {
       <Button onClick={calculateRoute} colorScheme="blue" disabled={!pickup || !destination}>
         Calcular Ruta
       </Button>
+      <Button variant="secondary" onClick={() => calculateRoute()}>
+        Calcular Ruta
+      </Button>
       <Text mt={4} fontSize="xl">
         Precio total: ${totalPrice.toFixed(2)}
       </Text>
