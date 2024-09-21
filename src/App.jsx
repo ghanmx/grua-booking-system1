@@ -1,43 +1,44 @@
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import Index from "./pages/Index.jsx";
-import About from "./pages/About.jsx";
-import Contact from "./pages/Contact.jsx";
-import Navbar from "./components/Navbar.jsx";
-import BookingForm from "./pages/BookingForm.jsx";
-import Confirmation from "./pages/Confirmation.jsx";
-import Payment from "./pages/Payment.jsx";
-import Login from "./pages/Login.jsx";
-import ProtectedRoute from "./components/ProtectedRoute.jsx";
-import { useSupabaseAuth } from './integrations/supabase/auth.jsx';
-import { Box, Button, ChakraProvider, Text } from "@chakra-ui/react";
+import React from "react";
+import { ChakraProvider, Box, VStack, Heading, Text } from "@chakra-ui/react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Index from "./pages/Index";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import BookingForm from "./pages/BookingForm";
+import Confirmation from "./pages/Confirmation";
+import Payment from "./pages/Payment";
+import Login from "./pages/Login";
+import { SupabaseProvider } from './integrations/supabase';
+import { SupabaseAuthProvider } from './integrations/supabase/auth';
 
 function App() {
-  const { session, logout } = useSupabaseAuth();
-
   return (
     <ChakraProvider>
-      <Router>
-        <Box minHeight="100vh" display="flex" flexDirection="column" bg="gray.100">
-          <Navbar />
-          <Box flex="1" p={4}>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-              <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
-              <Route path="/contact" element={<ProtectedRoute><Contact /></ProtectedRoute>} />
-              <Route path="/booking" element={<ProtectedRoute><BookingForm /></ProtectedRoute>} />
-              <Route path="/confirmation" element={<ProtectedRoute><Confirmation /></ProtectedRoute>} />
-              <Route path="/payment" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
-            </Routes>
-          </Box>
-          {session && (
-            <Box textAlign="center" py={4} bg="gray.200">
-              <Text mb={2}>Logged in as: {session.user.email}</Text>
-              <Button onClick={logout} colorScheme="red">Logout</Button>
+      <SupabaseProvider>
+        <SupabaseAuthProvider>
+          <Router>
+            <Box minHeight="100vh" bg="gray.50">
+              <Navbar />
+              <Box p={4}>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/booking" element={<BookingForm />} />
+                  <Route path="/confirmation" element={<Confirmation />} />
+                  <Route path="/payment" element={<Payment />} />
+                  <Route path="/login" element={<Login />} />
+                </Routes>
+              </Box>
+              <VStack p={4} bg="gray.100">
+                <Heading size="md">Tow Service App</Heading>
+                <Text>© 2023 All rights reserved</Text>
+              </VStack>
             </Box>
-          )}
-        </Box>
-      </Router>
+          </Router>
+        </SupabaseAuthProvider>
+      </SupabaseProvider>
     </ChakraProvider>
   );
 }
