@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSupabaseAuth } from '../integrations/supabase/auth.jsx';
 import { Box, Container, Heading, VStack, Text, Button, Input, FormControl, FormLabel, useToast, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react';
 import { supabase } from '../integrations/supabase/index.js';
 
@@ -8,7 +7,6 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const { session } = useSupabaseAuth();
     const navigate = useNavigate();
     const toast = useToast();
 
@@ -16,7 +14,7 @@ const Login = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
             toast({
                 title: "Login successful",
@@ -43,7 +41,13 @@ const Login = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const { error } = await supabase.auth.signUp({ email, password });
+            const { data, error } = await supabase.auth.signUp({ 
+                email, 
+                password,
+                options: {
+                    emailRedirectTo: `${window.location.origin}/auth/callback`,
+                }
+            });
             if (error) throw error;
             toast({
                 title: "Sign up successful",
@@ -65,11 +69,6 @@ const Login = () => {
             setLoading(false);
         }
     };
-
-    if (session) {
-        navigate('/');
-        return null;
-    }
 
     return (
         <Box bg="gray.50" minHeight="calc(100vh - 60px)" py={10}>
