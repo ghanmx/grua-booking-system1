@@ -1,17 +1,15 @@
-import { useState, useEffect, useRef } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast, Heading, Text, Checkbox, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton } from '@chakra-ui/react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { supabaseUrl, supabaseKey } from '../config/supabase.config';
-import { LoadScript, GoogleMap, Marker, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+import { useState } from 'react';
+import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast, Heading, Checkbox, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../integrations/supabase';
+import MapComponent from '../components/MapComponent';
+import PaymentComponent from '../components/PaymentComponent';
 
 const BookingForm = () => {
   const [formData, setFormData] = useState({
     serviceType: '',
     userName: '',
+    age: '',
     phoneNumber: '',
     carBrand: '',
     vehicleMake: '',
@@ -20,110 +18,33 @@ const BookingForm = () => {
     additionalInfo: '',
     pickupDate: '',
     pickupTime: '',
-    origin: { lat: 26.509672, lng: -100.0095504 },
-    pickupLocation: null,
-    destinationLocation: null,
-    distance: 0,
     streetLevel: '',
     neutralPossible: '',
     adaptations: '',
     passengers: '',
   });
 
-  const [directions, setDirections] = useState(null);
-  const [tollCost, setTollCost] = useState(0);
-  const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
-
   const toast = useToast();
   const navigate = useNavigate();
-  const location = useLocation();
-  const mapRef = useRef(null);
-  const stripe = useStripe();
-  const elements = useElements();
-
-  useEffect(() => {
-    if (location.state) {
-      const { origin, pickupLocation, destinationLocation } = location.state;
-      setFormData((prevData) => ({ ...prevData, origin, pickupLocation, destinationLocation }));
-    }
-  }, [location.state]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const createBooking = async (bookingData) => {
-    try {
-      const response = await fetch(`${supabaseUrl}/functions/v1/create_booking`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseKey}`
-        },
-        body: JSON.stringify(bookingData)
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error);
-      }
-
-      return response.json();
-    } catch (error) {
-      console.error('Error creating booking:', error);
-      throw error;
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { serviceType, userName, phoneNumber, carBrand, vehicleMake, vehicleModel, vehicleSize, pickupDate, pickupTime, origin, pickupLocation, destinationLocation, distance, streetLevel, neutralPossible, adaptations, passengers } = formData;
-
-    if (!serviceType || !userName || !phoneNumber || !carBrand || !vehicleMake || !vehicleModel || !vehicleSize || !pickupDate || !pickupTime || !origin || !pickupLocation || !destinationLocation || !streetLevel || !neutralPossible || !adaptations || !passengers) {
-      toast({
-        title: 'Error',
-        description: 'Please fill in all required fields.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    const baseCost = 558;
-    const costPerKm = 19;
-    const totalCost = baseCost + (distance * costPerKm) + tollCost;
+    if (!validateForm()) return;
 
     try {
-      console.log('Submitting form with data:', formData);
-      const bookingData = {
-        service_type_id: 1,
-        user_id: 1,
-        status_id: 1,
-        pickup_location_id: 1,
-        destination_location_id: 2,
-        distance,
-        price_hourly: 20.0,
-        pickup_date: pickupDate,
-        pickup_time: pickupTime,
-        additional_info: formData.additionalInfo,
-        street_level: formData.streetLevel === 'Yes',
-        neutral_possible: formData.neutralPossible === 'Yes',
-        adaptations: formData.adaptations === 'Yes',
-        passengers: parseInt(formData.passengers, 10)
-      };
-
-      const data = await createBooking(bookingData);
-      console.log('Booking created:', data);
-
-      navigate('/confirmation', { state: { formData, totalCost, serviceDetails: { serviceType, distance, pickupLocation, destinationLocation } } });
+      const { data, error } = await supabase.from('bookings').insert([formData]);
+      if (error) throw error;
+      navigate('/confirmation', { state: { formData } });
     } catch (error) {
-      console.error('Error submitting form:', error);
       toast({
         title: 'Error',
-        description: 'There was a problem processing your booking. Please try again later.',
+        description: error.message,
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -131,117 +52,21 @@ const BookingForm = () => {
     }
   };
 
-  const handleMapClick = (event) => {
-    try {
-      if (!formData.pickupLocation) {
-        setFormData({ ...formData, pickupLocation: { lat: event.latLng.lat(), lng: event.latLng.lng() } });
-      } else if (!formData.destinationLocation) {
-        setFormData({ ...formData, destinationLocation: { lat: event.latLng.lat(), lng: event.latLng.lng() } });
+  const validateForm = () => {
+    const requiredFields = ['serviceType', 'userName', 'age', 'phoneNumber', 'carBrand', 'vehicleMake', 'vehicleModel', 'vehicleSize', 'pickupDate', 'pickupTime'];
+    for (let field of requiredFields) {
+      if (!formData[field]) {
+        toast({
+          title: 'Error',
+          description: `Please fill in all required fields. Missing: ${field}`,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+        return false;
       }
-    } catch (error) {
-      console.error('Error handling map click:', error);
-      toast({
-        title: 'Error',
-        description: 'There was a problem handling the map click. Please try again later.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
     }
-  };
-
-  const handleReset = () => {
-    setFormData({ ...formData, pickupLocation: null, destinationLocation: null });
-    setDirections(null);
-  };
-
-  const centerPickupMarker = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userLocation = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          setFormData({ ...formData, pickupLocation: userLocation });
-          if (mapRef.current) {
-            mapRef.current.panTo(userLocation);
-          }
-        },
-        (error) => {
-          console.error('Error getting user location:', error);
-          toast({
-            title: 'Error',
-            description: 'There was a problem getting your location. Please try again later.',
-            status: 'error',
-            duration: 5000,
-            isClosable: true,
-          });
-        }
-      );
-    } else {
-      toast({
-        title: 'Error',
-        description: 'Geolocation is not supported by this browser.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  };
-
-  const calculateRoute = () => {
-    if (formData.pickupLocation && formData.destinationLocation) {
-      return (
-        <DirectionsService
-          options={{
-            origin: formData.pickupLocation,
-            destination: formData.destinationLocation,
-            travelMode: 'DRIVING',
-          }}
-          callback={(response, status) => {
-            if (status === 'OK') {
-              setDirections(response);
-              const distanceInKm = response.routes[0].legs[0].distance.value / 1000;
-              setFormData((prevData) => ({ ...prevData, distance: distanceInKm }));
-              fetchTollData(formData.pickupLocation, formData.destinationLocation);
-            } else {
-              console.error('Error calculating route:', status);
-              toast({
-                title: 'Error',
-                description: 'There was a problem calculating the route. Please try again later.',
-                status: 'error',
-                duration: 5000,
-                isClosable: true,
-              });
-            }
-          }}
-        />
-      );
-    }
-    return null;
-  };
-
-  const fetchTollData = async (origin, destination) => {
-    try {
-      const response = await fetch(`https://api.tollguru.com/v1/calc/route?source=${origin.lat},${origin.lng}&destination=${destination.lat},${destination.lng}`, {
-        headers: {
-          'x-api-key': process.env.REACT_APP_TOLLGURU_API_KEY
-        }
-      });
-      const data = await response.json();
-      const tolls = data.tolls || 0;
-      setTollCost(tolls);
-    } catch (error) {
-      console.error('Error fetching toll data:', error);
-      toast({
-        title: 'Error',
-        description: 'There was a problem fetching toll data. Please try again later.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    }
+    return true;
   };
 
   return (
@@ -261,6 +86,10 @@ const BookingForm = () => {
           <FormControl id="userName" isRequired>
             <FormLabel>User Name</FormLabel>
             <Input type="text" name="userName" value={formData.userName} onChange={handleChange} />
+          </FormControl>
+          <FormControl id="age" isRequired>
+            <FormLabel>Age</FormLabel>
+            <Input type="number" name="age" value={formData.age} onChange={handleChange} />
           </FormControl>
           <FormControl id="phoneNumber" isRequired>
             <FormLabel>Phone Number</FormLabel>
@@ -299,111 +128,22 @@ const BookingForm = () => {
             <FormLabel>Pickup Time</FormLabel>
             <Input type="time" name="pickupTime" value={formData.pickupTime} onChange={handleChange} />
           </FormControl>
-          <FormControl id="streetLevel" isRequired>
-            <FormLabel>Is the vehicle at street level?</FormLabel>
-            <Select name="streetLevel" value={formData.streetLevel} onChange={handleChange}>
-              <option value="">Select</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </Select>
-          </FormControl>
-          <FormControl id="neutralPossible" isRequired>
-            <FormLabel>Is it possible to put neutral?</FormLabel>
-            <Select name="neutralPossible" value={formData.neutralPossible} onChange={handleChange}>
-              <option value="">Select</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </Select>
-          </FormControl>
-          <FormControl id="adaptations" isRequired>
-            <FormLabel>Does the vehicle have adaptations that increase its length or width?</FormLabel>
-            <Select name="adaptations" value={formData.adaptations} onChange={handleChange}>
-              <option value="">Select</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </Select>
-          </FormControl>
-          <FormControl id="passengers" isRequired>
-            <FormLabel>Number of passengers</FormLabel>
-            <Input type="number" name="passengers" value={formData.passengers} onChange={handleChange} />
-          </FormControl>
           <FormControl id="terms" isRequired>
             <Checkbox onChange={() => setIsTermsOpen(true)}>I accept terms and conditions</Checkbox>
           </FormControl>
-          <CardElement />
-          <Button colorScheme="blue" type="submit">Book Now</Button>
+          <Button colorScheme="blue" type="submit" mt={4}>Book Now</Button>
         </form>
-        <LoadScript
-          googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
-          onLoad={() => setIsMapLoaded(true)}
-          onError={() => {
-            toast({
-              title: 'Error',
-              description: 'Failed to load Google Maps API. Please check your API key and internet connection.',
-              status: 'error',
-              duration: 5000,
-              isClosable: true,
-            });
-          }}
-        >
-          {isMapLoaded ? (
-            <GoogleMap
-              center={formData.origin}
-              zoom={10}
-              mapContainerStyle={{ height: '400px', width: '100%' }}
-              onClick={handleMapClick}
-              onLoad={(map) => (mapRef.current = map)}
-              options={{
-                zoomControl: true,
-                zoomControlOptions: {
-                  position: window.google.maps.ControlPosition.RIGHT_CENTER,
-                },
-                streetViewControl: false,
-                mapTypeControl: false,
-                fullscreenControl: false,
-              }}
-            >
-              {formData.pickupLocation && (
-                <Marker
-                  position={formData.pickupLocation}
-                  draggable={true}
-                  onDragEnd={(e) => setFormData({ ...formData, pickupLocation: { lat: e.latLng.lat(), lng: e.latLng.lng() } })}
-                />
-              )}
-              {formData.destinationLocation && (
-                <Marker
-                  position={formData.destinationLocation}
-                  draggable={true}
-                  onDragEnd={(e) => setFormData({ ...formData, destinationLocation: { lat: e.latLng.lat(), lng: e.latLng.lng() } })}
-                />
-              )}
-              {calculateRoute()}
-              {directions && <DirectionsRenderer directions={directions} onError={(error) => {
-                console.error('Error rendering directions:', error);
-                toast({
-                  title: 'Error',
-                  description: 'There was a problem rendering the directions. Please try again later.',
-                  status: 'error',
-                  duration: 5000,
-                  isClosable: true,
-                });
-              }} />}
-            </GoogleMap>
-          ) : (
-            <Text>Loading map...</Text>
-          )}
-        </LoadScript>
-        <Button onClick={handleReset} mt={4}>Reset</Button>
-        <Button onClick={centerPickupMarker} mt={4} ml={4} colorScheme="blue">Center User</Button>
       </VStack>
+      <MapComponent />
+      <PaymentComponent />
       <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Terms and Conditions</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text>The services may have a higher cost which must be paid when arriving at the destination, otherwise the vehicle will not leave the platform and will be taken to the corralon.</Text>
-            <Text>Remember that only two passengers can go in the tow truck, if you require a taxi we can provide it.</Text>
+            <p>The services may have a higher cost which must be paid when arriving at the destination, otherwise the vehicle will not leave the platform and will be taken to the corralon.</p>
+            <p>Remember that only two passengers can go in the tow truck, if you require a taxi we can provide it.</p>
           </ModalBody>
         </ModalContent>
       </Modal>
@@ -411,10 +151,4 @@ const BookingForm = () => {
   );
 };
 
-const BookingFormWrapper = () => (
-  <Elements stripe={stripePromise}>
-    <BookingForm />
-  </Elements>
-);
-
-export default BookingFormWrapper;
+export default BookingForm;
