@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth.jsx';
 import { Box, Container, Heading, VStack, Text, Button, Input, FormControl, FormLabel, useToast } from '@chakra-ui/react';
@@ -8,21 +8,13 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
     const { session } = useSupabaseAuth();
     const navigate = useNavigate();
     const toast = useToast();
 
-    useEffect(() => {
-        if (session) {
-            navigate('/');
-        }
-    }, [session, navigate]);
-
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError(null);
         try {
             const { error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) throw error;
@@ -34,10 +26,10 @@ const Login = () => {
             });
             navigate('/');
         } catch (error) {
-            setError(error.message);
+            console.error('Login error:', error);
             toast({
                 title: "Login failed",
-                description: error.message,
+                description: error.message || "An unexpected error occurred",
                 status: "error",
                 duration: 5000,
                 isClosable: true,
@@ -49,7 +41,6 @@ const Login = () => {
 
     const handleSignUp = async () => {
         setLoading(true);
-        setError(null);
         try {
             const { error } = await supabase.auth.signUp({ email, password });
             if (error) throw error;
@@ -61,10 +52,10 @@ const Login = () => {
                 isClosable: true,
             });
         } catch (error) {
-            setError(error.message);
+            console.error('Sign up error:', error);
             toast({
                 title: "Sign up failed",
-                description: error.message,
+                description: error.message || "An unexpected error occurred",
                 status: "error",
                 duration: 5000,
                 isClosable: true,
@@ -73,6 +64,11 @@ const Login = () => {
             setLoading(false);
         }
     };
+
+    if (session) {
+        navigate('/');
+        return null;
+    }
 
     return (
         <Box bg="gray.50" minHeight="calc(100vh - 60px)" py={10}>
@@ -107,7 +103,6 @@ const Login = () => {
                     <Button onClick={handleSignUp} variant="outline" width="full" isLoading={loading}>
                         Sign Up
                     </Button>
-                    {error && <Text color="red.500" textAlign="center">{error}</Text>}
                 </VStack>
             </Container>
         </Box>
