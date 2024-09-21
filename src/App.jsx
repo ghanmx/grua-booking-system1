@@ -1,6 +1,6 @@
 import React from "react";
-import { ChakraProvider, Box, VStack, Heading, Text } from "@chakra-ui/react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ChakraProvider, Box, VStack } from "@chakra-ui/react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Index from "./pages/Index";
 import About from "./pages/About";
@@ -29,11 +29,13 @@ function App() {
                   <Route path="/confirmation" element={<Confirmation />} />
                   <Route path="/payment" element={<Payment />} />
                   <Route path="/login" element={<Login />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Box>
               <VStack p={4} bg="gray.100">
-                <Heading size="md">Tow Service App</Heading>
-                <Text>© 2023 All rights reserved</Text>
+                <Box as="footer" width="100%" textAlign="center">
+                  © 2023 Tow Service App. All rights reserved.
+                </Box>
               </VStack>
             </Box>
           </Router>
