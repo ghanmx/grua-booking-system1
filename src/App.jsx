@@ -9,7 +9,7 @@ import Payment from "./pages/Payment.jsx";
 import Login from "./pages/Login.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { useSupabaseAuth } from './integrations/supabase/auth.jsx';
-import { Box, Button, ChakraProvider } from "@chakra-ui/react";
+import { Box, Button, ChakraProvider, Text } from "@chakra-ui/react";
 
 function App() {
   const { session, logout } = useSupabaseAuth();
@@ -17,9 +17,9 @@ function App() {
   return (
     <ChakraProvider>
       <Router>
-        <Box minHeight="100vh" display="flex" flexDirection="column">
+        <Box minHeight="100vh" display="flex" flexDirection="column" bg="gray.100">
           <Navbar />
-          <Box flex="1">
+          <Box flex="1" p={4}>
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
@@ -31,7 +31,8 @@ function App() {
             </Routes>
           </Box>
           {session && (
-            <Box textAlign="center" py={4}>
+            <Box textAlign="center" py={4} bg="gray.200">
+              <Text mb={2}>Logged in as: {session.user.email}</Text>
               <Button onClick={logout} colorScheme="red">Logout</Button>
             </Box>
           )}
