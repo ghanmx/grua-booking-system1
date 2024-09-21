@@ -32,14 +32,41 @@ const Index = () => {
             </Text>
           </Box>
 
-          <Image
-            src="https://images.unsplash.com/photo-1562920618-5e5d3a1d0d5a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
-            alt="Tow truck"
-            borderRadius="md"
-            objectFit="cover"
-            height={["200px", "300px", "400px"]}
-            width="100%"
-          />
+          <Box position="relative" height={["200px", "300px", "400px"]}>
+            <Image
+              src="https://images.unsplash.com/photo-1590361232060-61b9a025a068?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+              alt="Tow truck"
+              objectFit="cover"
+              width="100%"
+              height="100%"
+              borderRadius="md"
+            />
+            <Box
+              position="absolute"
+              top="0"
+              left="0"
+              right="0"
+              bottom="0"
+              bg="rgba(0,0,0,0.4)"
+              borderRadius="md"
+            />
+            <VStack
+              position="absolute"
+              top="50%"
+              left="50%"
+              transform="translate(-50%, -50%)"
+              textAlign="center"
+              color="white"
+              spacing={4}
+            >
+              <Heading as="h2" size="xl">
+                24/7 Towing Service
+              </Heading>
+              <Button colorScheme="blue" size="lg" onClick={handleBookNow}>
+                Book Now
+              </Button>
+            </VStack>
+          </Box>
 
           <SimpleGrid columns={[1, null, 3]} spacing={10}>
             <Feature icon={FaTruck} title="24/7 Service">
