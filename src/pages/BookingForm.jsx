@@ -11,8 +11,14 @@ const BookingForm = () => {
     phoneNumber: '',
     vehicleMake: '',
     vehicleModel: '',
+    vehicleColor: '',
+    licensePlate: '',
     vehicleSize: '',
-    additionalInfo: '',
+    pickupLocation: '',
+    destination: '',
+    vehicleIssue: '',
+    additionalDetails: '',
+    wheelsStatus: '',
     pickupDate: '',
     pickupTime: '',
   });
@@ -30,12 +36,12 @@ const BookingForm = () => {
   };
 
   const validateForm = () => {
-    const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleMake', 'vehicleModel', 'vehicleSize', 'pickupDate', 'pickupTime'];
+    const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleMake', 'vehicleModel', 'vehicleColor', 'licensePlate', 'vehicleSize', 'pickupLocation', 'destination', 'vehicleIssue', 'wheelsStatus', 'pickupDate', 'pickupTime'];
     for (let field of requiredFields) {
       if (!formData[field]) {
         toast({
           title: 'Error',
-          description: `Please fill in all required fields. Missing: ${field}`,
+          description: `Please fill in all required fields. Missing: ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`,
           status: 'error',
           duration: 5000,
           isClosable: true,
@@ -135,6 +141,14 @@ const BookingForm = () => {
             <FormLabel>Vehicle Model</FormLabel>
             <Input type="text" name="vehicleModel" value={formData.vehicleModel} onChange={handleChange} />
           </FormControl>
+          <FormControl id="vehicleColor" isRequired>
+            <FormLabel>Vehicle Color</FormLabel>
+            <Input type="text" name="vehicleColor" value={formData.vehicleColor} onChange={handleChange} />
+          </FormControl>
+          <FormControl id="licensePlate" isRequired>
+            <FormLabel>License Plate</FormLabel>
+            <Input type="text" name="licensePlate" value={formData.licensePlate} onChange={handleChange} />
+          </FormControl>
           <FormControl id="vehicleSize" isRequired>
             <FormLabel>Vehicle Size</FormLabel>
             <Select name="vehicleSize" value={formData.vehicleSize} onChange={handleChange}>
@@ -144,9 +158,29 @@ const BookingForm = () => {
               <option value="Large">Large</option>
             </Select>
           </FormControl>
-          <FormControl id="additionalInfo">
-            <FormLabel>Additional Information</FormLabel>
-            <Textarea name="additionalInfo" value={formData.additionalInfo} onChange={handleChange} />
+          <FormControl id="pickupLocation" isRequired>
+            <FormLabel>Pickup Location</FormLabel>
+            <Input type="text" name="pickupLocation" value={formData.pickupLocation} onChange={handleChange} />
+          </FormControl>
+          <FormControl id="destination" isRequired>
+            <FormLabel>Destination</FormLabel>
+            <Input type="text" name="destination" value={formData.destination} onChange={handleChange} />
+          </FormControl>
+          <FormControl id="vehicleIssue" isRequired>
+            <FormLabel>Vehicle Issue</FormLabel>
+            <Input type="text" name="vehicleIssue" value={formData.vehicleIssue} onChange={handleChange} />
+          </FormControl>
+          <FormControl id="additionalDetails">
+            <FormLabel>Additional Details</FormLabel>
+            <Textarea name="additionalDetails" value={formData.additionalDetails} onChange={handleChange} />
+          </FormControl>
+          <FormControl id="wheelsStatus" isRequired>
+            <FormLabel>Wheels Status</FormLabel>
+            <Select name="wheelsStatus" value={formData.wheelsStatus} onChange={handleChange}>
+              <option value="">Select Wheels Status</option>
+              <option value="Wheels Turn">Wheels Turn</option>
+              <option value="Wheels Don't Turn">Wheels Don't Turn</option>
+            </Select>
           </FormControl>
           <FormControl id="pickupDate" isRequired>
             <FormLabel>Pickup Date</FormLabel>
