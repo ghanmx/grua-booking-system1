@@ -1,91 +1,50 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Box, Button, Text, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton } from '@chakra-ui/react';
-import { GoogleMap, LoadScript, Marker, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
 
 const GoogleMapsRoute = ({ setDistance, setTotalCost, selectedTowTruck }) => {
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
-  const [directions, setDirections] = useState(null);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
 
-  const companyLocation = { lat: 26.509672, lng: -100.0095504 }; // Example company location
+  const companyLocation = { lat: 26.509672, lng: -100.0095504 };
 
-  const calculateRoute = useCallback(() => {
-    if (pickup && destination) {
-      const directionsService = new window.google.maps.DirectionsService();
-      const distanceMatrixService = new window.google.maps.DistanceMatrixService();
+  const calculateRouteDistance = (origin, destination) => {
+    const R = 6371; // Earth's radius in km
+    const dLat = (destination.lat - origin.lat) * Math.PI / 180;
+    const dLon = (destination.lng - origin.lng) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(origin.lat * Math.PI / 180) * Math.cos(destination.lat * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c;
+    return distance;
+  };
 
-      // Calculate route from company to pickup
-      distanceMatrixService.getDistanceMatrix(
-        {
-          origins: [companyLocation],
-          destinations: [pickup],
-          travelMode: 'DRIVING',
-        },
-        (response, status) => {
-          if (status === 'OK') {
-            const distanceToPickup = response.rows[0].elements[0].distance.value / 1000; // Convert to km
-
-            // Calculate route from pickup to destination
-            directionsService.route(
-              {
-                origin: pickup,
-                destination: destination,
-                travelMode: window.google.maps.TravelMode.DRIVING,
-              },
-              (result, status) => {
-                if (status === window.google.maps.DirectionsStatus.OK) {
-                  setDirections(result);
-                  const pickupToDestinationDistance = result.routes[0].legs[0].distance.value / 1000; // Convert to km
-
-                  // Calculate route from destination back to company
-                  distanceMatrixService.getDistanceMatrix(
-                    {
-                      origins: [destination],
-                      destinations: [companyLocation],
-                      travelMode: 'DRIVING',
-                    },
-                    (response, status) => {
-                      if (status === 'OK') {
-                        const distanceFromDestination = response.rows[0].elements[0].distance.value / 1000; // Convert to km
-
-                        const totalDistance = distanceToPickup + pickupToDestinationDistance + distanceFromDestination;
-                        setDistance(totalDistance);
-
-                        const { perKm, basePrice } = getTowTruckPricing(selectedTowTruck);
-                        const price = calculateTotalCost(totalDistance, selectedTowTruck);
-                        setTotalPrice(price);
-                        setTotalCost(price);
-
-                        setIsConfirmationOpen(true);
-                      }
-                    }
-                  );
-                }
-              }
-            );
-          }
-        }
-      );
-    }
-  }, [pickup, destination, setDistance, setTotalCost, selectedTowTruck]);
-
-  useEffect(() => {
-    if (pickup && destination) {
-      calculateRoute();
-    }
-  }, [pickup, destination, calculateRoute]);
-
-  const handleMapClick = (event) => {
+  const handleMapClick = useCallback((event) => {
     const clickedLocation = event.latLng.toJSON();
     if (!pickup) {
       setPickup(clickedLocation);
     } else if (!destination) {
       setDestination(clickedLocation);
+      
+      const distanceToPickup = calculateRouteDistance(companyLocation, clickedLocation);
+      const pickupToDestinationDistance = calculateRouteDistance(pickup, clickedLocation);
+      const distanceFromDestination = calculateRouteDistance(clickedLocation, companyLocation);
+
+      const totalDistance = distanceToPickup + pickupToDestinationDistance + distanceFromDestination;
+      setDistance(totalDistance);
+
+      const price = calculateTotalCost(totalDistance, selectedTowTruck);
+      setTotalPrice(price);
+      setTotalCost(price);
+
+      setIsConfirmationOpen(true);
     }
-  };
+  }, [pickup, setDistance, setTotalCost, selectedTowTruck]);
 
   return (
     <Box height="400px" width="100%" my={4}>
@@ -98,17 +57,6 @@ const GoogleMapsRoute = ({ setDistance, setTotalCost, selectedTowTruck }) => {
         >
           {pickup && <Marker position={pickup} />}
           {destination && <Marker position={destination} />}
-          {directions && (
-            <DirectionsRenderer
-              directions={directions}
-              options={{
-                polylineOptions: {
-                  strokeColor: "blue",
-                  strokeWeight: 6,
-                },
-              }}
-            />
-          )}
         </GoogleMap>
       </LoadScript>
 
