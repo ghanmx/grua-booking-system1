@@ -22,3 +22,8 @@ export const getTowTruckPricing = (towTruckType) => {
   };
   return pricing[towTruckType] || pricing.A;
 };
+
+export const calculateTotalCost = (distance, towTruckType) => {
+  const { perKm, basePrice } = getTowTruckPricing(towTruckType);
+  return basePrice + (distance * perKm);
+};

@@ -9,30 +9,63 @@ const GoogleMapsRoute = ({ setDistance, setTotalCost }) => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
 
-  const start = { lat: 26.509672, lng: -100.0095504 };
-  const pricePerKm = 19;
-  const baseCost = 558;
-  const tollCost = 380;
+  const companyLocation = { lat: 26.509672, lng: -100.0095504 }; // Example company location
 
   const calculateRoute = useCallback(() => {
     if (pickup && destination) {
       const directionsService = new window.google.maps.DirectionsService();
-      directionsService.route(
+      const distanceMatrixService = new window.google.maps.DistanceMatrixService();
+
+      // Calculate route from company to pickup
+      distanceMatrixService.getDistanceMatrix(
         {
-          origin: start,
-          destination: destination,
-          waypoints: [{ location: pickup, stopover: true }],
-          travelMode: window.google.maps.TravelMode.DRIVING,
+          origins: [companyLocation],
+          destinations: [pickup],
+          travelMode: 'DRIVING',
         },
-        (result, status) => {
-          if (status === window.google.maps.DirectionsStatus.OK) {
-            setDirections(result);
-            const totalDistance = result.routes[0].legs.reduce((total, leg) => total + leg.distance.value, 0) / 1000;
-            setDistance(totalDistance);
-            const price = baseCost + (totalDistance * pricePerKm) + tollCost;
-            setTotalPrice(price);
-            setTotalCost(price);
-            setIsConfirmationOpen(true);
+        (response, status) => {
+          if (status === 'OK') {
+            const distanceToPickup = response.rows[0].elements[0].distance.value / 1000; // Convert to km
+
+            // Calculate route from pickup to destination
+            directionsService.route(
+              {
+                origin: pickup,
+                destination: destination,
+                travelMode: window.google.maps.TravelMode.DRIVING,
+              },
+              (result, status) => {
+                if (status === window.google.maps.DirectionsStatus.OK) {
+                  setDirections(result);
+                  const pickupToDestinationDistance = result.routes[0].legs[0].distance.value / 1000; // Convert to km
+
+                  // Calculate route from destination back to company
+                  distanceMatrixService.getDistanceMatrix(
+                    {
+                      origins: [destination],
+                      destinations: [companyLocation],
+                      travelMode: 'DRIVING',
+                    },
+                    (response, status) => {
+                      if (status === 'OK') {
+                        const distanceFromDestination = response.rows[0].elements[0].distance.value / 1000; // Convert to km
+
+                        const totalDistance = distanceToPickup + pickupToDestinationDistance + distanceFromDestination;
+                        setDistance(totalDistance);
+
+                        // You'll need to implement getTowTruckPricing and calculate the total price here
+                        // const { perKm, basePrice } = getTowTruckPricing(selectedTowTruck);
+                        // const price = basePrice + (totalDistance * perKm);
+                        // setTotalPrice(price);
+                        // setTotalCost(price);
+
+                        setIsConfirmationOpen(true);
+                      }
+                    }
+                  );
+                }
+              }
+            );
           }
         }
       );
@@ -59,7 +92,7 @@ const GoogleMapsRoute = ({ setDistance, setTotalCost }) => {
       <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
         <GoogleMap
           mapContainerStyle={{ height: "100%", width: "100%" }}
-          center={start}
+          center={companyLocation}
           zoom={10}
           onClick={handleMapClick}
         >
