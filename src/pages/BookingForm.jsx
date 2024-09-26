@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast, Heading, Text } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast, Heading, Text, Switch } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../integrations/supabase';
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
@@ -45,6 +45,7 @@ const BookingForm = () => {
   const [totalCost, setTotalCost] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTowTruck, setSelectedTowTruck] = useState('');
+  const [isTestMode, setIsTestMode] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -58,12 +59,37 @@ const BookingForm = () => {
     setTotalCost(newTotalCost);
   }, [selectedTowTruck, distance]);
 
+  useEffect(() => {
+    if (isTestMode) {
+      setFormData({
+        serviceType: 'Tow',
+        userName: 'Test User',
+        phoneNumber: '1234567890',
+        vehicleBrand: 'Toyota',
+        vehicleModel: 'Corolla',
+        vehicleColor: 'Red',
+        licensePlate: 'TEST123',
+        vehicleSize: 'Small',
+        pickupAddress: '123 Test St, Test City',
+        dropOffAddress: '456 Test Ave, Test City',
+        vehicleIssue: 'Test Issue',
+        additionalDetails: 'Test Details',
+        wheelsStatus: 'Wheels Turn',
+        pickupDate: new Date().toISOString().split('T')[0],
+        pickupTime: '12:00',
+        paymentMethod: 'Credit/Debit Card',
+      });
+    }
+  }, [isTestMode]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
   const validateForm = () => {
+    if (isTestMode) return true; // Skip validation in test mode
+
     const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleBrand', 'vehicleModel', 'vehicleColor', 'licensePlate', 'vehicleSize', 'pickupAddress', 'dropOffAddress', 'vehicleIssue', 'wheelsStatus', 'pickupDate', 'pickupTime', 'paymentMethod'];
     for (let field of requiredFields) {
       if (!formData[field]) {
@@ -86,19 +112,21 @@ const BookingForm = () => {
 
     setIsLoading(true);
     try {
-      // Process payment
-      const paymentResult = await processPayment(totalCost * 100); // Convert to cents
+      if (!isTestMode) {
+        // Process payment
+        const paymentResult = await processPayment(totalCost * 100); // Convert to cents
 
-      if (!paymentResult.success) {
-        console.error('Payment failed:', paymentResult.error);
-        toast({
-          title: 'Payment Failed',
-          description: paymentResult.error,
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
-        return;
+        if (!paymentResult.success) {
+          console.error('Payment failed:', paymentResult.error);
+          toast({
+            title: 'Payment Failed',
+            description: paymentResult.error,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+          return;
+        }
       }
 
       const bookingData = {
@@ -110,13 +138,14 @@ const BookingForm = () => {
         createdAt: new Date().toISOString(),
       };
 
-      const { data, error } = await supabase.from('bookings').insert([bookingData]);
-
-      if (error) throw error;
+      if (!isTestMode) {
+        const { data, error } = await supabase.from('bookings').insert([bookingData]);
+        if (error) throw error;
+      }
 
       toast({
         title: 'Booking Successful',
-        description: 'Your tow service has been booked successfully.',
+        description: isTestMode ? 'Test booking simulated successfully.' : 'Your tow service has been booked successfully.',
         status: 'success',
         duration: 5000,
         isClosable: true,
@@ -141,6 +170,12 @@ const BookingForm = () => {
     <Box p={4}>
       <VStack spacing={4} align="stretch">
         <Heading as="h1" mb={4}>Booking Form</Heading>
+        <FormControl display="flex" alignItems="center">
+          <FormLabel htmlFor="test-mode" mb="0">
+            Test Mode
+          </FormLabel>
+          <Switch id="test-mode" isChecked={isTestMode} onChange={(e) => setIsTestMode(e.target.checked)} />
+        </FormControl>
         <form onSubmit={handleBookingProcess}>
           <FormControl id="serviceType" isRequired>
             <FormLabel>Service Type</FormLabel>
@@ -249,7 +284,7 @@ const BookingForm = () => {
             </Box>
           )}
           <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading}>
-            Book Now
+            {isTestMode ? 'Simulate Booking' : 'Book Now'}
           </Button>
         </form>
       </VStack>
