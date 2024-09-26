@@ -19,6 +19,7 @@ const BookingForm = () => {
 
   const [distance, setDistance] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -27,10 +28,28 @@ const BookingForm = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const validateForm = () => {
+    const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleMake', 'vehicleModel', 'vehicleSize', 'pickupDate', 'pickupTime'];
+    for (let field of requiredFields) {
+      if (!formData[field]) {
+        toast({
+          title: 'Error',
+          description: `Please fill in all required fields. Missing: ${field}`,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleBookingProcess = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
+    setIsLoading(true);
     try {
       const bookingData = {
         ...formData,
@@ -62,24 +81,9 @@ const BookingForm = () => {
         duration: 5000,
         isClosable: true,
       });
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  const validateForm = () => {
-    const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleMake', 'vehicleModel', 'vehicleSize', 'pickupDate', 'pickupTime'];
-    for (let field of requiredFields) {
-      if (!formData[field]) {
-        toast({
-          title: 'Error',
-          description: `Please fill in all required fields. Missing: ${field}`,
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
-        return false;
-      }
-    }
-    return true;
   };
 
   return (
@@ -134,7 +138,9 @@ const BookingForm = () => {
             <Input type="time" name="pickupTime" value={formData.pickupTime} onChange={handleChange} />
           </FormControl>
           <GoogleMapsRoute setDistance={setDistance} setTotalCost={setTotalCost} />
-          <Button colorScheme="blue" type="submit" mt={4}>Book Now</Button>
+          <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading}>
+            Book Now
+          </Button>
         </form>
       </VStack>
     </Box>
