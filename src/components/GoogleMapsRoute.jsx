@@ -8,6 +8,7 @@ const GoogleMapsRoute = ({ setDistance, setTotalCost, selectedTowTruck }) => {
   const [destination, setDestination] = useState(null);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [mapCenter, setMapCenter] = useState({ lat: 26.509672, lng: -100.0095504 });
 
   const companyLocation = { lat: 26.509672, lng: -100.0095504 };
 
@@ -31,8 +32,10 @@ const GoogleMapsRoute = ({ setDistance, setTotalCost, selectedTowTruck }) => {
     const clickedLocation = event.latLng.toJSON();
     if (!pickup) {
       setPickup(clickedLocation);
+      setMapCenter(clickedLocation);
     } else if (!destination) {
       setDestination(clickedLocation);
+      setMapCenter(clickedLocation);
       
       try {
         const distanceToPickup = await calculateRouteDistance(companyLocation, clickedLocation);
@@ -58,7 +61,7 @@ const GoogleMapsRoute = ({ setDistance, setTotalCost, selectedTowTruck }) => {
       <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={["places"]}>
         <GoogleMap
           mapContainerStyle={{ height: "100%", width: "100%" }}
-          center={companyLocation}
+          center={mapCenter}
           zoom={10}
           onClick={handleMapClick}
         >

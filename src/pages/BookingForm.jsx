@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../integrations/supabase';
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
 import { getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
+import { processPayment } from '../utils/paymentProcessing';
 
 const BookingForm = () => {
   const [formData, setFormData] = useState({
@@ -15,13 +16,14 @@ const BookingForm = () => {
     vehicleColor: '',
     licensePlate: '',
     vehicleSize: '',
-    pickupLocation: '',
-    destination: '',
+    pickupAddress: '',
+    dropOffAddress: '',
     vehicleIssue: '',
     additionalDetails: '',
     wheelsStatus: '',
     pickupDate: '',
     pickupTime: '',
+    paymentMethod: '',
   });
 
   const [distance, setDistance] = useState(0);
@@ -47,7 +49,7 @@ const BookingForm = () => {
   };
 
   const validateForm = () => {
-    const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleMake', 'vehicleModel', 'vehicleColor', 'licensePlate', 'vehicleSize', 'pickupLocation', 'destination', 'vehicleIssue', 'wheelsStatus', 'pickupDate', 'pickupTime'];
+    const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleMake', 'vehicleModel', 'vehicleColor', 'licensePlate', 'vehicleSize', 'pickupAddress', 'dropOffAddress', 'vehicleIssue', 'wheelsStatus', 'pickupDate', 'pickupTime', 'paymentMethod'];
     for (let field of requiredFields) {
       if (!formData[field]) {
         toast({
@@ -69,6 +71,21 @@ const BookingForm = () => {
 
     setIsLoading(true);
     try {
+      // Process payment
+      const paymentResult = await processPayment(totalCost * 100); // Convert to cents
+
+      if (!paymentResult.success) {
+        console.error('Payment failed:', paymentResult.error);
+        toast({
+          title: 'Payment Failed',
+          description: paymentResult.error,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+        return;
+      }
+
       const bookingData = {
         ...formData,
         distance,
@@ -90,7 +107,7 @@ const BookingForm = () => {
         isClosable: true,
       });
 
-      navigate('/billing', { state: { bookingData } });
+      navigate('/confirmation', { state: { bookingData } });
     } catch (error) {
       console.error('Booking error:', error);
       toast({
@@ -153,6 +170,14 @@ const BookingForm = () => {
               <option value="Extra Large">Extra Large (12001 - 25000 kg)</option>
             </Select>
           </FormControl>
+          <FormControl id="pickupAddress" isRequired>
+            <FormLabel>Pickup Address</FormLabel>
+            <Input type="text" name="pickupAddress" value={formData.pickupAddress} onChange={handleChange} />
+          </FormControl>
+          <FormControl id="dropOffAddress" isRequired>
+            <FormLabel>Drop-off Address</FormLabel>
+            <Input type="text" name="dropOffAddress" value={formData.dropOffAddress} onChange={handleChange} />
+          </FormControl>
           <FormControl id="vehicleIssue" isRequired>
             <FormLabel>Vehicle Issue</FormLabel>
             <Input type="text" name="vehicleIssue" value={formData.vehicleIssue} onChange={handleChange} />
@@ -177,7 +202,15 @@ const BookingForm = () => {
             <FormLabel>Pickup Time</FormLabel>
             <Input type="time" name="pickupTime" value={formData.pickupTime} onChange={handleChange} />
           </FormControl>
-          <GoogleMapsRoute setDistance={setDistance} setTotalCost={setTotalCost} />
+          <FormControl id="paymentMethod" isRequired>
+            <FormLabel>Payment Method</FormLabel>
+            <Select name="paymentMethod" value={formData.paymentMethod} onChange={handleChange}>
+              <option value="">Select Payment Method</option>
+              <option value="Credit/Debit Card">Credit/Debit Card</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+            </Select>
+          </FormControl>
+          <GoogleMapsRoute setDistance={setDistance} setTotalCost={setTotalCost} selectedTowTruck={selectedTowTruck} />
           <Text mt={4}>Selected Tow Truck Type: {selectedTowTruck}</Text>
           <Text>Estimated Total Cost: ${totalCost.toFixed(2)}</Text>
           <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading}>
