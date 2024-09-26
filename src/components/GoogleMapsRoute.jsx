@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Button, Text, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton } from '@chakra-ui/react';
 import { GoogleMap, LoadScript, Marker, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
+import { getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
 
-const GoogleMapsRoute = ({ setDistance, setTotalCost }) => {
+const GoogleMapsRoute = ({ setDistance, setTotalCost, selectedTowTruck }) => {
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
   const [directions, setDirections] = useState(null);
@@ -53,11 +54,9 @@ const GoogleMapsRoute = ({ setDistance, setTotalCost }) => {
                         const totalDistance = distanceToPickup + pickupToDestinationDistance + distanceFromDestination;
                         setDistance(totalDistance);
 
-                        // You'll need to implement getTowTruckPricing and calculate the total price here
-                        // const { perKm, basePrice } = getTowTruckPricing(selectedTowTruck);
-                        // const price = basePrice + (totalDistance * perKm);
-                        // setTotalPrice(price);
-                        // setTotalCost(price);
+                        const price = calculateTotalCost(totalDistance, selectedTowTruck);
+                        setTotalPrice(price);
+                        setTotalCost(price);
 
                         setIsConfirmationOpen(true);
                       }
@@ -70,7 +69,7 @@ const GoogleMapsRoute = ({ setDistance, setTotalCost }) => {
         }
       );
     }
-  }, [pickup, destination, setDistance, setTotalCost]);
+  }, [pickup, destination, setDistance, setTotalCost, selectedTowTruck]);
 
   useEffect(() => {
     if (pickup && destination) {
