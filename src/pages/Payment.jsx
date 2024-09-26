@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Text, VStack, Button, useToast } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { sendAdminNotification } from '../utils/adminNotification';
 
 const Payment = () => {
   const location = useLocation();
@@ -31,6 +32,9 @@ const Payment = () => {
         duration: 5000,
         isClosable: true,
       });
+      
+      // Send notification to admin
+      await sendAdminNotification(formData, totalCost);
     } catch (error) {
       toast({
         title: 'Payment Error',
