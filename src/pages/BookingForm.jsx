@@ -33,18 +33,46 @@ const BookingForm = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleBookingProcess = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     try {
-      const { data, error } = await supabase.from('bookings').insert([{ ...formData, distance }]);
+      // Calculate the total cost
+      const baseCost = 558;
+      const costPerKm = 19;
+      const totalCost = baseCost + (costPerKm * distance);
+
+      // Prepare the data to be sent to Supabase
+      const bookingData = {
+        ...formData,
+        distance,
+        totalCost,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+      };
+
+      // Send the booking data to Supabase
+      const { data, error } = await supabase.from('bookings').insert([bookingData]);
+
       if (error) throw error;
-      navigate('/payment', { state: { formData, distance } });
-    } catch (error) {
+
+      // Show success message
       toast({
-        title: 'Error',
-        description: error.message,
+        title: 'Booking Successful',
+        description: 'Your tow service has been booked successfully.',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+
+      // Navigate to the confirmation page
+      navigate('/confirmation', { state: { bookingData } });
+    } catch (error) {
+      console.error('Booking error:', error);
+      toast({
+        title: 'Booking Failed',
+        description: error.message || 'An unexpected error occurred',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -73,7 +101,7 @@ const BookingForm = () => {
     <Box p={4}>
       <VStack spacing={4} align="stretch">
         <Heading as="h1" mb={4}>Booking Form</Heading>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleBookingProcess}>
           <FormControl id="serviceType" isRequired>
             <FormLabel>Service Type</FormLabel>
             <Select name="serviceType" value={formData.serviceType} onChange={handleChange}>
@@ -131,7 +159,7 @@ const BookingForm = () => {
           <FormControl id="terms" isRequired>
             <Checkbox onChange={() => setIsTermsOpen(true)}>I accept terms and conditions</Checkbox>
           </FormControl>
-          <Button colorScheme="blue" type="submit" mt={4}>Proceed to Payment</Button>
+          <Button colorScheme="blue" type="submit" mt={4}>Book Now</Button>
         </form>
       </VStack>
       <GoogleMapsRoute setDistance={setDistance} />
