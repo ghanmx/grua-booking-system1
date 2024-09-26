@@ -1,6 +1,6 @@
+import React, { useState } from 'react';
 import { Box, Text, VStack, Button, useToast } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 
 const Payment = () => {
   const location = useLocation();
@@ -8,13 +8,12 @@ const Payment = () => {
   const toast = useToast();
   const { formData } = location.state || {};
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isPaymentComplete, setIsPaymentComplete] = useState(false);
 
-  // Calculate total cost based on formData
   const calculateTotalCost = () => {
-    // This is a placeholder calculation. You should implement your actual pricing logic here.
     const baseCost = 558;
     const costPerKm = 19;
-    const estimatedDistance = 50; // This should be calculated based on the actual route
+    const estimatedDistance = 50;
     return baseCost + (costPerKm * estimatedDistance);
   };
 
@@ -23,18 +22,15 @@ const Payment = () => {
   const handlePayment = async () => {
     setIsProcessing(true);
     try {
-      // Simulate payment processing delay
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      
-      // Simulate successful payment
-      const paymentSuccess = true;
-
-      if (paymentSuccess) {
-        console.log('Payment processed for:', totalCost);
-        navigate('/confirmation', { state: { formData, totalCost } });
-      } else {
-        throw new Error('Payment failed');
-      }
+      setIsPaymentComplete(true);
+      toast({
+        title: 'Payment Processed',
+        description: 'Your payment has been successfully processed.',
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
     } catch (error) {
       toast({
         title: 'Payment Error',
@@ -46,6 +42,10 @@ const Payment = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleConfirmation = () => {
+    navigate('/confirmation', { state: { formData, totalCost } });
   };
 
   return (
@@ -60,16 +60,23 @@ const Payment = () => {
             <Text>Vehicle Make: {formData.vehicleMake}</Text>
             <Text>Vehicle Model: {formData.vehicleModel}</Text>
             <Text>Vehicle Size: {formData.vehicleSize}</Text>
-            <Text>Pickup Date: {formData.pickupDate}</Text>
-            <Text>Pickup Time: {formData.pickupTime}</Text>
             <Text fontWeight="bold">Total Cost: ${totalCost}</Text>
-            <Button 
-              colorScheme="blue" 
-              onClick={handlePayment} 
-              isLoading={isProcessing}
-            >
-              Pay Now
-            </Button>
+            {!isPaymentComplete ? (
+              <Button 
+                colorScheme="blue" 
+                onClick={handlePayment} 
+                isLoading={isProcessing}
+              >
+                Pay Now
+              </Button>
+            ) : (
+              <Button 
+                colorScheme="green" 
+                onClick={handleConfirmation}
+              >
+                Confirm Booking
+              </Button>
+            )}
           </>
         ) : (
           <Text>No payment details available.</Text>
