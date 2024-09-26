@@ -9,6 +9,7 @@ import BookingForm from "./pages/BookingForm";
 import Confirmation from "./pages/Confirmation";
 import Payment from "./pages/Payment";
 import Login from "./pages/Login";
+import BillingAndPayment from "./components/BillingAndPayment";
 import { SupabaseProvider } from './integrations/supabase';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
 
@@ -25,6 +26,7 @@ function App() {
                   <Route path="/" element={<Index />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/contact" element={<Contact />} />
+                  <Route path="/billing" element={<BillingAndPayment />} />
                   <Route path="/booking" element={<BookingForm />} />
                   <Route path="/confirmation" element={<Confirmation />} />
                   <Route path="/payment" element={<Payment />} />

@@ -16,7 +16,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   const handleBookNow = () => {
-    navigate("/booking");
+    navigate("/billing");
   };
 
   return (
