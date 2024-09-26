@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast, Heading, Checkbox, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../integrations/supabase';
-import MapComponent from '../components/MapComponent';
+import GoogleMapsRoute from '../components/GoogleMapsRoute';
 
 const BookingForm = () => {
   const [formData, setFormData] = useState({
@@ -24,6 +24,7 @@ const BookingForm = () => {
   });
 
   const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [distance, setDistance] = useState(0);
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -37,9 +38,9 @@ const BookingForm = () => {
     if (!validateForm()) return;
 
     try {
-      const { data, error } = await supabase.from('bookings').insert([formData]);
+      const { data, error } = await supabase.from('bookings').insert([{ ...formData, distance }]);
       if (error) throw error;
-      navigate('/payment', { state: { formData } });
+      navigate('/payment', { state: { formData, distance } });
     } catch (error) {
       toast({
         title: 'Error',
@@ -133,7 +134,7 @@ const BookingForm = () => {
           <Button colorScheme="blue" type="submit" mt={4}>Proceed to Payment</Button>
         </form>
       </VStack>
-      <MapComponent />
+      <GoogleMapsRoute setDistance={setDistance} />
       <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)}>
         <ModalOverlay />
         <ModalContent>
