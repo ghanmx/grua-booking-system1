@@ -11,44 +11,51 @@ const GoogleMapsRoute = ({ setDistance, setTotalCost, selectedTowTruck }) => {
 
   const companyLocation = { lat: 26.509672, lng: -100.0095504 };
 
-  const calculateRouteDistance = (origin, destination) => {
-    const R = 6371; // Earth's radius in km
-    const dLat = (destination.lat - origin.lat) * Math.PI / 180;
-    const dLon = (destination.lng - origin.lng) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(origin.lat * Math.PI / 180) * Math.cos(destination.lat * Math.PI / 180) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    const distance = R * c;
-    return distance;
+  const calculateRouteDistance = async (origin, destination) => {
+    const service = new window.google.maps.DistanceMatrixService();
+    try {
+      const response = await service.getDistanceMatrix({
+        origins: [origin],
+        destinations: [destination],
+        travelMode: 'DRIVING',
+        unitSystem: window.google.maps.UnitSystem.METRIC,
+      });
+      return response.rows[0].elements[0].distance.value / 1000; // Convert meters to kilometers
+    } catch (error) {
+      console.error('Error calculating route distance:', error);
+      return 0;
+    }
   };
 
-  const handleMapClick = useCallback((event) => {
+  const handleMapClick = useCallback(async (event) => {
     const clickedLocation = event.latLng.toJSON();
     if (!pickup) {
       setPickup(clickedLocation);
     } else if (!destination) {
       setDestination(clickedLocation);
       
-      const distanceToPickup = calculateRouteDistance(companyLocation, clickedLocation);
-      const pickupToDestinationDistance = calculateRouteDistance(pickup, clickedLocation);
-      const distanceFromDestination = calculateRouteDistance(clickedLocation, companyLocation);
+      try {
+        const distanceToPickup = await calculateRouteDistance(companyLocation, clickedLocation);
+        const pickupToDestinationDistance = await calculateRouteDistance(pickup, clickedLocation);
+        const distanceFromDestination = await calculateRouteDistance(clickedLocation, companyLocation);
 
-      const totalDistance = distanceToPickup + pickupToDestinationDistance + distanceFromDestination;
-      setDistance(totalDistance);
+        const totalDistance = distanceToPickup + pickupToDestinationDistance + distanceFromDestination;
+        setDistance(totalDistance);
 
-      const price = calculateTotalCost(totalDistance, selectedTowTruck);
-      setTotalPrice(price);
-      setTotalCost(price);
+        const price = calculateTotalCost(totalDistance, selectedTowTruck);
+        setTotalPrice(price);
+        setTotalCost(price);
 
-      setIsConfirmationOpen(true);
+        setIsConfirmationOpen(true);
+      } catch (error) {
+        console.error('Error calculating total distance:', error);
+      }
     }
   }, [pickup, setDistance, setTotalCost, selectedTowTruck]);
 
   return (
     <Box height="400px" width="100%" my={4}>
-      <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+      <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={["places"]}>
         <GoogleMap
           mapContainerStyle={{ height: "100%", width: "100%" }}
           center={companyLocation}
