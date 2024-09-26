@@ -6,12 +6,27 @@ import GoogleMapsRoute from '../components/GoogleMapsRoute';
 import { getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
 
+const vehicleBrands = ['Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan', 'BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen', 'Hyundai', 'Kia'];
+const vehicleModels = {
+  Toyota: ['Corolla', 'Camry', 'RAV4', 'Highlander', 'Tacoma'],
+  Honda: ['Civic', 'Accord', 'CR-V', 'Pilot', 'Odyssey'],
+  Ford: ['F-150', 'Mustang', 'Explorer', 'Escape', 'Focus'],
+  Chevrolet: ['Silverado', 'Malibu', 'Equinox', 'Traverse', 'Camaro'],
+  Nissan: ['Altima', 'Rogue', 'Sentra', 'Maxima', 'Pathfinder'],
+  BMW: ['3 Series', '5 Series', 'X3', 'X5', '7 Series'],
+  'Mercedes-Benz': ['C-Class', 'E-Class', 'GLC', 'GLE', 'S-Class'],
+  Audi: ['A4', 'A6', 'Q5', 'Q7', 'e-tron'],
+  Volkswagen: ['Golf', 'Jetta', 'Passat', 'Tiguan', 'Atlas'],
+  Hyundai: ['Elantra', 'Sonata', 'Tucson', 'Santa Fe', 'Kona'],
+  Kia: ['Forte', 'Optima', 'Sportage', 'Sorento', 'Telluride']
+};
+
 const BookingForm = () => {
   const [formData, setFormData] = useState({
     serviceType: '',
     userName: '',
     phoneNumber: '',
-    vehicleMake: '',
+    vehicleBrand: '',
     vehicleModel: '',
     vehicleColor: '',
     licensePlate: '',
@@ -29,7 +44,7 @@ const BookingForm = () => {
   const [distance, setDistance] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedTowTruck, setSelectedTowTruck] = useState('A');
+  const [selectedTowTruck, setSelectedTowTruck] = useState('');
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -49,7 +64,7 @@ const BookingForm = () => {
   };
 
   const validateForm = () => {
-    const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleMake', 'vehicleModel', 'vehicleColor', 'licensePlate', 'vehicleSize', 'pickupAddress', 'dropOffAddress', 'vehicleIssue', 'wheelsStatus', 'pickupDate', 'pickupTime', 'paymentMethod'];
+    const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleBrand', 'vehicleModel', 'vehicleColor', 'licensePlate', 'vehicleSize', 'pickupAddress', 'dropOffAddress', 'vehicleIssue', 'wheelsStatus', 'pickupDate', 'pickupTime', 'paymentMethod'];
     for (let field of requiredFields) {
       if (!formData[field]) {
         toast({
@@ -144,13 +159,23 @@ const BookingForm = () => {
             <FormLabel>Phone Number</FormLabel>
             <Input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
           </FormControl>
-          <FormControl id="vehicleMake" isRequired>
-            <FormLabel>Vehicle Make</FormLabel>
-            <Input type="text" name="vehicleMake" value={formData.vehicleMake} onChange={handleChange} />
+          <FormControl id="vehicleBrand" isRequired>
+            <FormLabel>Vehicle Brand</FormLabel>
+            <Select name="vehicleBrand" value={formData.vehicleBrand} onChange={handleChange}>
+              <option value="">Select Brand</option>
+              {vehicleBrands.map((brand) => (
+                <option key={brand} value={brand}>{brand}</option>
+              ))}
+            </Select>
           </FormControl>
           <FormControl id="vehicleModel" isRequired>
             <FormLabel>Vehicle Model</FormLabel>
-            <Input type="text" name="vehicleModel" value={formData.vehicleModel} onChange={handleChange} />
+            <Select name="vehicleModel" value={formData.vehicleModel} onChange={handleChange} disabled={!formData.vehicleBrand}>
+              <option value="">Select Model</option>
+              {formData.vehicleBrand && vehicleModels[formData.vehicleBrand].map((model) => (
+                <option key={model} value={model}>{model}</option>
+              ))}
+            </Select>
           </FormControl>
           <FormControl id="vehicleColor" isRequired>
             <FormLabel>Vehicle Color</FormLabel>
@@ -172,11 +197,11 @@ const BookingForm = () => {
           </FormControl>
           <FormControl id="pickupAddress" isRequired>
             <FormLabel>Pickup Address</FormLabel>
-            <Input type="text" name="pickupAddress" value={formData.pickupAddress} onChange={handleChange} />
+            <Input type="text" name="pickupAddress" value={formData.pickupAddress} onChange={handleChange} readOnly />
           </FormControl>
           <FormControl id="dropOffAddress" isRequired>
             <FormLabel>Drop-off Address</FormLabel>
-            <Input type="text" name="dropOffAddress" value={formData.dropOffAddress} onChange={handleChange} />
+            <Input type="text" name="dropOffAddress" value={formData.dropOffAddress} onChange={handleChange} readOnly />
           </FormControl>
           <FormControl id="vehicleIssue" isRequired>
             <FormLabel>Vehicle Issue</FormLabel>
@@ -210,9 +235,19 @@ const BookingForm = () => {
               <option value="Bank Transfer">Bank Transfer</option>
             </Select>
           </FormControl>
-          <GoogleMapsRoute setDistance={setDistance} setTotalCost={setTotalCost} selectedTowTruck={selectedTowTruck} />
-          <Text mt={4}>Selected Tow Truck Type: {selectedTowTruck}</Text>
-          <Text>Estimated Total Cost: ${totalCost.toFixed(2)}</Text>
+          <GoogleMapsRoute 
+            setPickupAddress={(address) => setFormData({ ...formData, pickupAddress: address })}
+            setDropOffAddress={(address) => setFormData({ ...formData, dropOffAddress: address })}
+            setDistance={setDistance} 
+            setTotalCost={setTotalCost} 
+            selectedTowTruck={selectedTowTruck} 
+          />
+          {selectedTowTruck && totalCost > 0 && (
+            <Box mt={4} p={4} borderWidth={1} borderRadius="md">
+              <Text>Selected Tow Truck Type: {selectedTowTruck}</Text>
+              <Text>Estimated Total Cost: ${totalCost.toFixed(2)}</Text>
+            </Box>
+          )}
           <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading}>
             Book Now
           </Button>

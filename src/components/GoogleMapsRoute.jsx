@@ -3,7 +3,7 @@ import { Box, Button, Text, Modal, ModalOverlay, ModalContent, ModalHeader, Moda
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import { getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
 
-const GoogleMapsRoute = ({ setDistance, setTotalCost, selectedTowTruck }) => {
+const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, selectedTowTruck }) => {
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
@@ -28,14 +28,37 @@ const GoogleMapsRoute = ({ setDistance, setTotalCost, selectedTowTruck }) => {
     }
   };
 
+  const getAddressFromLatLng = async (latLng) => {
+    const geocoder = new window.google.maps.Geocoder();
+    try {
+      const result = await new Promise((resolve, reject) => {
+        geocoder.geocode({ location: latLng }, (results, status) => {
+          if (status === 'OK') {
+            resolve(results[0].formatted_address);
+          } else {
+            reject(new Error('Geocoding failed'));
+          }
+        });
+      });
+      return result;
+    } catch (error) {
+      console.error('Error getting address:', error);
+      return '';
+    }
+  };
+
   const handleMapClick = useCallback(async (event) => {
     const clickedLocation = event.latLng.toJSON();
     if (!pickup) {
       setPickup(clickedLocation);
       setMapCenter(clickedLocation);
+      const address = await getAddressFromLatLng(clickedLocation);
+      setPickupAddress(address);
     } else if (!destination) {
       setDestination(clickedLocation);
       setMapCenter(clickedLocation);
+      const address = await getAddressFromLatLng(clickedLocation);
+      setDropOffAddress(address);
       
       try {
         const distanceToPickup = await calculateRouteDistance(companyLocation, clickedLocation);
@@ -54,7 +77,7 @@ const GoogleMapsRoute = ({ setDistance, setTotalCost, selectedTowTruck }) => {
         console.error('Error calculating total distance:', error);
       }
     }
-  }, [pickup, setDistance, setTotalCost, selectedTowTruck]);
+  }, [pickup, setDistance, setTotalCost, selectedTowTruck, setPickupAddress, setDropOffAddress]);
 
   return (
     <Box height="400px" width="100%" my={4}>
