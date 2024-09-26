@@ -23,8 +23,16 @@ const Payment = () => {
   const handlePayment = async () => {
     setIsProcessing(true);
     try {
+      // Simulate payment processing
       await new Promise((resolve) => setTimeout(resolve, 2000));
+      
+      // Payment successful
       setIsPaymentComplete(true);
+      
+      // Send notification to admin
+      await sendAdminNotification(formData, totalCost);
+      
+      // Show success message
       toast({
         title: 'Payment Processed',
         description: 'Your payment has been successfully processed.',
@@ -32,9 +40,6 @@ const Payment = () => {
         duration: 5000,
         isClosable: true,
       });
-      
-      // Send notification to admin
-      await sendAdminNotification(formData, totalCost);
     } catch (error) {
       toast({
         title: 'Payment Error',
