@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast, Heading, Checkbox, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton } from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast, Heading } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../integrations/supabase';
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
@@ -8,23 +8,17 @@ const BookingForm = () => {
   const [formData, setFormData] = useState({
     serviceType: '',
     userName: '',
-    age: '',
     phoneNumber: '',
-    carBrand: '',
     vehicleMake: '',
     vehicleModel: '',
     vehicleSize: '',
     additionalInfo: '',
     pickupDate: '',
     pickupTime: '',
-    streetLevel: '',
-    neutralPossible: '',
-    adaptations: '',
-    passengers: '',
   });
 
-  const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [distance, setDistance] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -38,12 +32,6 @@ const BookingForm = () => {
     if (!validateForm()) return;
 
     try {
-      // Calculate the total cost
-      const baseCost = 558;
-      const costPerKm = 19;
-      const totalCost = baseCost + (costPerKm * distance);
-
-      // Prepare the data to be sent to Supabase
       const bookingData = {
         ...formData,
         distance,
@@ -52,12 +40,10 @@ const BookingForm = () => {
         createdAt: new Date().toISOString(),
       };
 
-      // Send the booking data to Supabase
       const { data, error } = await supabase.from('bookings').insert([bookingData]);
 
       if (error) throw error;
 
-      // Show success message
       toast({
         title: 'Booking Successful',
         description: 'Your tow service has been booked successfully.',
@@ -66,7 +52,6 @@ const BookingForm = () => {
         isClosable: true,
       });
 
-      // Navigate to the confirmation page
       navigate('/confirmation', { state: { bookingData } });
     } catch (error) {
       console.error('Booking error:', error);
@@ -81,7 +66,7 @@ const BookingForm = () => {
   };
 
   const validateForm = () => {
-    const requiredFields = ['serviceType', 'userName', 'age', 'phoneNumber', 'carBrand', 'vehicleMake', 'vehicleModel', 'vehicleSize', 'pickupDate', 'pickupTime'];
+    const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleMake', 'vehicleModel', 'vehicleSize', 'pickupDate', 'pickupTime'];
     for (let field of requiredFields) {
       if (!formData[field]) {
         toast({
@@ -115,17 +100,9 @@ const BookingForm = () => {
             <FormLabel>User Name</FormLabel>
             <Input type="text" name="userName" value={formData.userName} onChange={handleChange} />
           </FormControl>
-          <FormControl id="age" isRequired>
-            <FormLabel>Age</FormLabel>
-            <Input type="number" name="age" value={formData.age} onChange={handleChange} />
-          </FormControl>
           <FormControl id="phoneNumber" isRequired>
             <FormLabel>Phone Number</FormLabel>
             <Input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
-          </FormControl>
-          <FormControl id="carBrand" isRequired>
-            <FormLabel>Car Brand</FormLabel>
-            <Input type="text" name="carBrand" value={formData.carBrand} onChange={handleChange} />
           </FormControl>
           <FormControl id="vehicleMake" isRequired>
             <FormLabel>Vehicle Make</FormLabel>
@@ -156,24 +133,10 @@ const BookingForm = () => {
             <FormLabel>Pickup Time</FormLabel>
             <Input type="time" name="pickupTime" value={formData.pickupTime} onChange={handleChange} />
           </FormControl>
-          <FormControl id="terms" isRequired>
-            <Checkbox onChange={() => setIsTermsOpen(true)}>I accept terms and conditions</Checkbox>
-          </FormControl>
+          <GoogleMapsRoute setDistance={setDistance} setTotalCost={setTotalCost} />
           <Button colorScheme="blue" type="submit" mt={4}>Book Now</Button>
         </form>
       </VStack>
-      <GoogleMapsRoute setDistance={setDistance} />
-      <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Terms and Conditions</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <p>The services may have a higher cost which must be paid when arriving at the destination, otherwise the vehicle will not leave the platform and will be taken to the corralon.</p>
-            <p>Remember that only two passengers can go in the tow truck, if you require a taxi we can provide it.</p>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
     </Box>
   );
 };
