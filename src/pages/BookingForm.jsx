@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast, Heading, Switch } from '@chakra-ui/react';
+import React, { useState, useEffect } from 'react';
+import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast, Heading, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../integrations/supabase';
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
+import { getTowTruckType, getTowTruckPricing } from '../utils/towTruckSelection';
 
 const BookingForm = () => {
   const [formData, setFormData] = useState({
@@ -27,8 +28,20 @@ const BookingForm = () => {
   const [totalCost, setTotalCost] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isTestMode, setIsTestMode] = useState(false);
+  const [selectedTowTruck, setSelectedTowTruck] = useState('A');
   const toast = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const towTruckType = getTowTruckType(formData.vehicleSize);
+    setSelectedTowTruck(towTruckType);
+  }, [formData.vehicleSize]);
+
+  useEffect(() => {
+    const { perKm, basePrice } = getTowTruckPricing(selectedTowTruck);
+    const newTotalCost = basePrice + (distance * perKm);
+    setTotalCost(newTotalCost);
+  }, [selectedTowTruck, distance]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -62,6 +75,7 @@ const BookingForm = () => {
         ...formData,
         distance,
         totalCost,
+        towTruckType: selectedTowTruck,
         status: 'pending',
         createdAt: new Date().toISOString(),
       };
@@ -153,9 +167,10 @@ const BookingForm = () => {
             <FormLabel>Vehicle Size</FormLabel>
             <Select name="vehicleSize" value={formData.vehicleSize} onChange={handleChange}>
               <option value="">Select Vehicle Size</option>
-              <option value="Small">Small</option>
-              <option value="Medium">Medium</option>
-              <option value="Large">Large</option>
+              <option value="Small">Small (up to 3500 kg)</option>
+              <option value="Medium">Medium (3501 - 6000 kg)</option>
+              <option value="Large">Large (6001 - 12000 kg)</option>
+              <option value="Extra Large">Extra Large (12001 - 25000 kg)</option>
             </Select>
           </FormControl>
           <FormControl id="pickupLocation" isRequired>
@@ -191,6 +206,8 @@ const BookingForm = () => {
             <Input type="time" name="pickupTime" value={formData.pickupTime} onChange={handleChange} />
           </FormControl>
           <GoogleMapsRoute setDistance={setDistance} setTotalCost={setTotalCost} />
+          <Text mt={4}>Selected Tow Truck Type: {selectedTowTruck}</Text>
+          <Text>Estimated Total Cost: ${totalCost.toFixed(2)}</Text>
           <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading}>
             Book Now
           </Button>
