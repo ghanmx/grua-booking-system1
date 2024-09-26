@@ -6,8 +6,19 @@ const Payment = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const toast = useToast();
-  const { formData, totalCost, serviceDetails } = location.state || {};
+  const { formData } = location.state || {};
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Calculate total cost based on formData
+  const calculateTotalCost = () => {
+    // This is a placeholder calculation. You should implement your actual pricing logic here.
+    const baseCost = 558;
+    const costPerKm = 19;
+    const estimatedDistance = 50; // This should be calculated based on the actual route
+    return baseCost + (costPerKm * estimatedDistance);
+  };
+
+  const totalCost = calculateTotalCost();
 
   const handlePayment = async () => {
     setIsProcessing(true);
@@ -20,7 +31,7 @@ const Payment = () => {
 
       if (paymentSuccess) {
         console.log('Payment processed for:', totalCost);
-        navigate('/confirmation', { state: { formData } });
+        navigate('/confirmation', { state: { formData, totalCost } });
       } else {
         throw new Error('Payment failed');
       }
@@ -51,10 +62,7 @@ const Payment = () => {
             <Text>Vehicle Size: {formData.vehicleSize}</Text>
             <Text>Pickup Date: {formData.pickupDate}</Text>
             <Text>Pickup Time: {formData.pickupTime}</Text>
-            <Text>Total Cost: ${totalCost}</Text>
-            <Text>Distance: {serviceDetails.distance} km</Text>
-            <Text>Pickup Location: {JSON.stringify(serviceDetails.pickupLocation)}</Text>
-            <Text>Destination Location: {JSON.stringify(serviceDetails.destinationLocation)}</Text>
+            <Text fontWeight="bold">Total Cost: ${totalCost}</Text>
             <Button 
               colorScheme="blue" 
               onClick={handlePayment} 

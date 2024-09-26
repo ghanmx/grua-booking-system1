@@ -3,7 +3,6 @@ import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, u
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../integrations/supabase';
 import MapComponent from '../components/MapComponent';
-import PaymentComponent from '../components/PaymentComponent';
 
 const BookingForm = () => {
   const [formData, setFormData] = useState({
@@ -40,7 +39,7 @@ const BookingForm = () => {
     try {
       const { data, error } = await supabase.from('bookings').insert([formData]);
       if (error) throw error;
-      navigate('/confirmation', { state: { formData } });
+      navigate('/payment', { state: { formData } });
     } catch (error) {
       toast({
         title: 'Error',
@@ -131,11 +130,10 @@ const BookingForm = () => {
           <FormControl id="terms" isRequired>
             <Checkbox onChange={() => setIsTermsOpen(true)}>I accept terms and conditions</Checkbox>
           </FormControl>
-          <Button colorScheme="blue" type="submit" mt={4}>Book Now</Button>
+          <Button colorScheme="blue" type="submit" mt={4}>Proceed to Payment</Button>
         </form>
       </VStack>
       <MapComponent />
-      <PaymentComponent />
       <Modal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)}>
         <ModalOverlay />
         <ModalContent>
