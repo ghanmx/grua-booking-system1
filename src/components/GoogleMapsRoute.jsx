@@ -54,6 +54,7 @@ const GoogleMapsRoute = ({ setDistance, setTotalCost, selectedTowTruck }) => {
                         const totalDistance = distanceToPickup + pickupToDestinationDistance + distanceFromDestination;
                         setDistance(totalDistance);
 
+                        const { perKm, basePrice } = getTowTruckPricing(selectedTowTruck);
                         const price = calculateTotalCost(totalDistance, selectedTowTruck);
                         setTotalPrice(price);
                         setTotalCost(price);
