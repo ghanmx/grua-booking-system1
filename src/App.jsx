@@ -6,6 +6,7 @@ import Index from "./pages/Index";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import BookingForm from "./pages/BookingForm";
+import BillingProcess from "./pages/BillingProcess";
 import Confirmation from "./pages/Confirmation";
 import Payment from "./pages/Payment";
 import Login from "./pages/Login";
@@ -26,6 +27,7 @@ function App() {
                   <Route path="/about" element={<About />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/booking" element={<BookingForm />} />
+                  <Route path="/billing" element={<BillingProcess />} />
                   <Route path="/payment" element={<Payment />} />
                   <Route path="/confirmation" element={<Confirmation />} />
                   <Route path="/login" element={<Login />} />

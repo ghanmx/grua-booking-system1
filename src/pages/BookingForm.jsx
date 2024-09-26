@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast, Heading } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, Input, Select, Textarea, VStack, useToast, Heading, Switch } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../integrations/supabase';
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
@@ -20,6 +20,7 @@ const BookingForm = () => {
   const [distance, setDistance] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isTestMode, setIsTestMode] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -59,19 +60,31 @@ const BookingForm = () => {
         createdAt: new Date().toISOString(),
       };
 
-      const { data, error } = await supabase.from('bookings').insert([bookingData]);
+      if (isTestMode) {
+        console.log('Test Mode: Booking Data', bookingData);
+        toast({
+          title: 'Test Mode: Booking Successful',
+          description: 'This is a test booking. No data was saved.',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+        navigate('/billing', { state: { bookingData } });
+      } else {
+        const { data, error } = await supabase.from('bookings').insert([bookingData]);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: 'Booking Successful',
-        description: 'Your tow service has been booked successfully.',
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
+        toast({
+          title: 'Booking Successful',
+          description: 'Your tow service has been booked successfully.',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
 
-      navigate('/confirmation', { state: { bookingData } });
+        navigate('/billing', { state: { bookingData } });
+      }
     } catch (error) {
       console.error('Booking error:', error);
       toast({
@@ -90,6 +103,12 @@ const BookingForm = () => {
     <Box p={4}>
       <VStack spacing={4} align="stretch">
         <Heading as="h1" mb={4}>Booking Form</Heading>
+        <FormControl display="flex" alignItems="center">
+          <FormLabel htmlFor="test-mode" mb="0">
+            Enable Test Mode
+          </FormLabel>
+          <Switch id="test-mode" onChange={(e) => setIsTestMode(e.target.checked)} />
+        </FormControl>
         <form onSubmit={handleBookingProcess}>
           <FormControl id="serviceType" isRequired>
             <FormLabel>Service Type</FormLabel>
