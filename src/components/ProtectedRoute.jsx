@@ -4,12 +4,13 @@ import { useSupabaseAuth } from '../integrations/supabase/auth.jsx';
 const ProtectedRoute = ({ children }) => {
     const { session, loading } = useSupabaseAuth();
     const location = useLocation();
+    const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
 
     if (loading) {
-        return <div>Loading...</div>; // Or some loading spinner
+        return <div>Loading...</div>;
     }
 
-    if (!session) {
+    if (!session && !testModeUser?.isTestMode) {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 

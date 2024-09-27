@@ -5,6 +5,7 @@ import { supabase } from '../integrations/supabase';
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
 import { getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
+import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const vehicleBrands = ['Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan', 'BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen', 'Hyundai', 'Kia', 'Mazda', 'Subaru', 'Lexus', 'Acura', 'Volvo', 'Jeep', 'Chrysler', 'Dodge', 'Ram', 'Tesla', 'Porsche', 'Jaguar', 'Land Rover', 'Mitsubishi'];
 
@@ -62,6 +63,7 @@ const BookingForm = () => {
   const [isTestMode, setIsTestMode] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
+  const { session } = useSupabaseAuth();
 
   useEffect(() => {
     const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
@@ -151,6 +153,12 @@ const BookingForm = () => {
 
     setIsLoading(true);
     try {
+      if (!isTestMode && !session) {
+        // If not in test mode and not logged in, redirect to login
+        navigate('/login', { state: { from: '/booking' } });
+        return;
+      }
+
       if (!isTestMode) {
         // Process payment
         const paymentResult = await processPayment(totalCost * 100); // Convert to cents
