@@ -124,7 +124,6 @@ const Login = () => {
                                                 boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF"
                                             }}
                                             disabled={isTestMode}
-                                            autoComplete="username"
                                         />
                                     </FormControl>
                                     <FormControl>
@@ -145,7 +144,6 @@ const Login = () => {
                                                 boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF"
                                             }}
                                             disabled={isTestMode}
-                                            autoComplete="current-password"
                                         />
                                     </FormControl>
                                     <Button
@@ -186,7 +184,6 @@ const Login = () => {
                                             _focus={{
                                                 boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF"
                                             }}
-                                            autoComplete="username"
                                         />
                                     </FormControl>
                                     <FormControl>
@@ -206,7 +203,6 @@ const Login = () => {
                                             _focus={{
                                                 boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF"
                                             }}
-                                            autoComplete="new-password"
                                         />
                                     </FormControl>
                                     <Button
