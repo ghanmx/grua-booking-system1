@@ -11,13 +11,14 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start:dev": "vite --host 0.0.0.0 --port 8080"
   },
   "devDependencies": {
     "@types/react": "^18.3.9",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
-    "eslint": "^9.11.1",
+    "eslint": "^8.57.1",
     "eslint-plugin-react": "^7.36.1",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.12",
@@ -36,12 +37,13 @@
     "@tanstack/react-query": "^5.56.2",
     "framer-motion": "^11.7.0",
     "react": "^18.3.1",
+    "react-datepicker": "^7.4.0",
     "react-dom": "^18.3.1",
     "react-icons": "^5.3.0",
     "react-router-dom": "^6.26.2"
   },
   "prettier": {
-    "printWidth": 99999999
+    "printWidth": 100
   }
 }
 
@@ -58,13 +60,14 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start:dev": "vite --host 0.0.0.0 --port 8080"
   },
   "devDependencies": {
     "@types/react": "^18.3.9",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
-    "eslint": "^9.11.1",
+    "eslint": "^8.57.1",
     "eslint-plugin-react": "^7.36.1",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.12",
@@ -83,34 +86,36 @@
     "@tanstack/react-query": "^5.56.2",
     "framer-motion": "^11.7.0",
     "react": "^18.3.1",
+    "react-datepicker": "^7.4.0",
     "react-dom": "^18.3.1",
     "react-icons": "^5.3.0",
     "react-router-dom": "^6.26.2"
   },
   "prettier": {
-    "printWidth": 99999999
+    "printWidth": 100
   }
 }
 
 
 
 // C:\Users\israe\Documents\GitHub\grua-booking-system-80\vite.config.js
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
 export default defineConfig({
-  server: {
-    host: "::",
-    port: "8080",
-    strictPort: true,
-    clearScreen: false,
-    logLevel: "info",
-    warmup: {
-      clientFiles: ["src/**/*.(js|jsx|ts|tsx|html|css)", "index.html"]
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'), // Enables importing from 'src' as '@'
     },
   },
+  server: {
+    host: '::',
+    port: '8080',
+    strictPort: true,
+    clearScreen: false,
+  },
   plugins: [react()],
-  base: ""
 });
 
 
