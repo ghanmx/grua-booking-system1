@@ -12,6 +12,7 @@ import Payment from "./pages/Payment";
 import Login from "./pages/Login";
 import { SupabaseProvider } from './integrations/supabase';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -26,10 +27,26 @@ function App() {
                   <Route path="/" element={<Index />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/contact" element={<Contact />} />
-                  <Route path="/booking" element={<BookingForm />} />
-                  <Route path="/billing" element={<BillingProcess />} />
-                  <Route path="/payment" element={<Payment />} />
-                  <Route path="/confirmation" element={<Confirmation />} />
+                  <Route path="/booking" element={
+                    <ProtectedRoute>
+                      <BookingForm />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/billing" element={
+                    <ProtectedRoute>
+                      <BillingProcess />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/payment" element={
+                    <ProtectedRoute>
+                      <Payment />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/confirmation" element={
+                    <ProtectedRoute>
+                      <Confirmation />
+                    </ProtectedRoute>
+                  } />
                   <Route path="/login" element={<Login />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
