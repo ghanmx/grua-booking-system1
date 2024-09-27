@@ -1,6 +1,6 @@
-import { Box, Container, Text, VStack, Button, Image, Heading, SimpleGrid, Icon, Input, FormControl, FormLabel } from "@chakra-ui/react";
+import { Box, Container, Text, VStack, Button, Heading, SimpleGrid, Icon, Input, FormControl, FormLabel } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { FaTruck, FaMapMarkedAlt, FaPhoneAlt, FaLock, FaArrowLeft, FaBookmark, FaCog, FaSearch } from "react-icons/fa";
+import { FaTruck, FaMapMarkedAlt, FaPhoneAlt } from "react-icons/fa";
 
 const Feature = ({ title, icon, children }) => {
   return (
@@ -43,26 +43,9 @@ const Index = () => {
                 <FormLabel srOnly>Password</FormLabel>
                 <Input type="password" placeholder="Password" bg="#EBECF0" boxShadow="inset 2px 2px 5px #BABECC, inset -5px -5px 10px #FFF" border="none" _focus={{ boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF" }} />
               </FormControl>
-              <Button leftIcon={<FaLock />} bg="#EBECF0" color="#AE1100" fontWeight="bold" boxShadow="-5px -5px 20px #FFF, 5px 5px 20px #BABECC" _hover={{ boxShadow: "-2px -2px 5px #FFF, 2px 2px 5px #BABECC" }} _active={{ boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF" }} width="100%">
+              <Button bg="#EBECF0" color="#AE1100" fontWeight="bold" boxShadow="-5px -5px 20px #FFF, 5px 5px 20px #BABECC" _hover={{ boxShadow: "-2px -2px 5px #FFF, 2px 2px 5px #BABECC" }} _active={{ boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF" }} width="100%">
                 Log in
               </Button>
-              <SimpleGrid columns={3} spacing={2}>
-                <Button size="sm" borderRadius="8px" bg="#EBECF0" boxShadow="-5px -5px 20px #FFF, 5px 5px 20px #BABECC" _hover={{ boxShadow: "-2px -2px 5px #FFF, 2px 2px 5px #BABECC" }} _active={{ boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF" }}>
-                  <Icon as={FaArrowLeft} />
-                </Button>
-                <Button size="sm" borderRadius="8px" bg="#EBECF0" boxShadow="-5px -5px 20px #FFF, 5px 5px 20px #BABECC" _hover={{ boxShadow: "-2px -2px 5px #FFF, 2px 2px 5px #BABECC" }} _active={{ boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF" }}>
-                  <Icon as={FaBookmark} />
-                </Button>
-                <Button size="sm" borderRadius="8px" bg="#EBECF0" boxShadow="-5px -5px 20px #FFF, 5px 5px 20px #BABECC" _hover={{ boxShadow: "-2px -2px 5px #FFF, 2px 2px 5px #BABECC" }} _active={{ boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF" }}>
-                  <Icon as={FaCog} />
-                </Button>
-              </SimpleGrid>
-              <Box display="flex" alignItems="center">
-                <Input type="text" placeholder="Email Address" bg="#EBECF0" boxShadow="inset 2px 2px 5px #BABECC, inset -5px -5px 10px #FFF" border="none" _focus={{ boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF" }} flex="1" mr={2} />
-                <Button size="sm" borderRadius="8px" bg="#EBECF0" boxShadow="-5px -5px 20px #FFF, 5px 5px 20px #BABECC" _hover={{ boxShadow: "-2px -2px 5px #FFF, 2px 2px 5px #BABECC" }} _active={{ boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF" }}>
-                  <Icon as={FaSearch} />
-                </Button>
-              </Box>
             </VStack>
           </Box>
 
