@@ -1,17 +1,18 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
 export default defineConfig({
-  server: {
-    host: "::",
-    port: "8080",
-    strictPort: true,
-    clearScreen: false,
-    logLevel: "info",
-    warmup: {
-      clientFiles: ["src/**/*.(js|jsx|ts|tsx|html|css)", "index.html"]
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'), // Enables importing from 'src' as '@'
     },
   },
+  server: {
+    host: '::',
+    port: '8080',
+    strictPort: true,
+    clearScreen: false,
+  },
   plugins: [react()],
-  base: ""
 });

@@ -1,0 +1,668 @@
+
+
+// .\package.json
+{
+  "name": "vite-project",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:dev": "vite build --mode development",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.9",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "eslint": "^9.11.1",
+    "eslint-plugin-react": "^7.36.1",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.12",
+    "vite": "^5.4.8"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^2.8.2",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@react-google-maps/api": "^2.19.3",
+    "@stripe/react-stripe-js": "^2.8.0",
+    "@stripe/stripe-js": "^4.5.0",
+    "@supabase/auth-ui-react": "^0.4.7",
+    "@supabase/auth-ui-shared": "^0.1.8",
+    "@supabase/supabase-js": "^2.45.4",
+    "@tanstack/react-query": "^5.56.2",
+    "framer-motion": "^11.7.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.3.0",
+    "react-router-dom": "^6.26.2"
+  },
+  "prettier": {
+    "printWidth": 99999999
+  }
+}
+
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\package.json
+{
+  "name": "vite-project",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:dev": "vite build --mode development",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.9",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "eslint": "^9.11.1",
+    "eslint-plugin-react": "^7.36.1",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.12",
+    "vite": "^5.4.8"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^2.8.2",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@react-google-maps/api": "^2.19.3",
+    "@stripe/react-stripe-js": "^2.8.0",
+    "@stripe/stripe-js": "^4.5.0",
+    "@supabase/auth-ui-react": "^0.4.7",
+    "@supabase/auth-ui-shared": "^0.1.8",
+    "@supabase/supabase-js": "^2.45.4",
+    "@tanstack/react-query": "^5.56.2",
+    "framer-motion": "^11.7.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.3.0",
+    "react-router-dom": "^6.26.2"
+  },
+  "prettier": {
+    "printWidth": 99999999
+  }
+}
+
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\vite.config.js
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  server: {
+    host: "::",
+    port: "8080",
+    strictPort: true,
+    clearScreen: false,
+    logLevel: "info",
+    warmup: {
+      clientFiles: ["src/**/*.(js|jsx|ts|tsx|html|css)", "index.html"]
+    },
+  },
+  plugins: [react()],
+  base: ""
+});
+
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\.gpt_engineer_internals\report-url-change.js
+const main = () => {
+  /**
+   * Function to send a message to parent windows
+   */
+  const postUrlChange = (newUrl) => {
+    try {
+      const message = { type: "URL_CHANGED", url: newUrl };
+      window.top.postMessage(message, "https://run.gptengineer.app");
+      window.top.postMessage(message, "http://localhost:3000");
+      window.top.postMessage(message, window.origin);
+    } catch (error) {
+      console.error("Error posting URL change:", error);
+    }
+  };
+
+  /**
+   * Listen for URL changes using MutationObserver and navigation-related events.
+   */
+  const observeUrlChange = () => {
+    let oldHref = document.location.href;
+
+    const checkUrlChange = () => {
+      const newHref = document.location.href;
+      if (oldHref !== newHref) {
+        oldHref = newHref;
+        postUrlChange(newHref); // Call the function to post the URL change
+      }
+    };
+
+    // Observe DOM changes (Fallback for cases not covered by events)
+    const body = document.querySelector("body");
+    const observer = new MutationObserver(checkUrlChange);
+    observer.observe(body, { childList: true, subtree: true });
+
+    // Add event listeners for navigation-related changes
+    window.addEventListener("popstate", checkUrlChange); // Back/forward button
+    window.addEventListener("hashchange", checkUrlChange); // Hash changes (e.g., #section)
+
+    // Monkey patch pushState and replaceState to capture URL changes triggered by them
+    const originalPushState = history.pushState;
+    history.pushState = function () {
+      originalPushState.apply(this, arguments);
+      checkUrlChange();
+    };
+
+    const originalReplaceState = history.replaceState;
+    history.replaceState = function () {
+      originalReplaceState.apply(this, arguments);
+      checkUrlChange();
+    };
+  };
+
+  // Run observeUrlChange when the window is loaded
+  window.addEventListener("load", observeUrlChange);
+};
+
+// Execute main function (No need for .catch() as this is synchronous)
+main();
+
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\.vscode\launch.json
+{
+    // Use IntelliSense para saber los atributos posibles.
+    // Mantenga el puntero para ver las descripciones de los existentes atributos.
+    // Para más información, visite: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "PowerShell: Launch Current File",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${file}",
+            "args": []
+        }
+    ]
+}
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\scripts\update-package-json.js
+const fs = require('fs');
+const path = require('path');
+
+const packageJsonPath = path.join(__dirname, '..', 'package.json');
+
+try {
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  
+  if (!packageJson.scripts['build:dev']) {
+    packageJson.scripts['build:dev'] = 'vite build --mode development';
+    
+    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+    console.log('Successfully added build:dev script to package.json');
+  } else {
+    console.log('build:dev script already exists in package.json');
+  }
+} catch (error) {
+  console.error('Error updating package.json:', error);
+  process.exit(1);
+}
+
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\authentication\authentication.domain.facade.ts
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class AuthenticationDomainFacade {
+  private users: Map<string, string> = new Map();
+
+  constructor() {
+    // Initialize with some default users
+    this.users.set('user1', 'password1');
+    this.users.set('user2', 'password2');
+  }
+
+  public authenticate(username: string, password: string): boolean {
+    const storedPassword = this.users.get(username);
+    return storedPassword === password;
+  }
+
+  public addUser(username: string, password: string): void {
+    this.users.set(username, password);
+  }
+
+  public removeUser(username: string): void {
+    this.users.delete(username);
+  }
+}
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\authentication\authentication.domain.module.ts
+import { Module } from '@nestjs/common';
+import { AuthenticationDomainFacade } from './authentication.domain.facade';
+
+@Module({
+  providers: [AuthenticationDomainFacade],
+  exports: [AuthenticationDomainFacade],
+})
+export class AuthenticationDomainModule {}
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\config\supabase.config.ts
+export const supabaseUrl = 'https://gjwhxrajesykwmomorhw.supabase.co';
+export const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdqd2h4cmFqZXN5a3dtb21vcmh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg4NTYzOTIsImV4cCI6MjAzNDQzMjM5Mn0.fDk88E2zfp64VhiEYL7KCh7KSEF1mNioaII7IaRwRgQ';
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\event\event.service.ts
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class EventService {
+  private events: any[] = [];
+
+  emit(event: any) {
+    this.events.push(event);
+    console.log('Event emitted:', event);
+  }
+
+  getEvents() {
+    return this.events;
+  }
+}
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\integrations\supabase\index.js
+import { createClient } from '@supabase/supabase-js';
+import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_API_KEY;
+export const supabase = createClient(supabaseUrl, supabaseKey);
+
+import React from "react";
+export const queryClient = new QueryClient();
+export function SupabaseProvider({ children }) {
+    return React.createElement(QueryClientProvider, { client: queryClient }, children);
+}
+
+const fromSupabase = async (query) => {
+    const { data, error } = await query;
+    if (error) throw new Error(error.message);
+    return data;
+};
+
+/* supabase integration types
+
+### TOW
+
+| name       | type        | format | required |
+|------------|-------------|--------|----------|
+| id         | int8        | number | true     |
+| created_at | timestamptz | string | true     |
+
+*/
+
+export const useTOW = () => useQuery({
+    queryKey: ['TOW'],
+    queryFn: () => fromSupabase(supabase.from('TOW').select('*')),
+});
+
+export const useAddTOW = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (newTOW) => fromSupabase(supabase.from('TOW').insert([newTOW])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('TOW');
+        },
+    });
+};
+
+export const useUpdateTOW = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (updatedTOW) => fromSupabase(supabase.from('TOW').update(updatedTOW).eq('id', updatedTOW.id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('TOW');
+        },
+    });
+};
+
+export const useDeleteTOW = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => fromSupabase(supabase.from('TOW').delete().eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('TOW');
+        },
+    });
+};
+
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\integrations\supabase\openapi.json
+{"swagger":"2.0","info":{"description":"","title":"standard public schema","version":"12.1 (8cbcf98)"},"host":"gjwhxrajesykwmomorhw.supabase.co:443","basePath":"/","schemes":["https"],"consumes":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json","text/csv"],"produces":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json","text/csv"],"paths":{"/":{"get":{"produces":["application/openapi+json","application/json"],"responses":{"200":{"description":"OK"}},"summary":"OpenAPI description (this document)","tags":["Introspection"]}},"/TOW":{"get":{"parameters":[{"$ref":"#/parameters/rowFilter.TOW.id"},{"$ref":"#/parameters/rowFilter.TOW.created_at"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/order"},{"$ref":"#/parameters/range"},{"$ref":"#/parameters/rangeUnit"},{"$ref":"#/parameters/offset"},{"$ref":"#/parameters/limit"},{"$ref":"#/parameters/preferCount"}],"responses":{"200":{"description":"OK","schema":{"items":{"$ref":"#/definitions/TOW"},"type":"array"}},"206":{"description":"Partial Content"}},"summary":"TOW","tags":["TOW"]},"post":{"parameters":[{"$ref":"#/parameters/body.TOW"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/preferPost"}],"responses":{"201":{"description":"Created"}},"summary":"TOW","tags":["TOW"]},"delete":{"parameters":[{"$ref":"#/parameters/rowFilter.TOW.id"},{"$ref":"#/parameters/rowFilter.TOW.created_at"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"summary":"TOW","tags":["TOW"]},"patch":{"parameters":[{"$ref":"#/parameters/rowFilter.TOW.id"},{"$ref":"#/parameters/rowFilter.TOW.created_at"},{"$ref":"#/parameters/body.TOW"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"summary":"TOW","tags":["TOW"]}}},"definitions":{"TOW":{"description":"TOW","required":["id","created_at"],"properties":{"id":{"description":"Note:\nThis is a Primary Key.<pk/>","format":"bigint","type":"integer"},"created_at":{"default":"now()","format":"timestamp with time zone","type":"string"}},"type":"object"}},"parameters":{"preferParams":{"name":"Prefer","description":"Preference","required":false,"enum":["params=single-object"],"in":"header","type":"string"},"preferReturn":{"name":"Prefer","description":"Preference","required":false,"enum":["return=representation","return=minimal","return=none"],"in":"header","type":"string"},"preferCount":{"name":"Prefer","description":"Preference","required":false,"enum":["count=none"],"in":"header","type":"string"},"preferPost":{"name":"Prefer","description":"Preference","required":false,"enum":["return=representation","return=minimal","return=none","resolution=ignore-duplicates","resolution=merge-duplicates"],"in":"header","type":"string"},"select":{"name":"select","description":"Filtering Columns","required":false,"in":"query","type":"string"},"on_conflict":{"name":"on_conflict","description":"On Conflict","required":false,"in":"query","type":"string"},"order":{"name":"order","description":"Ordering","required":false,"in":"query","type":"string"},"range":{"name":"Range","description":"Limiting and Pagination","required":false,"in":"header","type":"string"},"rangeUnit":{"name":"Range-Unit","description":"Limiting and Pagination","required":false,"default":"items","in":"header","type":"string"},"offset":{"name":"offset","description":"Limiting and Pagination","required":false,"in":"query","type":"string"},"limit":{"name":"limit","description":"Limiting and Pagination","required":false,"in":"query","type":"string"},"body.TOW":{"name":"TOW","description":"TOW","required":false,"in":"body","schema":{"$ref":"#/definitions/TOW"}},"rowFilter.TOW.id":{"name":"id","required":false,"format":"bigint","in":"query","type":"string"},"rowFilter.TOW.created_at":{"name":"created_at","required":false,"format":"timestamp with time zone","in":"query","type":"string"}},"externalDocs":{"description":"PostgREST Documentation","url":"https://postgrest.org/en/v12.1/api.html"}}
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\towingRequest\towingRequest.domain.facade.ts
+import { Injectable } from '@nestjs/common';
+import { TowingRequest } from './towingRequest.entity';
+
+@Injectable()
+export class TowingRequestDomainFacade {
+  private towingRequests: TowingRequest[] = [];
+
+  public findAll(): TowingRequest[] {
+    return this.towingRequests;
+  }
+
+  public createOne(createDto: TowingRequest): TowingRequest {
+    const newRequest = { ...createDto, id: Date.now().toString() };
+    this.towingRequests.push(newRequest);
+    return newRequest;
+  }
+
+  public findById(id: string): TowingRequest | undefined {
+    return this.towingRequests.find(request => request.id === id);
+  }
+
+  public updateOne(id: string, updateDto: Partial<TowingRequest>): TowingRequest | undefined {
+    const requestIndex = this.towingRequests.findIndex(request => request.id === id);
+    if (requestIndex > -1) {
+      this.towingRequests[requestIndex] = { ...this.towingRequests[requestIndex], ...updateDto };
+      return this.towingRequests[requestIndex];
+    }
+    return undefined;
+  }
+
+  public deleteOne(id: string): boolean {
+    const requestIndex = this.towingRequests.findIndex(request => request.id === id);
+    if (requestIndex > -1) {
+      this.towingRequests.splice(requestIndex, 1);
+      return true;
+    }
+    return false;
+  }
+
+  public findByUserId(userId: string): TowingRequest[] {
+    return this.towingRequests.filter(request => request.userId === userId);
+  }
+}
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\towingRequest\towingRequest.domain.module.ts
+import { Module } from '@nestjs/common';
+import { TowingRequestDomainFacade } from './towingRequest.domain.facade';
+
+@Module({
+  providers: [TowingRequestDomainFacade],
+  exports: [TowingRequestDomainFacade],
+})
+export class TowingRequestDomainModule {}
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\towingRequest\towingRequest.entity.ts
+export class TowingRequest {
+  id: string;
+  userId: string;
+  pickupLocation: string;
+  destinationLocation: string;
+  additionalInfo?: string;
+}
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\towingRequest\application\towingRequest.application.event.ts
+export namespace TowingRequestApplicationEvent {
+  export class TowingRequestCreated {
+    static readonly key = 'towingRequest.created';
+    constructor(public readonly id: string, public readonly userId: string) {}
+  }
+}
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\towingRequest\application\towingRequest.application.module.ts
+import { Module } from '@nestjs/common';
+import { AuthenticationDomainModule } from '../authentication/authentication.domain.module';
+import { TowingRequestDomainModule } from '../towing-request/towingRequest.domain.module';
+import { UserDomainModule } from '../user/user.domain.module';
+
+import { EventService } from '../event/event.service';
+import { TowingRequestDomainFacade } from '../towingRequest/towingRequest.domain.facade';
+import { AuthenticationDomainFacade } from '../authentication/authentication.domain.facade';
+import { NewService } from '../new/new.service';
+
+@Module({
+  imports: [
+    AuthenticationDomainModule,
+    TowingRequestDomainModule,
+    UserDomainModule,
+  ],
+  
+  providers: [
+    EventService,
+    TowingRequestDomainFacade,
+    {
+      provide: 'AuthenticationDomainFacade',
+      useClass: AuthenticationDomainFacade,
+    },
+    NewService,
+  ],
+})
+export class TowingRequestApplicationModule {}
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\towingRequest\application\towingRequest.controller.ts
+import { Controller, Get, Post, Patch, Delete, Body, Param } from '@nestjs/common';
+import { EventService } from '../event/event.service';
+import { TowingRequestDomainFacade } from '../towingRequest/towingRequest.domain.facade';
+import { AuthenticationDomainFacade } from '../authentication/authentication.domain.facade';
+import { TowingRequestCreateDto, TowingRequestUpdateDto } from './towingRequest.dto';
+import { TowingRequestApplicationEvent } from './towingRequest.application.event';
+import { supabaseUrl, supabaseKey } from '../../config/supabase.config';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+@Controller('/v1/towingRequests')
+export class TowingRequestController {
+  constructor(
+    private readonly eventService: EventService,
+    private readonly towingRequestDomainFacade: TowingRequestDomainFacade,
+    private readonly authenticationDomainFacade: AuthenticationDomainFacade,
+  ) {}
+
+  @Get()
+  async findMany() {
+    return this.towingRequestDomainFacade.findMany();
+  }
+
+  @Post()
+  async create(@Body() createDto: TowingRequestCreateDto) {
+    const towingRequest = await this.towingRequestDomainFacade.create(createDto);
+    this.eventService.emit(new TowingRequestApplicationEvent.TowingRequestCreated(towingRequest.id, towingRequest.userId));
+    return towingRequest;
+  }
+
+  @Post('/create')
+  async createTowingRequest(@Body() createDto: TowingRequestCreateDto) {
+    const { data, error } = await supabase
+      .from('TOW')
+      .insert([createDto]);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return this.towingRequestDomainFacade.findOne(id);
+  }
+
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() updateDto: TowingRequestUpdateDto) {
+    return this.towingRequestDomainFacade.update(id, updateDto);
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: string) {
+    return this.towingRequestDomainFacade.delete(id);
+  }
+}
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\towingRequest\application\towingRequest.dto.ts
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+
+export class TowingRequestCreateDto {
+  @IsString()
+  @IsNotEmpty()
+  pickupLocation: string;
+
+  @IsString()
+  @IsNotEmpty()
+  destinationLocation: string;
+
+  @IsString()
+  @IsOptional()
+  additionalInfo?: string;
+}
+
+export class TowingRequestUpdateDto {
+  @IsString()
+  @IsOptional()
+  pickupLocation?: string;
+
+  @IsString()
+  @IsOptional()
+  destinationLocation?: string;
+
+  @IsString()
+  @IsOptional()
+  additionalInfo?: string;
+}
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\towingRequest\application\towingRequestByUser.controller.ts
+import { Controller, Get, Param } from '@nestjs/common';
+import { TowingRequestDomainFacade } from '../towingRequest/towingRequest.domain.facade';
+
+@Controller('/v1/users/:userId/towingRequests')
+export class TowingRequestByUserController {
+  constructor(private readonly towingRequestDomainFacade: TowingRequestDomainFacade) {}
+
+  @Get()
+  async findByUser(@Param('userId') userId: string) {
+    return this.towingRequestDomainFacade.findByUser(userId);
+  }
+}
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\user\user.domain.module.ts
+import { Module } from '@nestjs/common';
+
+@Module({})
+export class UserDomainModule {}
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\utils\adminNotification.js
+import { supabase } from '../integrations/supabase';
+
+export const sendAdminNotification = async (formData, totalCost) => {
+  try {
+    const { data, error } = await supabase
+      .from('admin_notifications')
+      .insert([
+        {
+          service_type: formData.serviceType,
+          user_name: formData.userName,
+          phone_number: formData.phoneNumber,
+          vehicle_make: formData.vehicleMake,
+          vehicle_model: formData.vehicleModel,
+          vehicle_size: formData.vehicleSize,
+          total_cost: totalCost,
+          status: 'paid'
+        }
+      ]);
+
+    if (error) throw error;
+    console.log('Admin notification sent successfully');
+  } catch (error) {
+    console.error('Error sending admin notification:', error);
+  }
+};
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\utils\paymentProcessing.js
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+export const processPayment = async (amount) => {
+  try {
+    const stripe = await stripePromise;
+    const { error } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: elements.getElement(CardElement),
+        billing_details: {
+          name: 'Jenny Rosen',
+        },
+      },
+    });
+
+    if (error) {
+      console.log('[error]', error);
+      return { success: false, error: error.message };
+    } else {
+      console.log('Payment succeeded!');
+      return { success: true };
+    }
+  } catch (error) {
+    console.error('Error processing payment:', error);
+    return { success: false, error: 'An unexpected error occurred while processing the payment.' };
+  }
+};
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\utils\towTruckSelection.js
+export const getTowTruckType = (vehicleSize) => {
+  switch (vehicleSize) {
+    case 'Small':
+      return 'A';
+    case 'Medium':
+      return 'B';
+    case 'Large':
+      return 'C';
+    case 'Extra Large':
+      return 'D';
+    default:
+      return 'A';
+  }
+};
+
+export const getTowTruckPricing = (towTruckType) => {
+  const pricing = {
+    A: { perKm: 18.82, basePrice: 528.69 },
+    B: { perKm: 20.62, basePrice: 607.43 },
+    C: { perKm: 23.47, basePrice: 721.79 },
+    D: { perKm: 32.35, basePrice: 885.84 },
+  };
+  return pricing[towTruckType] || pricing.A;
+};
+
+export const calculateTotalCost = (distance, towTruckType) => {
+  const { perKm, basePrice } = getTowTruckPricing(towTruckType);
+  return basePrice + (distance * perKm);
+};
+

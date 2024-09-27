@@ -49,6 +49,7 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
 
   const handleMapClick = useCallback(async (event) => {
     const clickedLocation = event.latLng.toJSON();
+
     if (!pickup) {
       setPickup(clickedLocation);
       setMapCenter(clickedLocation);
@@ -59,9 +60,9 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
       setMapCenter(clickedLocation);
       const address = await getAddressFromLatLng(clickedLocation);
       setDropOffAddress(address);
-      
+
       try {
-        const distanceToPickup = await calculateRouteDistance(companyLocation, clickedLocation);
+        const distanceToPickup = await calculateRouteDistance(companyLocation, pickup);
         const pickupToDestinationDistance = await calculateRouteDistance(pickup, clickedLocation);
         const distanceFromDestination = await calculateRouteDistance(clickedLocation, companyLocation);
 
@@ -77,10 +78,17 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
         console.error('Error calculating total distance:', error);
       }
     }
-  }, [pickup, setDistance, setTotalCost, selectedTowTruck, setPickupAddress, setDropOffAddress]);
+  }, [pickup, destination, setPickupAddress, setDropOffAddress, setDistance, setTotalCost, selectedTowTruck]);
+
+  const handleConfirmation = () => {
+    setIsConfirmationOpen(false);
+    // Optionally reset pickup and destination if needed for new selection.
+    // setPickup(null);
+    // setDestination(null);
+  };
 
   return (
-    <Box height="400px" width="100%" my={4}>
+    <Box height={{ base: "300px", md: "400px" }} width="100%" my={4}>
       <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={["places"]}>
         <GoogleMap
           mapContainerStyle={{ height: "100%", width: "100%" }}
@@ -102,7 +110,7 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
             <Text>Total estimated price: ${totalPrice.toFixed(2)}</Text>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={() => setIsConfirmationOpen(false)}>
+            <Button colorScheme="blue" onClick={handleConfirmation}>
               Confirm
             </Button>
           </ModalFooter>

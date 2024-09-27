@@ -5,7 +5,7 @@ import App from "./App.jsx";
 import { SupabaseProvider } from './integrations/supabase/index.js';
 import { SupabaseAuthProvider } from './integrations/supabase/auth.jsx';
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+const RootComponent = () => (
   <React.StrictMode>
     <ChakraProvider>
       <SupabaseProvider>
@@ -16,3 +16,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </ChakraProvider>
   </React.StrictMode>
 );
+
+ReactDOM.createRoot(document.getElementById("root")).render(<RootComponent />);

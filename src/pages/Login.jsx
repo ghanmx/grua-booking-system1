@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Container, Heading, VStack, Text, Button, Input, FormControl, FormLabel, useToast, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react';
 import { supabase } from '../integrations/supabase/index.js';
+import { IoMdLock, IoMdArrowBack, IoMdBookmark, IoMdSettings, IoMdSearch } from 'react-icons/io';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -41,8 +42,8 @@ const Login = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const { data, error } = await supabase.auth.signUp({ 
-                email, 
+            const { data, error } = await supabase.auth.signUp({
+                email,
                 password,
                 options: {
                     emailRedirectTo: `${window.location.origin}/auth/callback`,
@@ -71,72 +72,158 @@ const Login = () => {
     };
 
     return (
-        <Box bg="gray.50" minHeight="calc(100vh - 60px)" py={10}>
+        <Box bg="#EBECF0" minHeight="calc(100vh - 60px)" py={10}>
             <Container maxW="md">
-                <VStack spacing={8} align="stretch" bg="white" p={8} borderRadius="md" boxShadow="md">
-                    <Heading as="h1" size="xl" textAlign="center">Account</Heading>
-                    <Tabs isFitted variant="enclosed">
-                        <TabList mb="1em">
-                            <Tab>Login</Tab>
-                            <Tab>Sign Up</Tab>
-                        </TabList>
-                        <TabPanels>
-                            <TabPanel>
-                                <form onSubmit={handleLogin}>
-                                    <VStack spacing={4}>
-                                        <FormControl>
-                                            <FormLabel>Email</FormLabel>
-                                            <Input 
-                                                type="email" 
-                                                value={email} 
-                                                onChange={(e) => setEmail(e.target.value)}
-                                                required
-                                            />
-                                        </FormControl>
-                                        <FormControl>
-                                            <FormLabel>Password</FormLabel>
-                                            <Input 
-                                                type="password" 
-                                                value={password} 
-                                                onChange={(e) => setPassword(e.target.value)}
-                                                required
-                                            />
-                                        </FormControl>
-                                        <Button type="submit" colorScheme="blue" width="full" isLoading={loading}>
-                                            Login
-                                        </Button>
-                                    </VStack>
-                                </form>
-                            </TabPanel>
-                            <TabPanel>
-                                <form onSubmit={handleSignUp}>
-                                    <VStack spacing={4}>
-                                        <FormControl>
-                                            <FormLabel>Email</FormLabel>
-                                            <Input 
-                                                type="email" 
-                                                value={email} 
-                                                onChange={(e) => setEmail(e.target.value)}
-                                                required
-                                            />
-                                        </FormControl>
-                                        <FormControl>
-                                            <FormLabel>Password</FormLabel>
-                                            <Input 
-                                                type="password" 
-                                                value={password} 
-                                                onChange={(e) => setPassword(e.target.value)}
-                                                required
-                                            />
-                                        </FormControl>
-                                        <Button type="submit" colorScheme="green" width="full" isLoading={loading}>
-                                            Sign Up
-                                        </Button>
-                                    </VStack>
-                                </form>
-                            </TabPanel>
-                        </TabPanels>
-                    </Tabs>
+                <VStack spacing={8} align="stretch" bg="#EBECF0" p={8} borderRadius="md" boxShadow="md">
+                    <Heading as="h1" size="xl" textAlign="center" color="#61677C" textShadow="1px 1px 1px #FFF">Account</Heading>
+                    <form onSubmit={handleSignUp} style={{ padding: '16px', width: '320px', margin: '0 auto' }}>
+                        <div className="segment">
+                            <Heading as="h1" size="lg" color="#61677C" textShadow="1px 1px 1px #FFF">Sign up</Heading>
+                        </div>
+                        <FormControl>
+                            <Input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                placeholder="Email Address"
+                                bg="#EBECF0"
+                                boxShadow="inset 2px 2px 5px #BABECC, inset -5px -5px 10px #FFF"
+                                border="0"
+                                borderRadius="32px"
+                                fontSize="16px"
+                                padding="16px"
+                                _focus={{
+                                    boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF"
+                                }}
+                            />
+                        </FormControl>
+                        <FormControl mt={4}>
+                            <Input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                placeholder="Password"
+                                bg="#EBECF0"
+                                boxShadow="inset 2px 2px 5px #BABECC, inset -5px -5px 10px #FFF"
+                                border="0"
+                                borderRadius="32px"
+                                fontSize="16px"
+                                padding="16px"
+                                _focus={{
+                                    boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF"
+                                }}
+                            />
+                        </FormControl>
+                        <Button
+                            type="submit"
+                            width="full"
+                            mt={4}
+                            bg="#EBECF0"
+                            color="#AE1100"
+                            fontWeight="bold"
+                            boxShadow="-5px -5px 20px #FFF, 5px 5px 20px #BABECC"
+                            _hover={{
+                                boxShadow: "-2px -2px 5px #FFF, 2px 2px 5px #BABECC"
+                            }}
+                            _active={{
+                                boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF"
+                            }}
+                            isLoading={loading}
+                        >
+                            <IoMdLock style={{ marginRight: '8px' }} /> Log in
+                        </Button>
+                        <div className="segment" style={{ padding: '32px 0', textAlign: 'center' }}>
+                            <Button
+                                className="unit"
+                                borderRadius="8px"
+                                width="48px"
+                                height="48px"
+                                fontSize="19.2px"
+                                bg="#EBECF0"
+                                boxShadow="-5px -5px 20px #FFF, 5px 5px 20px #BABECC"
+                                _hover={{
+                                    boxShadow: "-2px -2px 5px #FFF, 2px 2px 5px #BABECC"
+                                }}
+                                _active={{
+                                    boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF"
+                                }}
+                                mr={2}
+                            >
+                                <IoMdArrowBack />
+                            </Button>
+                            <Button
+                                className="unit"
+                                borderRadius="8px"
+                                width="48px"
+                                height="48px"
+                                fontSize="19.2px"
+                                bg="#EBECF0"
+                                boxShadow="-5px -5px 20px #FFF, 5px 5px 20px #BABECC"
+                                _hover={{
+                                    boxShadow: "-2px -2px 5px #FFF, 2px 2px 5px #BABECC"
+                                }}
+                                _active={{
+                                    boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF"
+                                }}
+                                mr={2}
+                            >
+                                <IoMdBookmark />
+                            </Button>
+                            <Button
+                                className="unit"
+                                borderRadius="8px"
+                                width="48px"
+                                height="48px"
+                                fontSize="19.2px"
+                                bg="#EBECF0"
+                                boxShadow="-5px -5px 20px #FFF, 5px 5px 20px #BABECC"
+                                _hover={{
+                                    boxShadow: "-2px -2px 5px #FFF, 2px 2px 5px #BABECC"
+                                }}
+                                _active={{
+                                    boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF"
+                                }}
+                            >
+                                <IoMdSettings />
+                            </Button>
+                        </div>
+                        <div className="input-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+                            <Input
+                                type="text"
+                                placeholder="Email Address"
+                                bg="#EBECF0"
+                                boxShadow="inset 2px 2px 5px #BABECC, inset -5px -5px 10px #FFF"
+                                border="0"
+                                borderRadius="32px"
+                                fontSize="16px"
+                                padding="16px"
+                                flex="1"
+                                mr={2}
+                                _focus={{
+                                    boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF"
+                                }}
+                            />
+                            <Button
+                                className="unit"
+                                borderRadius="8px"
+                                width="48px"
+                                height="48px"
+                                fontSize="19.2px"
+                                bg="#EBECF0"
+                                boxShadow="-5px -5px 20px #FFF, 5px 5px 20px #BABECC"
+                                _hover={{
+                                    boxShadow: "-2px -2px 5px #FFF, 2px 2px 5px #BABECC"
+                                }}
+                                _active={{
+                                    boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF"
+                                }}
+                            >
+                                <IoMdSearch />
+                            </Button>
+                        </div>
+                    </form>
                 </VStack>
             </Container>
         </Box>
