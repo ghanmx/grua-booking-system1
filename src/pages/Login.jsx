@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Container, Heading, VStack, Text, Button, Input, FormControl, FormLabel, useToast, Tabs, TabList, TabPanels, Tab, TabPanel, Switch } from '@chakra-ui/react';
 import { supabase } from '../integrations/supabase/index.js';
-import { IoMdLock, IoMdArrowBack, IoMdBookmark, IoMdSettings, IoMdSearch } from 'react-icons/io';
+import { IoMdLock } from 'react-icons/io';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -113,7 +113,7 @@ const Login = () => {
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
-                                            required
+                                            required={!isTestMode}
                                             placeholder="Email Address"
                                             bg="#EBECF0"
                                             boxShadow="inset 2px 2px 5px #BABECC, inset -5px -5px 10px #FFF"
@@ -125,6 +125,7 @@ const Login = () => {
                                             _focus={{
                                                 boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF"
                                             }}
+                                            disabled={isTestMode}
                                         />
                                     </FormControl>
                                     <FormControl>
@@ -132,7 +133,7 @@ const Login = () => {
                                             type="password"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
-                                            required
+                                            required={!isTestMode}
                                             placeholder="Password"
                                             bg="#EBECF0"
                                             boxShadow="inset 2px 2px 5px #BABECC, inset -5px -5px 10px #FFF"
@@ -144,6 +145,7 @@ const Login = () => {
                                             _focus={{
                                                 boxShadow: "inset 1px 1px 2px #BABECC, inset -1px -1px 2px #FFF"
                                             }}
+                                            disabled={isTestMode}
                                         />
                                     </FormControl>
                                     <Button

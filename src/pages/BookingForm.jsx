@@ -67,6 +67,24 @@ const BookingForm = () => {
     const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
     if (testModeUser && testModeUser.isTestMode) {
       setIsTestMode(true);
+      setFormData({
+        serviceType: 'Tow',
+        userName: 'Test User',
+        phoneNumber: '1234567890',
+        vehicleBrand: 'Toyota',
+        vehicleModel: 'Corolla',
+        vehicleColor: 'Red',
+        licensePlate: 'TEST123',
+        vehicleSize: 'Small',
+        pickupAddress: '123 Test St, Test City',
+        dropOffAddress: '456 Test Ave, Test City',
+        vehicleIssue: 'Test Issue',
+        additionalDetails: 'Test Details',
+        wheelsStatus: 'Wheels Turn',
+        pickupDate: new Date().toISOString().split('T')[0],
+        pickupTime: '12:00',
+        paymentMethod: 'Credit/Debit Card',
+      });
     }
   }, []);
 
@@ -195,7 +213,52 @@ const BookingForm = () => {
           <FormLabel htmlFor="test-mode" mb="0">
             Test Mode
           </FormLabel>
-          <Switch id="test-mode" isChecked={isTestMode} onChange={(e) => setIsTestMode(e.target.checked)} />
+          <Switch
+            id="test-mode"
+            isChecked={isTestMode}
+            onChange={(e) => {
+              setIsTestMode(e.target.checked);
+              if (e.target.checked) {
+                setFormData({
+                  serviceType: 'Tow',
+                  userName: 'Test User',
+                  phoneNumber: '1234567890',
+                  vehicleBrand: 'Toyota',
+                  vehicleModel: 'Corolla',
+                  vehicleColor: 'Red',
+                  licensePlate: 'TEST123',
+                  vehicleSize: 'Small',
+                  pickupAddress: '123 Test St, Test City',
+                  dropOffAddress: '456 Test Ave, Test City',
+                  vehicleIssue: 'Test Issue',
+                  additionalDetails: 'Test Details',
+                  wheelsStatus: 'Wheels Turn',
+                  pickupDate: new Date().toISOString().split('T')[0],
+                  pickupTime: '12:00',
+                  paymentMethod: 'Credit/Debit Card',
+                });
+              } else {
+                setFormData({
+                  serviceType: '',
+                  userName: '',
+                  phoneNumber: '',
+                  vehicleBrand: '',
+                  vehicleModel: '',
+                  vehicleColor: '',
+                  licensePlate: '',
+                  vehicleSize: '',
+                  pickupAddress: '',
+                  dropOffAddress: '',
+                  vehicleIssue: '',
+                  additionalDetails: '',
+                  wheelsStatus: '',
+                  pickupDate: '',
+                  pickupTime: '',
+                  paymentMethod: '',
+                });
+              }
+            }}
+          />
         </FormControl>
         <form onSubmit={handleBookingProcess}>
           {/* Form fields */}
