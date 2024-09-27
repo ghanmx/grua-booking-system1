@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Box, VStack, Heading, Text, Button, useToast, FormControl, FormLabel, Input, Select, Textarea, Switch } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
-import DatePicker from 'react-datepicker';
+import { Box, VStack, Heading, Text, Button, useToast, FormControl, FormLabel, Input, Select, Textarea, Switch } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
+import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { supabase } from '../integrations/supabase';
+import { supabase } from "../integrations/supabase";
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
 import { getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
