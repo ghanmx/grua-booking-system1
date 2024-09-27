@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Container, Heading, VStack, Text, Button, Input, FormControl, FormLabel, useToast, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react';
+import { Box, Container, Heading, VStack, Text, Button, Input, FormControl, FormLabel, useToast, Tabs, TabList, TabPanels, Tab, TabPanel, Switch } from '@chakra-ui/react';
 import { supabase } from '../integrations/supabase/index.js';
 import { IoMdLock, IoMdArrowBack, IoMdBookmark, IoMdSettings, IoMdSearch } from 'react-icons/io';
 
@@ -8,6 +8,7 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isTestMode, setIsTestMode] = useState(false);
     const navigate = useNavigate();
     const toast = useToast();
 
@@ -15,15 +16,28 @@ const Login = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) throw error;
-            toast({
-                title: "Login successful",
-                status: "success",
-                duration: 3000,
-                isClosable: true,
-            });
-            navigate('/');
+            if (isTestMode) {
+                // Test mode login
+                localStorage.setItem('testModeUser', JSON.stringify({ email: 'test@example.com', isTestMode: true }));
+                toast({
+                    title: "Test mode login successful",
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                });
+                navigate('/booking');
+            } else {
+                // Regular login
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                toast({
+                    title: "Login successful",
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                });
+                navigate('/booking');
+            }
         } catch (error) {
             console.error('Login error:', error);
             toast({
@@ -76,6 +90,16 @@ const Login = () => {
             <Container maxW="md">
                 <VStack spacing={8} align="stretch" bg="#EBECF0" p={8} borderRadius="md" boxShadow="md">
                     <Heading as="h1" size="xl" textAlign="center" color="#61677C" textShadow="1px 1px 1px #FFF">Account</Heading>
+                    <FormControl display="flex" alignItems="center">
+                        <FormLabel htmlFor="test-mode" mb="0">
+                            Test Mode
+                        </FormLabel>
+                        <Switch
+                            id="test-mode"
+                            isChecked={isTestMode}
+                            onChange={(e) => setIsTestMode(e.target.checked)}
+                        />
+                    </FormControl>
                     <Tabs isFitted variant="enclosed">
                         <TabList mb="1em">
                             <Tab>Login</Tab>
@@ -137,7 +161,7 @@ const Login = () => {
                                         }}
                                         isLoading={loading}
                                     >
-                                        <IoMdLock style={{ marginRight: '8px' }} /> Log in
+                                        <IoMdLock style={{ marginRight: '8px' }} /> {isTestMode ? 'Test Login' : 'Log in'}
                                     </Button>
                                 </form>
                             </TabPanel>

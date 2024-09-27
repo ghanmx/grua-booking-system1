@@ -64,6 +64,13 @@ const BookingForm = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
+    if (testModeUser && testModeUser.isTestMode) {
+      setIsTestMode(true);
+    }
+  }, []);
+
+  useEffect(() => {
     const towTruckType = getTowTruckType(formData.vehicleSize);
     setSelectedTowTruck(towTruckType);
   }, [formData.vehicleSize]);
