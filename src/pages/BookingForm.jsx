@@ -5,13 +5,13 @@ import { supabase } from '../integrations/supabase';
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
 import { getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
-  const vehicleBrands = ['Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan', 'BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen', 'Hyundai', 'Kia', 'Mazda', 'Subaru', 'Lexus', 'Acura', 'Volvo', 'Jeep', 'Chrysler', 'Dodge', 'Ram', 'Tesla', 'Porsche', 'Jaguar', 'Land Rover', 'Mitsubishi'];
 
-  const vehicleModels = {
-    Toyota: ['Corolla', 'Camry', 'RAV4', 'Highlander', 'Tacoma', 'Prius', 'Sienna', 'Tundra', '4Runner', 'Avalon', 'C-HR', 'Land Cruiser', 'Yaris', 'Venza', 'Sequoia', 'Supra', 'bZ4X', 'Mirai'],
-    Honda: ['Civic', 'Accord', 'CR-V', 'Pilot', 'Odyssey', 'Fit', 'HR-V', 'Ridgeline', 'Insight', 'Passport', 'Element', 'Clarity', 'S2000', 'Crosstour', 'CR-Z', 'e'],
-    Ford: ['F-150', 'Mustang', 'Explorer', 'Escape', 'Focus', 'Ranger', 'Edge', 'Expedition', 'Bronco', 'Fusion', 'Maverick', 'EcoSport', 'Flex', 'GT', 'Taurus', 'Mach-E', 'Transit', 'Fiesta'],
-    Chevrolet: ['Silverado', 'Malibu', 'Equinox', 'Traverse', 'Camaro', 'Tahoe', 'Suburban', 'Colorado', 'Bolt', 'Trax', 'Corvette', 'Impala', 'Blazer', 'Spark', 'Sonic', 'Volt', 'Cruze', 'Express'],
+const vehicleBrands = ['Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan', 'BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen', 'Hyundai', 'Kia', 'Mazda', 'Subaru', 'Lexus', 'Acura', 'Volvo', 'Jeep', 'Chrysler', 'Dodge', 'Ram', 'Tesla', 'Porsche', 'Jaguar', 'Land Rover', 'Mitsubishi'];
+
+const vehicleModels = {
+  Toyota: ['Corolla', 'Camry', 'RAV4', 'Highlander', 'Tacoma', 'Prius', 'Sienna', 'Tundra', '4Runner', 'Avalon'],
+  Honda: ['Civic', 'Accord', 'CR-V', 'Pilot', 'Odyssey', 'Fit', 'HR-V', 'Ridgeline', 'Insight', 'Passport'],
+  Ford: ['F-150', 'Mustang', 'Explorer', 'Escape', 'Focus', 'Ranger', 'Edge', 'Expedition', 'Bronco', 'Fusion'],
     Nissan: ['Altima', 'Rogue', 'Sentra', 'Maxima', 'Pathfinder', 'Murano', 'Kicks', 'Titan', 'Leaf', 'Versa', 'Armada', 'Frontier', 'GT-R', '370Z', 'Juke', 'Ariya', 'Qashqai', 'X-Trail'],
     BMW: ['3 Series', '5 Series', 'X3', 'X5', '7 Series', '1 Series', '4 Series', 'X1', 'X7', 'i3', '2 Series', '6 Series', '8 Series', 'Z4', 'iX', 'i4', 'iX3', 'X6'],
     MercedesBenz: ['C-Class', 'E-Class', 'GLC', 'GLE', 'S-Class', 'A-Class', 'CLA', 'GLA', 'GLB', 'GLS', 'G-Class', 'CLS', 'SL', 'AMG GT', 'EQC', 'EQS', 'EQA', 'EQB'],
@@ -33,7 +33,8 @@ import { processPayment } from '../utils/paymentProcessing';
     Jaguar: ['F-PACE', 'XE', 'XF', 'E-PACE', 'I-PACE', 'F-TYPE', 'XJ', 'XK'],
     LandRover: ['Range Rover', 'Discovery', 'Defender', 'Range Rover Sport', 'Range Rover Evoque', 'Range Rover Velar', 'Discovery Sport', 'Freelander'],
     Mitsubishi: ['Outlander', 'Eclipse Cross', 'Mirage', 'ASX', 'Pajero', 'Triton', 'Lancer', 'i-MiEV']
-  };
+};
+
 const BookingForm = () => {
   const [formData, setFormData] = useState({
     serviceType: '',
@@ -190,6 +191,7 @@ const BookingForm = () => {
           <Switch id="test-mode" isChecked={isTestMode} onChange={(e) => setIsTestMode(e.target.checked)} />
         </FormControl>
         <form onSubmit={handleBookingProcess}>
+          {/* Form fields */}
           <FormControl id="serviceType" isRequired>
             <FormLabel>Service Type</FormLabel>
             <Select name="serviceType" value={formData.serviceType} onChange={handleChange}>
@@ -304,4 +306,5 @@ const BookingForm = () => {
     </Box>
   );
 };
+
 export default BookingForm;

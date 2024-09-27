@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { ChakraProvider, Box, VStack } from "@chakra-ui/react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
@@ -15,13 +15,15 @@ import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
+  const [isTestMode, setIsTestMode] = useState(false);
+
   return (
     <ChakraProvider>
       <SupabaseProvider>
         <SupabaseAuthProvider>
           <Router>
             <Box minHeight="100vh" bg="gray.50">
-              <Navbar />
+              <Navbar isTestMode={isTestMode} setIsTestMode={setIsTestMode} />
               <Box p={4}>
                 <Routes>
                   <Route path="/" element={<Index />} />
@@ -29,17 +31,17 @@ function App() {
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/booking" element={
                     <ProtectedRoute>
-                      <BookingForm />
+                      <BookingForm isTestMode={isTestMode} />
                     </ProtectedRoute>
                   } />
                   <Route path="/billing" element={
                     <ProtectedRoute>
-                      <BillingProcess />
+                      <BillingProcess isTestMode={isTestMode} />
                     </ProtectedRoute>
                   } />
                   <Route path="/payment" element={
                     <ProtectedRoute>
-                      <Payment />
+                      <Payment isTestMode={isTestMode} />
                     </ProtectedRoute>
                   } />
                   <Route path="/confirmation" element={

@@ -1,8 +1,8 @@
-import { Box, Flex, Link, Spacer, Text, Button } from "@chakra-ui/react";
+import { Box, Flex, Link, Spacer, Text, Button, Switch, FormControl, FormLabel } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import { useSupabaseAuth } from '../integrations/supabase/auth.jsx';
 
-const Navbar = () => {
+const Navbar = ({ isTestMode, setIsTestMode }) => {
   const { session, logout } = useSupabaseAuth();
 
   return (
@@ -16,7 +16,20 @@ const Navbar = () => {
           <Link as={RouterLink} to="/contact" p={2} mx={2} _hover={{ textDecoration: "none", bg: "blue.600" }}>Contact</Link>
           <Link as={RouterLink} to="/booking" p={2} mx={2} _hover={{ textDecoration: "none", bg: "blue.600" }}>Book Now</Link>
           {session ? (
-            <Button onClick={logout} colorScheme="red" size="sm" ml={2}>Logout</Button>
+            <>
+              <FormControl display="flex" alignItems="center" mr={4}>
+                <FormLabel htmlFor="test-mode" mb="0" color="white">
+                  Test Mode
+                </FormLabel>
+                <Switch
+                  id="test-mode"
+                  isChecked={isTestMode}
+                  onChange={(e) => setIsTestMode(e.target.checked)}
+                  colorScheme="green"
+                />
+              </FormControl>
+              <Button onClick={logout} colorScheme="red" size="sm" ml={2}>Logout</Button>
+            </>
           ) : (
             <Link as={RouterLink} to="/login" p={2} mx={2} _hover={{ textDecoration: "none", bg: "blue.600" }}>Login</Link>
           )}
