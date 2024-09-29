@@ -7,6 +7,7 @@ import { supabase } from "../integrations/supabase";
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
 import FloatingForm from '../components/FloatingForm';
 import StripePaymentForm from '../components/StripePaymentForm';
+import PaymentWindow from '../components/PaymentWindow';
 import { getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
@@ -103,10 +104,17 @@ const BookingForm = () => {
     return true;
   };
 
+
+  const [isPaymentWindowOpen, setIsPaymentWindowOpen] = useState(false);
+
   const handleBookingProcess = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
+    setIsPaymentWindowOpen(true);
+  };
+
+  const handlePaymentSubmit = async (paymentData) => {
     setIsLoading(true);
     try {
       if (!session && !isTestMode) {
@@ -114,7 +122,7 @@ const BookingForm = () => {
         return;
       }
 
-      const paymentResult = await processPayment(totalCost * 100, isTestMode);
+      const paymentResult = await processPayment(totalCost * 100, isTestMode, paymentData);
 
       if (!paymentResult.success) {
         console.error('Payment failed:', paymentResult.error);
@@ -165,6 +173,7 @@ const BookingForm = () => {
       });
     } finally {
       setIsLoading(false);
+      setIsPaymentWindowOpen(false);
     }
   };
 
@@ -189,6 +198,11 @@ const BookingForm = () => {
         selectedTowTruck={selectedTowTruck}
         totalCost={totalCost}
       />
+      <PaymentWindow
+        isOpen={isPaymentWindowOpen}
+        onClose={() => setIsPaymentWindowOpen(false)}
+        onPaymentSubmit={handlePaymentSubmit}
+      />
       {!isTestMode && (
         <Box position="absolute" bottom="20px" right="20px" width="400px" bg="white" p={4} borderRadius="md" boxShadow="xl">
           <Elements stripe={stripePromise}>
@@ -196,7 +210,7 @@ const BookingForm = () => {
               amount={totalCost}
               onPaymentSuccess={(paymentMethod) => {
                 console.log('Payment successful:', paymentMethod);
-                handleBookingProcess();
+                handlePaymentSubmit({ paymentMethod });
               }}
               onPaymentError={(error) => {
                 console.error('Payment error:', error);

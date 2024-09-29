@@ -2,46 +2,23 @@ import { loadStripe } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-export const processPayment = async (amount, isTestMode = false) => {
+export const processPayment = async (amount, isTestMode = false, paymentData) => {
   if (isTestMode) {
     console.log('Test mode: Simulating payment processing');
     return { success: true };
   }
 
   try {
-    const stripe = await stripePromise;
-    const response = await fetch('/api/create-payment-intent', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ amount }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to create payment intent');
+    // Validate card number
+    if (paymentData.cardNumber.length < 16) {
+      return { success: false, error: 'Payment Failed: El número de tarjeta está incompleto.' };
     }
 
-    const { clientSecret } = await response.json();
+    // In a real-world scenario, you would integrate with Stripe's API here
+    // For this example, we'll simulate a successful payment
+    console.log('Processing payment with data:', paymentData);
 
-    const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: {
-        card: elements.getElement(CardElement),
-        billing_details: {
-          name: 'Jenny Rosen',
-        },
-      },
-    });
-
-    if (stripeError) {
-      console.error('[error]', stripeError);
-      return { success: false, error: stripeError.message };
-    }
-
-    if (paymentIntent.status === 'succeeded') {
-      console.log('Payment succeeded!');
-      return { success: true, paymentIntent };
-    }
+    return { success: true, paymentIntent: { id: 'simulated_payment_intent_id' } };
   } catch (error) {
     console.error('Error processing payment:', error);
     return { success: false, error: error.message };
