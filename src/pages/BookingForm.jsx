@@ -15,12 +15,97 @@ import { useSupabaseAuth } from '../integrations/supabase/auth';
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const BookingForm = () => {
-  // ... (previous state declarations)
+  const [formData, setFormData] = useState({
+    serviceType: '',
+    userName: '',
+    phoneNumber: '',
+    vehicleBrand: '',
+    vehicleModel: '',
+    vehicleColor: '',
+    licensePlate: '',
+    vehicleSize: '',
+    pickupAddress: '',
+    dropOffAddress: '',
+    vehicleIssue: '',
+    additionalDetails: '',
+    wheelsStatus: '',
+    pickupDateTime: new Date(),
+    paymentMethod: '',
+  });
+
+  const [distance, setDistance] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedTowTruck, setSelectedTowTruck] = useState('');
+  const [isTestMode, setIsTestMode] = useState(false);
+  const toast = useToast();
+  const navigate = useNavigate();
+  const { session } = useSupabaseAuth();
+
+  useEffect(() => {
+    const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
+    if (testModeUser && testModeUser.isTestMode) {
+      setIsTestMode(true);
+      setFormData({
+        serviceType: 'Tow',
+        userName: 'Test User',
+        phoneNumber: '1234567890',
+        vehicleBrand: 'Toyota',
+        vehicleModel: 'Corolla',
+        vehicleColor: 'Red',
+        licensePlate: 'TEST123',
+        vehicleSize: 'Small',
+        pickupAddress: '123 Test St, Test City',
+        dropOffAddress: '456 Test Ave, Test City',
+        vehicleIssue: 'Test Issue',
+        additionalDetails: 'Test Details',
+        wheelsStatus: 'Wheels Turn',
+        pickupDateTime: new Date(),
+        paymentMethod: 'Credit/Debit Card',
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    const towTruckType = getTowTruckType(formData.vehicleSize);
+    setSelectedTowTruck(towTruckType);
+  }, [formData.vehicleSize]);
+
+  useEffect(() => {
+    const newTotalCost = calculateTotalCost(distance, selectedTowTruck);
+    setTotalCost(newTotalCost);
+  }, [selectedTowTruck, distance]);
+
+  const handleDateTimeChange = (date) => {
+    setFormData({ ...formData, pickupDateTime: date });
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const validateForm = () => {
+    if (isTestMode) return true; // Skip validation in test mode
+
+    const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleBrand', 'vehicleModel', 'vehicleColor', 'licensePlate', 'vehicleSize', 'pickupAddress', 'dropOffAddress', 'vehicleIssue', 'wheelsStatus', 'pickupDateTime', 'paymentMethod'];
+    for (let field of requiredFields) {
+      if (!formData[field]) {
+        toast({
+          title: 'Error',
+          description: `Please fill in all required fields. Missing: ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+        return false;
+      }
+    }
+    return true;
+  };
+
 
   const [isPaymentWindowOpen, setIsPaymentWindowOpen] = useState(false);
-  const [isTestMode, setIsTestMode] = useState(false);
-
-  // ... (previous useEffect and other functions)
 
   const handleBookingProcess = async (e) => {
     e.preventDefault();
@@ -117,8 +202,6 @@ const BookingForm = () => {
         isOpen={isPaymentWindowOpen}
         onClose={() => setIsPaymentWindowOpen(false)}
         onPaymentSubmit={handlePaymentSubmit}
-        isTestMode={isTestMode}
-        setIsTestMode={setIsTestMode}
       />
       {!isTestMode && (
         <Box position="absolute" bottom="20px" right="20px" width="400px" bg="white" p={4} borderRadius="md" boxShadow="xl">
