@@ -41,8 +41,92 @@ const FloatingForm = ({
           />
         </FormControl>
         <form onSubmit={handleBookingProcess}>
-          {/* Include all form fields from the original BookingForm component */}
-          {/* ... */}
+          <FormControl isRequired>
+            <FormLabel>Service Type</FormLabel>
+            <Select name="serviceType" value={formData.serviceType} onChange={handleChange}>
+              <option value="">Select a service</option>
+              <option value="Tow">Tow</option>
+              <option value="Jumpstart">Jumpstart</option>
+              <option value="Tire Change">Tire Change</option>
+              <option value="Fuel Delivery">Fuel Delivery</option>
+            </Select>
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Name</FormLabel>
+            <Input name="userName" value={formData.userName} onChange={handleChange} />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Phone Number</FormLabel>
+            <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Vehicle Brand</FormLabel>
+            <Input name="vehicleBrand" value={formData.vehicleBrand} onChange={handleChange} />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Vehicle Model</FormLabel>
+            <Input name="vehicleModel" value={formData.vehicleModel} onChange={handleChange} />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Vehicle Color</FormLabel>
+            <Input name="vehicleColor" value={formData.vehicleColor} onChange={handleChange} />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>License Plate</FormLabel>
+            <Input name="licensePlate" value={formData.licensePlate} onChange={handleChange} />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Vehicle Size</FormLabel>
+            <Select name="vehicleSize" value={formData.vehicleSize} onChange={handleChange}>
+              <option value="">Select size</option>
+              <option value="Small">Small</option>
+              <option value="Medium">Medium</option>
+              <option value="Large">Large</option>
+              <option value="Extra Large">Extra Large</option>
+            </Select>
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Pickup Address</FormLabel>
+            <Input name="pickupAddress" value={formData.pickupAddress} onChange={handleChange} />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Drop Off Address</FormLabel>
+            <Input name="dropOffAddress" value={formData.dropOffAddress} onChange={handleChange} />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Vehicle Issue</FormLabel>
+            <Textarea name="vehicleIssue" value={formData.vehicleIssue} onChange={handleChange} />
+          </FormControl>
+          <FormControl>
+            <FormLabel>Additional Details</FormLabel>
+            <Textarea name="additionalDetails" value={formData.additionalDetails} onChange={handleChange} />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Wheels Status</FormLabel>
+            <Select name="wheelsStatus" value={formData.wheelsStatus} onChange={handleChange}>
+              <option value="">Select status</option>
+              <option value="Wheels Turn">Wheels Turn</option>
+              <option value="Wheels Don't Turn">Wheels Don't Turn</option>
+            </Select>
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Pickup Date and Time</FormLabel>
+            <DatePicker
+              selected={formData.pickupDateTime}
+              onChange={handleDateTimeChange}
+              showTimeSelect
+              dateFormat="Pp"
+            />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Payment Method</FormLabel>
+            <Select name="paymentMethod" value={formData.paymentMethod} onChange={handleChange}>
+              <option value="">Select payment method</option>
+              <option value="Credit/Debit Card">Credit/Debit Card</option>
+              <option value="Cash">Cash</option>
+              <option value="PayPal">PayPal</option>
+            </Select>
+          </FormControl>
           <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading}>
             {isTestMode ? 'Simulate Booking' : 'Book Now'}
           </Button>
