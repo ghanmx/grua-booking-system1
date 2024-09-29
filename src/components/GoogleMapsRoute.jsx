@@ -1,14 +1,20 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
-import { GoogleMap, LoadScript, Marker, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
 import { getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
+
+const libraries = ['places'];
 
 const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, selectedTowTruck }) => {
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
   const [directions, setDirections] = useState(null);
   const [mapCenter, setMapCenter] = useState({ lat: 26.509672, lng: -100.0095504 });
-  const [isLoaded, setIsLoaded] = useState(false);
+
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    libraries,
+  });
 
   const companyLocation = { lat: 26.509672, lng: -100.0095504 };
 
@@ -66,51 +72,44 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
     }
   }, [calculateRouteDistance, setDistance, setTotalCost, selectedTowTruck]);
 
-  const handleMapLoad = useCallback(() => {
-    setIsLoaded(true);
-  }, []);
+  if (loadError) {
+    return <Box>Error loading maps</Box>;
+  }
+
+  if (!isLoaded) {
+    return <Box>Loading maps</Box>;
+  }
 
   return (
     <Box position="absolute" top="0" left="0" height="100%" width="100%">
-      <LoadScript
-        googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-        onLoad={handleMapLoad}
+      <GoogleMap
+        mapContainerStyle={{ height: "100%", width: "100%" }}
+        center={mapCenter}
+        zoom={10}
+        onClick={handleMapClick}
       >
-        {isLoaded ? (
-          <GoogleMap
-            mapContainerStyle={{ height: "100%", width: "100%" }}
-            center={mapCenter}
-            zoom={10}
-            onClick={handleMapClick}
-          >
-            {companyLocation && <Marker position={companyLocation} label="Company" />}
-            {pickup && <Marker position={pickup} label="Pickup" />}
-            {destination && <Marker position={destination} label="Destination" />}
-            {pickup && destination && (
-              <DirectionsService
-                options={{
-                  destination: destination,
-                  origin: companyLocation,
-                  waypoints: [{ location: pickup }],
-                  travelMode: 'DRIVING',
-                }}
-                callback={handleDirectionsLoad}
-              />
-            )}
-            {directions && (
-              <DirectionsRenderer
-                options={{
-                  directions: directions,
-                }}
-              />
-            )}
-          </GoogleMap>
-        ) : (
-          <Box height="100%" width="100%" display="flex" alignItems="center" justifyContent="center">
-            Loading Map...
-          </Box>
+        {companyLocation && <Marker position={companyLocation} label="Company" />}
+        {pickup && <Marker position={pickup} label="Pickup" />}
+        {destination && <Marker position={destination} label="Destination" />}
+        {pickup && destination && (
+          <DirectionsService
+            options={{
+              destination: destination,
+              origin: companyLocation,
+              waypoints: [{ location: pickup }],
+              travelMode: 'DRIVING',
+            }}
+            callback={handleDirectionsLoad}
+          />
         )}
-      </LoadScript>
+        {directions && (
+          <DirectionsRenderer
+            options={{
+              directions: directions,
+            }}
+          />
+        )}
+      </GoogleMap>
     </Box>
   );
 };
