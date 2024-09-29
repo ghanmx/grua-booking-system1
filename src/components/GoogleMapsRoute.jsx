@@ -7,9 +7,8 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
   const [directions, setDirections] = useState(null);
-  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-  const [totalPrice, setTotalPrice] = useState(0);
   const [mapCenter, setMapCenter] = useState({ lat: 26.509672, lng: -100.0095504 });
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const companyLocation = { lat: 26.509672, lng: -100.0095504 };
 
@@ -57,58 +56,60 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
     }
   }, [pickup, destination, setPickupAddress, setDropOffAddress, getAddressFromLatLng]);
 
-  useEffect(() => {
-    if (pickup && destination) {
-      setIsConfirmationOpen(true);
-    }
-  }, [pickup, destination]);
-
   const handleDirectionsLoad = useCallback((result) => {
     if (result.status === 'OK') {
       setDirections(result);
       const totalDistance = calculateRouteDistance(result);
       setDistance(totalDistance);
       const price = calculateTotalCost(totalDistance, selectedTowTruck);
-      setTotalPrice(price);
       setTotalCost(price);
     }
   }, [calculateRouteDistance, setDistance, setTotalCost, selectedTowTruck]);
 
-  const handleConfirmation = () => {
-    setIsConfirmationOpen(false);
-  };
+  const handleMapLoad = useCallback(() => {
+    setIsLoaded(true);
+  }, []);
 
   return (
     <Box position="absolute" top="0" left="0" height="100%" width="100%">
-      <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={["places"]}>
-        <GoogleMap
-          mapContainerStyle={{ height: "100%", width: "100%" }}
-          center={mapCenter}
-          zoom={10}
-          onClick={handleMapClick}
-        >
-          {companyLocation && <Marker position={companyLocation} label="Company" />}
-          {pickup && <Marker position={pickup} label="Pickup" />}
-          {destination && <Marker position={destination} label="Destination" />}
-          {pickup && destination && (
-            <DirectionsService
-              options={{
-                destination: destination,
-                origin: companyLocation,
-                waypoints: [{ location: pickup }],
-                travelMode: 'DRIVING',
-              }}
-              callback={handleDirectionsLoad}
-            />
-          )}
-          {directions && (
-            <DirectionsRenderer
-              options={{
-                directions: directions,
-              }}
-            />
-          )}
-        </GoogleMap>
+      <LoadScript
+        googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+        onLoad={handleMapLoad}
+      >
+        {isLoaded ? (
+          <GoogleMap
+            mapContainerStyle={{ height: "100%", width: "100%" }}
+            center={mapCenter}
+            zoom={10}
+            onClick={handleMapClick}
+          >
+            {companyLocation && <Marker position={companyLocation} label="Company" />}
+            {pickup && <Marker position={pickup} label="Pickup" />}
+            {destination && <Marker position={destination} label="Destination" />}
+            {pickup && destination && (
+              <DirectionsService
+                options={{
+                  destination: destination,
+                  origin: companyLocation,
+                  waypoints: [{ location: pickup }],
+                  travelMode: 'DRIVING',
+                }}
+                callback={handleDirectionsLoad}
+              />
+            )}
+            {directions && (
+              <DirectionsRenderer
+                options={{
+                  directions: directions,
+                }}
+              />
+            )}
+          </GoogleMap>
+        ) : (
+          <Box height="100%" width="100%" display="flex" alignItems="center" justifyContent="center">
+            Loading Map...
+          </Box>
+        )}
       </LoadScript>
     </Box>
   );
