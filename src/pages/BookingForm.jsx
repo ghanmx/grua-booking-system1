@@ -134,27 +134,25 @@ const BookingForm = () => {
 
     setIsLoading(true);
     try {
-      if (!isTestMode && !session) {
-        // If not in test mode and not logged in, redirect to login
+      if (!session && !isTestMode) {
         navigate('/login', { state: { from: '/booking' } });
         return;
       }
 
-      if (!isTestMode) {
-        // Process payment
-        const paymentResult = await processPayment(totalCost * 100); // Convert to cents
+      // Always process payment, even in test mode
+      const paymentResult = await processPayment(totalCost * 100, isTestMode); // Convert to cents
 
-        if (!paymentResult.success) {
-          console.error('Payment failed:', paymentResult.error);
-          toast({
-            title: 'Payment Failed',
-            description: paymentResult.error,
-            status: 'error',
-            duration: 5000,
-            isClosable: true,
-          });
-          return;
-        }
+      if (!paymentResult.success) {
+        console.error('Payment failed:', paymentResult.error);
+        toast({
+          title: 'Payment Failed',
+          description: paymentResult.error,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+        setIsLoading(false);
+        return;
       }
 
       const bookingData = {
@@ -169,6 +167,8 @@ const BookingForm = () => {
       if (!isTestMode) {
         const { data, error } = await supabase.from('bookings').insert([bookingData]);
         if (error) throw error;
+      } else {
+        console.log('Test mode: Simulating database insert', bookingData);
       }
 
       toast({
