@@ -4,18 +4,27 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 export const processPayment = async (amount, isTestMode = false) => {
   if (isTestMode) {
-    // Simulate a successful payment in test mode
     console.log('Test mode: Simulating payment processing');
     return { success: true };
   }
 
   try {
     const stripe = await stripePromise;
-    // In a real implementation, you would create a PaymentIntent on your server
-    // and return the client secret to the frontend
-    const clientSecret = await fetchPaymentIntentClientSecret(amount);
+    const response = await fetch('/api/create-payment-intent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ amount }),
+    });
 
-    const { error } = await stripe.confirmCardPayment(clientSecret, {
+    if (!response.ok) {
+      throw new Error('Failed to create payment intent');
+    }
+
+    const { clientSecret } = await response.json();
+
+    const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
       payment_method: {
         card: elements.getElement(CardElement),
         billing_details: {
@@ -24,23 +33,17 @@ export const processPayment = async (amount, isTestMode = false) => {
       },
     });
 
-    if (error) {
-      console.log('[error]', error);
-      return { success: false, error: error.message };
-    } else {
+    if (stripeError) {
+      console.error('[error]', stripeError);
+      return { success: false, error: stripeError.message };
+    }
+
+    if (paymentIntent.status === 'succeeded') {
       console.log('Payment succeeded!');
-      return { success: true };
+      return { success: true, paymentIntent };
     }
   } catch (error) {
     console.error('Error processing payment:', error);
-    return { success: false, error: 'An unexpected error occurred while processing the payment.' };
+    return { success: false, error: error.message };
   }
-};
-
-// This function should be implemented on your server
-const fetchPaymentIntentClientSecret = async (amount) => {
-  // In a real implementation, this would make a request to your server
-  // to create a PaymentIntent and return the client secret
-  console.log('Simulating server request to create PaymentIntent');
-  return 'dummy_client_secret';
 };

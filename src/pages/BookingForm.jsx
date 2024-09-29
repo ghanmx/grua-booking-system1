@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Box, VStack, Heading, Text, Button, useToast, FormControl, FormLabel, Input, Select, Textarea, Switch } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, Button, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 import { supabase } from "../integrations/supabase";
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
 import FloatingForm from '../components/FloatingForm';
+import StripePaymentForm from '../components/StripePaymentForm';
 import { getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const BookingForm = () => {
   const [formData, setFormData] = useState({
@@ -111,8 +114,7 @@ const BookingForm = () => {
         return;
       }
 
-      // Always process payment, even in test mode
-      const paymentResult = await processPayment(totalCost * 100, isTestMode); // Convert to cents
+      const paymentResult = await processPayment(totalCost * 100, isTestMode);
 
       if (!paymentResult.success) {
         console.error('Payment failed:', paymentResult.error);
@@ -187,6 +189,29 @@ const BookingForm = () => {
         selectedTowTruck={selectedTowTruck}
         totalCost={totalCost}
       />
+      {!isTestMode && (
+        <Box position="absolute" bottom="20px" right="20px" width="400px" bg="white" p={4} borderRadius="md" boxShadow="xl">
+          <Elements stripe={stripePromise}>
+            <StripePaymentForm
+              amount={totalCost}
+              onPaymentSuccess={(paymentMethod) => {
+                console.log('Payment successful:', paymentMethod);
+                handleBookingProcess();
+              }}
+              onPaymentError={(error) => {
+                console.error('Payment error:', error);
+                toast({
+                  title: 'Payment Failed',
+                  description: error,
+                  status: 'error',
+                  duration: 5000,
+                  isClosable: true,
+                });
+              }}
+            />
+          </Elements>
+        </Box>
+      )}
     </Box>
   );
 };
