@@ -1,6 +1,9 @@
-import React, { useState } from "react";
-import { ChakraProvider, Box, VStack } from "@chakra-ui/react";
+import React from "react";
+import { ChakraProvider, Box } from "@chakra-ui/react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { SupabaseProvider } from './integrations/supabase';
+import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import Navbar from "./components/Navbar";
 import Index from "./pages/Index";
 import About from "./pages/About";
@@ -10,59 +13,54 @@ import BillingProcess from "./pages/BillingProcess";
 import Confirmation from "./pages/Confirmation";
 import Payment from "./pages/Payment";
 import Login from "./pages/Login";
-import { SupabaseProvider } from './integrations/supabase';
-import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import ProtectedRoute from "./components/ProtectedRoute";
 
-function App() {
-  const [isTestMode, setIsTestMode] = useState(false);
+const queryClient = new QueryClient();
 
+function App() {
   return (
-    <ChakraProvider>
+    <QueryClientProvider client={queryClient}>
       <SupabaseProvider>
         <SupabaseAuthProvider>
-          <Router>
-            <Box minHeight="100vh" bg="gray.50">
-              <Navbar isTestMode={isTestMode} setIsTestMode={setIsTestMode} />
-              <Box p={4}>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/booking" element={
-                    <ProtectedRoute>
-                      <BookingForm isTestMode={isTestMode} />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/billing" element={
-                    <ProtectedRoute>
-                      <BillingProcess isTestMode={isTestMode} />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/payment" element={
-                    <ProtectedRoute>
-                      <Payment isTestMode={isTestMode} />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/confirmation" element={
-                    <ProtectedRoute>
-                      <Confirmation />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </Box>
-              <VStack p={4} bg="gray.100">
-                <Box as="footer" width="100%" textAlign="center">
-                  © 2023 Tow Service App. All rights reserved.
+          <ChakraProvider>
+            <Router>
+              <Box minHeight="100vh" bg="gray.50">
+                <Navbar />
+                <Box p={4}>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/booking" element={
+                      <ProtectedRoute>
+                        <BookingForm />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/billing" element={
+                      <ProtectedRoute>
+                        <BillingProcess />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/payment" element={
+                      <ProtectedRoute>
+                        <Payment />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/confirmation" element={
+                      <ProtectedRoute>
+                        <Confirmation />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
                 </Box>
-              </VStack>
-            </Box>
-          </Router>
+              </Box>
+            </Router>
+          </ChakraProvider>
         </SupabaseAuthProvider>
       </SupabaseProvider>
-    </ChakraProvider>
+    </QueryClientProvider>
   );
 }
 

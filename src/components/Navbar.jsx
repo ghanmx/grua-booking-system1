@@ -1,9 +1,11 @@
+import React from "react";
 import { Box, Flex, Link, Spacer, Text, Button, Switch, FormControl, FormLabel } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
-import { useSupabaseAuth } from '../integrations/supabase/auth.jsx';
+import { useSupabaseAuth } from '../integrations/supabase/auth';
 
-const Navbar = ({ isTestMode, setIsTestMode }) => {
+const Navbar = () => {
   const { session, logout } = useSupabaseAuth();
+  const [isTestMode, setIsTestMode] = React.useState(false);
 
   return (
     <Box bg="blue.500" p={4} color="white" position="sticky" top="0" zIndex="sticky">
