@@ -1,34 +1,33 @@
-import React, { useState, useCallback } from 'react';
-import { Box, Button, Text, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton } from '@chakra-ui/react';
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Box } from '@chakra-ui/react';
+import { GoogleMap, useJsApiLoader, Marker, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
 import { getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
+
+const libraries = ['places'];
 
 const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, selectedTowTruck }) => {
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
-  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-  const [totalPrice, setTotalPrice] = useState(0);
+  const [directions, setDirections] = useState(null);
   const [mapCenter, setMapCenter] = useState({ lat: 26.509672, lng: -100.0095504 });
+
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    libraries,
+  });
 
   const companyLocation = { lat: 26.509672, lng: -100.0095504 };
 
-  const calculateRouteDistance = async (origin, destination) => {
-    const service = new window.google.maps.DistanceMatrixService();
-    try {
-      const response = await service.getDistanceMatrix({
-        origins: [origin],
-        destinations: [destination],
-        travelMode: 'DRIVING',
-        unitSystem: window.google.maps.UnitSystem.METRIC,
-      });
-      return response.rows[0].elements[0].distance.value / 1000; // Convert meters to kilometers
-    } catch (error) {
-      console.error('Error calculating route distance:', error);
-      return 0;
-    }
-  };
+  const calculateRouteDistance = useCallback((result) => {
+    if (result.routes.length === 0) return 0;
+    let totalDistance = 0;
+    result.routes[0].legs.forEach(leg => {
+      totalDistance += leg.distance.value;
+    });
+    return totalDistance / 1000; // Convert meters to kilometers
+  }, []);
 
-  const getAddressFromLatLng = async (latLng) => {
+  const getAddressFromLatLng = useCallback(async (latLng) => {
     const geocoder = new window.google.maps.Geocoder();
     try {
       const result = await new Promise((resolve, reject) => {
@@ -45,7 +44,7 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
       console.error('Error getting address:', error);
       return '';
     }
-  };
+  }, []);
 
   const handleMapClick = useCallback(async (event) => {
     const clickedLocation = event.latLng.toJSON();
@@ -60,62 +59,57 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
       setMapCenter(clickedLocation);
       const address = await getAddressFromLatLng(clickedLocation);
       setDropOffAddress(address);
-
-      try {
-        const distanceToPickup = await calculateRouteDistance(companyLocation, pickup);
-        const pickupToDestinationDistance = await calculateRouteDistance(pickup, clickedLocation);
-        const distanceFromDestination = await calculateRouteDistance(clickedLocation, companyLocation);
-
-        const totalDistance = distanceToPickup + pickupToDestinationDistance + distanceFromDestination;
-        setDistance(totalDistance);
-
-        const price = calculateTotalCost(totalDistance, selectedTowTruck);
-        setTotalPrice(price);
-        setTotalCost(price);
-
-        setIsConfirmationOpen(true);
-      } catch (error) {
-        console.error('Error calculating total distance:', error);
-      }
     }
-  }, [pickup, destination, setPickupAddress, setDropOffAddress, setDistance, setTotalCost, selectedTowTruck]);
+  }, [pickup, destination, setPickupAddress, setDropOffAddress, getAddressFromLatLng]);
 
-  const handleConfirmation = () => {
-    setIsConfirmationOpen(false);
-    // Optionally reset pickup and destination if needed for new selection.
-    // setPickup(null);
-    // setDestination(null);
-  };
+  const handleDirectionsLoad = useCallback((result) => {
+    if (result.status === 'OK') {
+      setDirections(result);
+      const totalDistance = calculateRouteDistance(result);
+      setDistance(totalDistance);
+      const price = calculateTotalCost(totalDistance, selectedTowTruck);
+      setTotalCost(price);
+    }
+  }, [calculateRouteDistance, setDistance, setTotalCost, selectedTowTruck]);
+
+  if (loadError) {
+    return <Box>Error loading maps</Box>;
+  }
+
+  if (!isLoaded) {
+    return <Box>Loading maps</Box>;
+  }
 
   return (
-    <Box height={{ base: "300px", md: "400px" }} width="100%" my={4}>
-      <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={["places"]}>
-        <GoogleMap
-          mapContainerStyle={{ height: "100%", width: "100%" }}
-          center={mapCenter}
-          zoom={10}
-          onClick={handleMapClick}
-        >
-          {pickup && <Marker position={pickup} />}
-          {destination && <Marker position={destination} />}
-        </GoogleMap>
-      </LoadScript>
-
-      <Modal isOpen={isConfirmationOpen} onClose={() => setIsConfirmationOpen(false)}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Confirm Route</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Text>Total estimated price: ${totalPrice.toFixed(2)}</Text>
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" onClick={handleConfirmation}>
-              Confirm
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+    <Box position="absolute" top="0" left="0" height="100%" width="100%">
+      <GoogleMap
+        mapContainerStyle={{ height: "100%", width: "100%" }}
+        center={mapCenter}
+        zoom={10}
+        onClick={handleMapClick}
+      >
+        {companyLocation && <Marker position={companyLocation} label="Company" />}
+        {pickup && <Marker position={pickup} label="Pickup" />}
+        {destination && <Marker position={destination} label="Destination" />}
+        {pickup && destination && (
+          <DirectionsService
+            options={{
+              destination: destination,
+              origin: companyLocation,
+              waypoints: [{ location: pickup }],
+              travelMode: 'DRIVING',
+            }}
+            callback={handleDirectionsLoad}
+          />
+        )}
+        {directions && (
+          <DirectionsRenderer
+            options={{
+              directions: directions,
+            }}
+          />
+        )}
+      </GoogleMap>
     </Box>
   );
 };

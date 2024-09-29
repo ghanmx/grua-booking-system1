@@ -25,5 +25,6 @@ export const getTowTruckPricing = (towTruckType) => {
 
 export const calculateTotalCost = (distance, towTruckType) => {
   const { perKm, basePrice } = getTowTruckPricing(towTruckType);
-  return basePrice + (distance * perKm);
+  // Calculate the cost for the round trip (company to pickup to destination and back to company)
+  return basePrice + (distance * perKm * 2);
 };
