@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Box, Button, Text, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { GoogleMap, LoadScript, Marker, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
 import { getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
 
@@ -79,7 +79,7 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
   };
 
   return (
-    <Box height={{ base: "300px", md: "400px" }} width="100%" my={4}>
+    <Box position="absolute" top="0" left="0" height="100%" width="100%">
       <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={["places"]}>
         <GoogleMap
           mapContainerStyle={{ height: "100%", width: "100%" }}
@@ -110,22 +110,6 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
           )}
         </GoogleMap>
       </LoadScript>
-
-      <Modal isOpen={isConfirmationOpen} onClose={() => setIsConfirmationOpen(false)}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Confirm Route</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Text>Total estimated price: ${totalPrice.toFixed(2)}</Text>
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" onClick={handleConfirmation}>
-              Confirm
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </Box>
   );
 };
