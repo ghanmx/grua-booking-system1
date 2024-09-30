@@ -17,6 +17,7 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
     libraries,
   });
 
+  const mapId = import.meta.env.VITE_GOOGLE_MAPS_ID; // Add this line
   const companyLocation = { lat: 26.509672, lng: -100.0095504 };
 
   const calculateRouteDistance = useCallback((result) => {
@@ -64,12 +65,14 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
   }, [pickup, destination, setPickupAddress, setDropOffAddress, getAddressFromLatLng]);
 
   const handleDirectionsLoad = useCallback((result) => {
-    if (result.status === 'OK') {
+    if (result !== null && result.status === 'OK') {
       setDirections(result);
       const totalDistance = calculateRouteDistance(result);
       setDistance(totalDistance);
       const price = calculateTotalCost(totalDistance, selectedTowTruck);
       setTotalCost(price);
+    } else {
+      console.error('Directions request failed:', result);
     }
   }, [calculateRouteDistance, setDistance, setTotalCost, selectedTowTruck]);
 
@@ -109,6 +112,7 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
         zoom={10}
         onClick={handleMapClick}
         onLoad={setMap}
+        options={{ mapId }} // Add this line
       >
         {pickup && destination && (
           <DirectionsService
