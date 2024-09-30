@@ -7,6 +7,7 @@ import FloatingForm from '../components/FloatingForm';
 import PaymentWindow from '../components/PaymentWindow';
 import { getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
+import { sendAdminNotification } from '../utils/adminNotification';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -61,11 +62,6 @@ const BookingForm = () => {
     handleBookingProcess();
   };
 
-  const validateForm = () => {
-    // Implement form validation logic here
-    return true; // Return true if form is valid, false otherwise
-  };
-
   const handleBookingProcess = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -87,9 +83,9 @@ const BookingForm = () => {
       const { data: serviceData, error: serviceError } = await supabase
         .from('services')
         .insert({
-          user_id: session?.user?.id,
+          user_id: session?.user?.id || 'test_user',
           dynamic_key: dynamicKey,
-          status: 'pending',
+          status: isTestMode ? 'test_mode' : 'pending',
         })
         .select('id, service_number')
         .single();
@@ -101,25 +97,28 @@ const BookingForm = () => {
         distance,
         totalCost,
         towTruckType: selectedTowTruck,
-        status: 'pending',
+        status: isTestMode ? 'test_mode' : 'pending',
         serviceId: serviceData.id,
         serviceNumber: serviceData.service_number,
         dynamicKey,
         createdAt: new Date().toISOString(),
+        isTestMode,
       };
 
       const { data, error } = await supabase.from('bookings').insert([bookingData]);
       if (error) throw error;
 
+      await sendAdminNotification(formData, totalCost, isTestMode);
+
       toast({
-        title: 'Booking Successful',
-        description: `Your tow service has been booked successfully. Service number: ${serviceData.service_number}`,
+        title: isTestMode ? 'Test Booking Successful' : 'Booking Successful',
+        description: `Your tow service has been ${isTestMode ? 'test ' : ''}booked successfully. Service number: ${serviceData.service_number}`,
         status: 'success',
         duration: 5000,
         isClosable: true,
       });
 
-      navigate('/confirmation', { state: { bookingData } });
+      navigate('/confirmation', { state: { bookingData, isTestMode } });
     } catch (error) {
       console.error('Booking error:', error);
       toast({
@@ -134,6 +133,9 @@ const BookingForm = () => {
     }
   };
 
+  // ... (rest of the component code)
+
+  return (
   return (
     <Box position="relative" height="100vh" width="100vw">
       <GoogleMapsRoute

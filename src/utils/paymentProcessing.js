@@ -5,7 +5,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 export const processPayment = async (amount, isTestMode = false, paymentData) => {
   if (isTestMode) {
     console.log('Test mode: Simulating payment processing');
-    return { success: true };
+    return { success: true, testMode: true };
   }
 
   try {
