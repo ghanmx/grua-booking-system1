@@ -88,7 +88,7 @@ const BookingForm = () => {
         return;
       }
 
-      const paymentResult = await processPayment(totalCost, paymentData.isTestMode, paymentData);
+      const paymentResult = await processPayment(totalCost, isTestMode, paymentData);
 
       if (!paymentResult.success) {
         throw new Error(paymentResult.error || 'Payment processing failed');
@@ -103,7 +103,7 @@ const BookingForm = () => {
         createdAt: new Date().toISOString(),
       };
 
-      if (!paymentData.isTestMode) {
+      if (!isTestMode) {
         const { data, error } = await supabase.from('bookings').insert([bookingData]);
         if (error) throw error;
       } else {
@@ -112,7 +112,7 @@ const BookingForm = () => {
 
       toast({
         title: 'Booking Successful',
-        description: paymentData.isTestMode ? 'Test booking simulated successfully.' : 'Your tow service has been booked successfully.',
+        description: isTestMode ? 'Test booking simulated successfully.' : 'Your tow service has been booked successfully.',
         status: 'success',
         duration: 5000,
         isClosable: true,
@@ -160,6 +160,7 @@ const BookingForm = () => {
         onClose={() => setIsPaymentWindowOpen(false)}
         onPaymentSubmit={handlePaymentSubmit}
         totalCost={totalCost}
+        isTestMode={isTestMode}
       />
     </Box>
   );

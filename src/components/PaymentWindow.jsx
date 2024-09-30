@@ -16,12 +16,11 @@ import {
   Switch,
 } from '@chakra-ui/react';
 
-const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
+const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost, isTestMode }) => {
   const [cardNumber, setCardNumber] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [cvv, setCvv] = useState('');
   const [error, setError] = useState('');
-  const [isTestMode, setIsTestMode] = useState(false);
 
   const handleSubmit = () => {
     if (isTestMode) {
@@ -51,7 +50,7 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
               <Switch
                 id="test-mode"
                 isChecked={isTestMode}
-                onChange={(e) => setIsTestMode(e.target.checked)}
+                isReadOnly
               />
             </FormControl>
             {!isTestMode && (
