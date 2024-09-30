@@ -122,9 +122,8 @@ const FloatingForm = ({
             <FormLabel>Payment Method</FormLabel>
             <Select name="paymentMethod" value={formData.paymentMethod} onChange={handleChange}>
               <option value="">Select payment method</option>
-              <option value="Credit/Debit Card">Credit/Debit Card</option>
-              <option value="Cash">Cash</option>
-              <option value="PayPal">PayPal</option>
+              <option value="card">Credit/Debit Card</option>
+              <option value="paypal">PayPal</option>
             </Select>
           </FormControl>
           <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading}>

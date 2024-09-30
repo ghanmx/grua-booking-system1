@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../integrations/supabase";
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
 import FloatingForm from '../components/FloatingForm';
-import PaymentWindow from '../components/PaymentWindow';
+import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
 import { sendAdminNotification } from '../utils/adminNotification';
@@ -34,10 +34,11 @@ const BookingForm = () => {
   const [totalCost, setTotalCost] = useState(0);
   const [selectedTowTruck, setSelectedTowTruck] = useState('');
   const [isTestMode, setIsTestMode] = useState(false);
-  const [isPaymentWindowOpen, setIsPaymentWindowOpen] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
+  const stripe = useStripe();
+  const elements = useElements();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,10 +55,9 @@ const BookingForm = () => {
     }));
   };
 
-  const handlePaymentSubmit = (paymentData) => {
-    console.log('Payment submitted:', paymentData);
-    setIsPaymentWindowOpen(false);
-    handleBookingProcess();
+  const validateForm = () => {
+    // Add form validation logic here
+    return true;
   };
 
   const handleBookingProcess = async (e) => {
@@ -71,10 +71,19 @@ const BookingForm = () => {
         return;
       }
 
-      const paymentResult = await processPayment(totalCost, isTestMode, formData);
+      if (!stripe || !elements) {
+        throw new Error('Stripe has not been initialized');
+      }
 
-      if (!paymentResult.success) {
-        throw new Error(paymentResult.error || 'Payment processing failed');
+      const { error: paymentError } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/confirmation`,
+        },
+      });
+
+      if (paymentError) {
+        throw new Error(paymentError.message);
       }
 
       const dynamicKey = uuidv4();
@@ -131,11 +140,6 @@ const BookingForm = () => {
     }
   };
 
-  const validateForm = () => {
-    // Add form validation logic here
-    return true;
-  };
-
   return (
     <Box position="relative" height="100vh" width="100vw">
       <GoogleMapsRoute
@@ -157,12 +161,13 @@ const BookingForm = () => {
         selectedTowTruck={selectedTowTruck}
         totalCost={totalCost}
       />
-      <PaymentWindow
-        isOpen={isPaymentWindowOpen}
-        onClose={() => setIsPaymentWindowOpen(false)}
-        onPaymentSubmit={handlePaymentSubmit}
-        totalCost={totalCost}
-        isTestMode={isTestMode}
+      <PaymentElement
+        options={{
+          layout: 'tabs',
+          paymentMethodOrder: ['card', 'paypal'],
+          business: { name: 'M.R. Gruas' },
+          wallets: { applePay: 'auto', googlePay: 'auto' },
+        }}
       />
     </Box>
   );
