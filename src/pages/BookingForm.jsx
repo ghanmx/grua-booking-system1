@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../integrations/supabase";
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
 import FloatingForm from '../components/FloatingForm';
-import { PaymentElement, useStripe, useElements, Elements } from '@stripe/react-stripe-js';
+import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { getTowTruckType, getTowTruckPricing } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
@@ -37,9 +37,6 @@ const BookingForm = () => {
   const [totalCost, setTotalCost] = useState(0);
   const [selectedTowTruck, setSelectedTowTruck] = useState('');
   const [isTestMode, setIsTestMode] = useState(false);
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [cvv, setCvv] = useState('');
   const [clientSecret, setClientSecret] = useState('');
   const toast = useToast();
   const navigate = useNavigate();
@@ -47,24 +44,50 @@ const BookingForm = () => {
   const stripe = useStripe();
   const elements = useElements();
 
+  const generateTestData = () => ({
+    serviceType: 'Tow',
+    userName: 'Test User',
+    phoneNumber: '1234567890',
+    vehicleBrand: 'Test Brand',
+    vehicleModel: 'Test Model',
+    vehicleColor: 'Red',
+    licensePlate: 'TEST123',
+    vehicleSize: 'Medium',
+    pickupAddress: '123 Test St, Test City',
+    dropOffAddress: '456 Example Ave, Sample Town',
+    vehicleIssue: 'Test Issue',
+    additionalDetails: 'This is a test booking',
+    wheelsStatus: 'Wheels Turn',
+    pickupDateTime: new Date(),
+    paymentMethod: 'card',
+  });
+
   useEffect(() => {
-    // Fetch the client secret from your backend
+    if (isTestMode) {
+      setFormData(generateTestData());
+    }
+  }, [isTestMode]);
+
+  useEffect(() => {
     const fetchClientSecret = async () => {
-      // Replace this with your actual API call to get the client secret
-      const response = await fetch('/api/create-payment-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ amount: totalCost * 100 }), // amount in cents
-      });
-      const data = await response.json();
-      setClientSecret(data.clientSecret);
+      if (totalCost > 0) {
+        try {
+          const response = await fetch('/api/create-payment-intent', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ amount: totalCost * 100 }), // amount in cents
+          });
+          const data = await response.json();
+          setClientSecret(data.clientSecret);
+        } catch (error) {
+          console.error('Error fetching client secret:', error);
+        }
+      }
     };
 
-    if (totalCost > 0) {
-      fetchClientSecret();
-    }
+    fetchClientSecret();
   }, [totalCost]);
 
   const handleChange = (e) => {
@@ -178,11 +201,6 @@ const BookingForm = () => {
     }
   };
 
-  const options = {
-    clientSecret,
-    appearance: { /* Customize the appearance of the payment form */ },
-  };
-
   return (
     <Box position="relative" height="100vh" width="100vw">
       <GoogleMapsRoute
@@ -203,17 +221,14 @@ const BookingForm = () => {
         setIsTestMode={setIsTestMode}
         selectedTowTruck={selectedTowTruck}
         totalCost={totalCost}
-        setCardNumber={setCardNumber}
-        setExpiryDate={setExpiryDate}
-        setCvv={setCvv}
       />
       {clientSecret && (
-        <Elements stripe={stripePromise} options={options}>
+        <Box position="absolute" bottom="20px" right="20px" width="400px" bg="white" p={4} borderRadius="md" boxShadow="xl">
           <PaymentElement />
-          <Button onClick={handleBookingProcess} isLoading={isLoading}>
+          <Button onClick={handleBookingProcess} isLoading={isLoading} mt={4} colorScheme="blue" width="100%">
             Pay and Book
           </Button>
-        </Elements>
+        </Box>
       )}
     </Box>
   );
