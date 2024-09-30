@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, VStack, Heading, Text, Button, FormControl, FormLabel, Input, Select, Textarea, Switch, useToast } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, Button, FormControl, FormLabel, Input, Select, Textarea, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../integrations/supabase";
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
@@ -37,7 +37,6 @@ const BookingForm = () => {
   const [distance, setDistance] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   const [selectedTowTruck, setSelectedTowTruck] = useState('');
-  const [isTestMode, setIsTestMode] = useState(false);
   const [clientSecret, setClientSecret] = useState('');
   const toast = useToast();
   const navigate = useNavigate();
@@ -50,7 +49,6 @@ const BookingForm = () => {
       [name]: value
     }));
 
-    // Reset vehicle model when brand changes
     if (name === 'vehicleBrand') {
       setFormData(prevData => ({
         ...prevData,
@@ -82,7 +80,7 @@ const BookingForm = () => {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ amount: Math.round(totalCost * 100) }), // amount in cents
+            body: JSON.stringify({ amount: Math.round(totalCost * 100) }),
           });
           const data = await response.json();
           setClientSecret(data.clientSecret);
@@ -106,7 +104,7 @@ const BookingForm = () => {
 
     setIsLoading(true);
     try {
-      if (!session && !isTestMode) {
+      if (!session) {
         navigate('/login', { state: { from: '/booking' } });
         return;
       }
@@ -115,9 +113,9 @@ const BookingForm = () => {
       const { data: serviceData, error: serviceError } = await supabase
         .from('services')
         .insert({
-          user_id: session?.user?.id || 'test_user',
+          user_id: session.user.id,
           dynamic_key: dynamicKey,
-          status: isTestMode ? 'test_mode' : 'pending',
+          status: 'pending',
         })
         .select('id, service_number')
         .single();
@@ -129,28 +127,27 @@ const BookingForm = () => {
         distance,
         totalCost,
         towTruckType: selectedTowTruck,
-        status: isTestMode ? 'test_mode' : 'pending',
+        status: 'pending',
         serviceId: serviceData.id,
         serviceNumber: serviceData.service_number,
         dynamicKey,
         createdAt: new Date().toISOString(),
-        isTestMode,
       };
 
       const { data, error } = await supabase.from('bookings').insert([bookingData]);
       if (error) throw error;
 
-      await sendAdminNotification(formData, totalCost, isTestMode);
+      await sendAdminNotification(formData, totalCost);
 
       toast({
-        title: isTestMode ? 'Test Booking Successful' : 'Booking Successful',
-        description: `Your tow service has been ${isTestMode ? 'test ' : ''}booked successfully. Service number: ${serviceData.service_number}`,
+        title: 'Booking Successful',
+        description: `Your tow service has been booked successfully. Service number: ${serviceData.service_number}`,
         status: 'success',
         duration: 5000,
         isClosable: true,
       });
 
-      navigate('/confirmation', { state: { bookingData, isTestMode } });
+      navigate('/confirmation', { state: { bookingData } });
     } catch (error) {
       console.error('Booking error:', error);
       toast({
@@ -229,8 +226,6 @@ const BookingForm = () => {
         handleDateTimeChange={handleDateTimeChange}
         handleBookingProcess={handleBookingProcess}
         isLoading={isLoading}
-        isTestMode={isTestMode}
-        setIsTestMode={setIsTestMode}
         selectedTowTruck={selectedTowTruck}
         totalCost={totalCost}
         vehicleBrands={vehicleBrands}

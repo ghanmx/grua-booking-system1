@@ -1,6 +1,6 @@
 import { supabase } from '../integrations/supabase';
 
-export const sendAdminNotification = async (bookingData, action, isTestMode = false) => {
+export const sendAdminNotification = async (bookingData, action) => {
   try {
     const notificationData = {
       action,
@@ -12,9 +12,8 @@ export const sendAdminNotification = async (bookingData, action, isTestMode = fa
       vehicle_model: bookingData.vehicleModel,
       vehicle_size: bookingData.vehicleSize,
       total_cost: bookingData.totalCost,
-      status: isTestMode ? 'test_mode' : 'active',
+      status: 'active',
       created_at: new Date().toISOString(),
-      is_test_mode: isTestMode
     };
 
     const { data, error } = await supabase

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -13,37 +13,20 @@ import {
   Input,
   VStack,
   Text,
-  Switch,
 } from '@chakra-ui/react';
 
-const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost, isTestMode }) => {
+const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
   const [cardNumber, setCardNumber] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [cvv, setCvv] = useState('');
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (isTestMode) {
-      setCardNumber('4111111111111111');
-      setExpiryDate('12/25');
-      setCvv('123');
-    } else {
-      setCardNumber('');
-      setExpiryDate('');
-      setCvv('');
-    }
-  }, [isTestMode]);
-
   const handleSubmit = () => {
-    if (isTestMode) {
-      onPaymentSubmit({ cardNumber, expiryDate, cvv, isTestMode });
+    if (cardNumber.length < 16) {
+      setError('Payment Failed: El número de tarjeta está incompleto.');
     } else {
-      if (cardNumber.length < 16) {
-        setError('Payment Failed: El número de tarjeta está incompleto.');
-      } else {
-        setError('');
-        onPaymentSubmit({ cardNumber, expiryDate, cvv, isTestMode });
-      }
+      setError('');
+      onPaymentSubmit({ cardNumber, expiryDate, cvv });
     }
   };
 
@@ -55,16 +38,6 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost, isTestMode
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4}>
-            <FormControl display="flex" alignItems="center">
-              <FormLabel htmlFor="test-mode" mb="0">
-                Test Mode
-              </FormLabel>
-              <Switch
-                id="test-mode"
-                isChecked={isTestMode}
-                isReadOnly
-              />
-            </FormControl>
             <FormControl>
               <FormLabel>Card Number</FormLabel>
               <Input
@@ -72,7 +45,6 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost, isTestMode
                 value={cardNumber}
                 onChange={(e) => setCardNumber(e.target.value)}
                 placeholder="1234 5678 9012 3456"
-                isDisabled={isTestMode}
               />
             </FormControl>
             <FormControl>
@@ -82,7 +54,6 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost, isTestMode
                 value={expiryDate}
                 onChange={(e) => setExpiryDate(e.target.value)}
                 placeholder="MM/YY"
-                isDisabled={isTestMode}
               />
             </FormControl>
             <FormControl>
@@ -92,7 +63,6 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost, isTestMode
                 value={cvv}
                 onChange={(e) => setCvv(e.target.value)}
                 placeholder="123"
-                isDisabled={isTestMode}
               />
             </FormControl>
             <Text fontWeight="bold">Total Cost: ${totalCost.toFixed(2)}</Text>
@@ -101,7 +71,7 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost, isTestMode
         </ModalBody>
         <ModalFooter>
           <Button colorScheme="blue" mr={3} onClick={handleSubmit}>
-            {isTestMode ? 'Submit Test Payment' : 'Submit Payment'}
+            Submit Payment
           </Button>
           <Button variant="ghost" onClick={onClose}>Cancel</Button>
         </ModalFooter>
