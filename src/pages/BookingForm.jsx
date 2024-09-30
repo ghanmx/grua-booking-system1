@@ -38,6 +38,34 @@ const BookingForm = () => {
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
+  const handleDateTimeChange = (date) => {
+    setFormData(prevData => ({
+      ...prevData,
+      pickupDateTime: date
+    }));
+  };
+
+  const handlePaymentSubmit = (paymentData) => {
+    // Implement payment submission logic here
+    console.log('Payment submitted:', paymentData);
+    setIsPaymentWindowOpen(false);
+    // Proceed with booking after successful payment
+    handleBookingProcess();
+  };
+
+  const validateForm = () => {
+    // Implement form validation logic here
+    return true; // Return true if form is valid, false otherwise
+  };
+
   const handleBookingProcess = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -49,7 +77,7 @@ const BookingForm = () => {
         return;
       }
 
-      const paymentResult = await processPayment(totalCost, isTestMode, paymentData);
+      const paymentResult = await processPayment(totalCost, isTestMode, formData);
 
       if (!paymentResult.success) {
         throw new Error(paymentResult.error || 'Payment processing failed');
