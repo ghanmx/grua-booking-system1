@@ -1,20 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Box, VStack, Heading, Text, Table, Thead, Tbody, Tr, Th, Td, Button, useToast } from "@chakra-ui/react";
 import { supabase } from "../integrations/supabase";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const AdminPanel = () => {
-  const [services, setServices] = useState([]);
-  const [towDrivers, setTowDrivers] = useState([]);
   const { session } = useSupabaseAuth();
   const toast = useToast();
-
-  useEffect(() => {
-    if (session?.user?.id) {
-      fetchServices();
-      fetchTowDrivers();
-    }
-  }, [session]);
+  const queryClient = useQueryClient();
 
   const fetchServices = async () => {
     const { data, error } = await supabase
@@ -22,43 +15,26 @@ const AdminPanel = () => {
       .select('*, bookings(*)')
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching services:', error);
-    } else {
-      setServices(data);
-    }
+    if (error) throw error;
+    return data;
   };
 
-  const fetchTowDrivers = async () => {
-    const { data, error } = await supabase
-      .from('tow_drivers')
-      .select('*')
-      .order('created_at', { ascending: false });
+  const { data: services, isLoading, error } = useQuery({
+    queryKey: ['services'],
+    queryFn: fetchServices,
+  });
 
-    if (error) {
-      console.error('Error fetching tow drivers:', error);
-    } else {
-      setTowDrivers(data);
-    }
-  };
+  const updateServiceStatus = useMutation({
+    mutationFn: async ({ id, status }) => {
+      const { error } = await supabase
+        .from('services')
+        .update({ status })
+        .eq('id', id);
 
-  const updateServiceStatus = async (serviceId, newStatus) => {
-    const { error } = await supabase
-      .from('services')
-      .update({ status: newStatus })
-      .eq('id', serviceId);
-
-    if (error) {
-      console.error('Error updating service status:', error);
-      toast({
-        title: 'Update Failed',
-        description: 'Failed to update service status',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-    } else {
-      fetchServices();
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries('services');
       toast({
         title: 'Status Updated',
         description: 'Service status has been updated successfully',
@@ -66,35 +42,50 @@ const AdminPanel = () => {
         duration: 3000,
         isClosable: true,
       });
-    }
-  };
-
-  const updateTowDriverStatus = async (driverId, newStatus) => {
-    const { error } = await supabase
-      .from('tow_drivers')
-      .update({ status: newStatus })
-      .eq('id', driverId);
-
-    if (error) {
-      console.error('Error updating tow driver status:', error);
+    },
+    onError: (error) => {
       toast({
         title: 'Update Failed',
-        description: 'Failed to update tow driver status',
+        description: error.message,
         status: 'error',
         duration: 3000,
         isClosable: true,
       });
-    } else {
-      fetchTowDrivers();
+    },
+  });
+
+  const deleteService = useMutation({
+    mutationFn: async (id) => {
+      const { error } = await supabase
+        .from('services')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries('services');
       toast({
-        title: 'Status Updated',
-        description: 'Tow driver status has been updated successfully',
+        title: 'Service Deleted',
+        description: 'Service has been deleted successfully',
         status: 'success',
         duration: 3000,
         isClosable: true,
       });
-    }
-  };
+    },
+    onError: (error) => {
+      toast({
+        title: 'Delete Failed',
+        description: error.message,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    },
+  });
+
+  if (isLoading) return <Text>Loading...</Text>;
+  if (error) return <Text>Error: {error.message}</Text>;
 
   return (
     <Box p={4}>
@@ -107,8 +98,8 @@ const AdminPanel = () => {
             <Thead>
               <Tr>
                 <Th>Service Number</Th>
-                <Th>Dynamic Key</Th>
                 <Th>Status</Th>
+                <Th>User</Th>
                 <Th>Actions</Th>
               </Tr>
             </Thead>
@@ -116,39 +107,31 @@ const AdminPanel = () => {
               {services.map((service) => (
                 <Tr key={service.id}>
                   <Td>{service.service_number}</Td>
-                  <Td>{service.dynamic_key}</Td>
                   <Td>{service.status}</Td>
+                  <Td>{service.bookings?.[0]?.userName || 'N/A'}</Td>
                   <Td>
-                    <Button size="sm" onClick={() => updateServiceStatus(service.id, 'completed')}>
-                      Mark Completed
+                    <Button
+                      size="sm"
+                      colorScheme="green"
+                      mr={2}
+                      onClick={() => updateServiceStatus.mutate({ id: service.id, status: 'approved' })}
+                    >
+                      Approve
                     </Button>
-                  </Td>
-                </Tr>
-              ))}
-            </Tbody>
-          </Table>
-        </Box>
-
-        <Box>
-          <Heading as="h2" size="lg" mb={4}>Tow Drivers</Heading>
-          <Table variant="simple">
-            <Thead>
-              <Tr>
-                <Th>Name</Th>
-                <Th>Phone</Th>
-                <Th>Status</Th>
-                <Th>Actions</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {towDrivers.map((driver) => (
-                <Tr key={driver.id}>
-                  <Td>{driver.name}</Td>
-                  <Td>{driver.phone}</Td>
-                  <Td>{driver.status}</Td>
-                  <Td>
-                    <Button size="sm" onClick={() => updateTowDriverStatus(driver.id, driver.status === 'active' ? 'inactive' : 'active')}>
-                      Toggle Status
+                    <Button
+                      size="sm"
+                      colorScheme="red"
+                      mr={2}
+                      onClick={() => updateServiceStatus.mutate({ id: service.id, status: 'rejected' })}
+                    >
+                      Reject
+                    </Button>
+                    <Button
+                      size="sm"
+                      colorScheme="gray"
+                      onClick={() => deleteService.mutate(service.id)}
+                    >
+                      Delete
                     </Button>
                   </Td>
                 </Tr>
