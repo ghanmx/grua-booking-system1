@@ -59,8 +59,6 @@ const BookingForm = () => {
     if (name === 'vehicleSize') {
       const newTowTruckType = getTowTruckType(value);
       setSelectedTowTruck(newTowTruckType);
-      const newTotalCost = calculateTotalCost(distance, newTowTruckType);
-      setTotalCost(newTotalCost);
     }
   };
 
@@ -70,13 +68,6 @@ const BookingForm = () => {
       pickupDateTime: date
     }));
   };
-
-  useEffect(() => {
-    const newTowTruckType = getTowTruckType(formData.vehicleSize);
-    setSelectedTowTruck(newTowTruckType);
-    const newTotalCost = calculateTotalCost(distance, newTowTruckType);
-    setTotalCost(newTotalCost);
-  }, [distance, formData.vehicleSize]);
 
   useEffect(() => {
     const fetchClientSecret = async () => {
@@ -193,7 +184,7 @@ const BookingForm = () => {
         setDropOffAddress={(address) => setFormData(prev => ({ ...prev, dropOffAddress: address }))}
         setDistance={setDistance}
         setTotalCost={setTotalCost}
-        selectedTowTruck={selectedTowTruck}
+        vehicleSize={formData.vehicleSize}
       />
       <FloatingForm
         formData={formData}

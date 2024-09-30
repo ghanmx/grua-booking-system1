@@ -1,15 +1,14 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
-import { GoogleMap, useJsApiLoader, DirectionsService, DirectionsRenderer, Marker } from '@react-google-maps/api';
-import { calculateTotalCost } from '../utils/towTruckSelection';
+import { GoogleMap, useJsApiLoader, DirectionsRenderer, Marker } from '@react-google-maps/api';
+import { calculateTotalCost, getTowTruckType } from '../utils/towTruckSelection';
 
 const libraries = ['places'];
 
-const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, selectedTowTruck }) => {
+const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, vehicleSize }) => {
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
   const [directions, setDirections] = useState(null);
-  const [mapCenter, setMapCenter] = useState({ lat: 26.509672, lng: -100.0095504 });
   const [map, setMap] = useState(null);
 
   const { isLoaded, loadError } = useJsApiLoader({
@@ -18,7 +17,6 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
   });
 
   const mapId = import.meta.env.VITE_GOOGLE_MAPS_ID;
-  const companyLocation = { lat: 26.509672, lng: -100.0095504 };
 
   const calculateRouteDistance = useCallback((result) => {
     if (result.routes.length === 0) return 0;
@@ -53,30 +51,16 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
 
     if (!pickup) {
       setPickup(clickedLocation);
-      setMapCenter(clickedLocation);
       const address = await getAddressFromLatLng(clickedLocation);
       setPickupAddress(address);
     } else if (!destination) {
       setDestination(clickedLocation);
-      setMapCenter(clickedLocation);
       const address = await getAddressFromLatLng(clickedLocation);
       setDropOffAddress(address);
     }
   }, [pickup, destination, setPickupAddress, setDropOffAddress, getAddressFromLatLng]);
 
-  const handleDirectionsLoad = useCallback((result) => {
-    if (result !== null && result.status === 'OK') {
-      setDirections(result);
-      const totalDistance = calculateRouteDistance(result);
-      setDistance(totalDistance);
-      const price = calculateTotalCost(totalDistance, selectedTowTruck);
-      setTotalCost(price);
-    } else {
-      console.error('Directions request failed:', result);
-    }
-  }, [calculateRouteDistance, setDistance, setTotalCost, selectedTowTruck]);
-
-  useEffect(() => {
+  const updateRouteAndCost = useCallback(() => {
     if (map && pickup && destination) {
       const directionsService = new window.google.maps.DirectionsService();
       directionsService.route(
@@ -87,14 +71,23 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
         },
         (result, status) => {
           if (status === 'OK') {
-            handleDirectionsLoad(result);
+            setDirections(result);
+            const totalDistance = calculateRouteDistance(result);
+            setDistance(totalDistance);
+            const towTruckType = getTowTruckType(vehicleSize);
+            const cost = calculateTotalCost(totalDistance, towTruckType);
+            setTotalCost(cost);
           } else {
             console.error('Directions request failed:', status);
           }
         }
       );
     }
-  }, [map, pickup, destination, handleDirectionsLoad]);
+  }, [map, pickup, destination, calculateRouteDistance, setDistance, setTotalCost, vehicleSize]);
+
+  useEffect(() => {
+    updateRouteAndCost();
+  }, [updateRouteAndCost]);
 
   if (loadError) {
     return <Box>Error loading maps</Box>;
@@ -108,7 +101,7 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
     <Box position="absolute" top="0" left="0" height="100%" width="100%">
       <GoogleMap
         mapContainerStyle={{ height: "100%", width: "100%" }}
-        center={mapCenter}
+        center={{ lat: 26.509672, lng: -100.0095504 }}
         zoom={10}
         onClick={handleMapClick}
         onLoad={setMap}
