@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Box, Text, VStack, Button, useToast } from '@chakra-ui/react';
+import { Box, Text, VStack, Button, useToast, Select, Input } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { sendAdminNotification } from '../utils/adminNotification';
-import StripePaymentForm from '../components/StripePaymentForm'; // Import the Stripe form
+import { processPayment } from '../utils/paymentProcessing';
 
 const Payment = () => {
   const location = useLocation();
@@ -10,7 +10,10 @@ const Payment = () => {
   const toast = useToast();
   const { formData } = location.state || {};
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isPaymentComplete, setIsPaymentComplete] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('card');
+  const [cardNumber, setCardNumber] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [cvv, setCvv] = useState('');
 
   const calculateTotalCost = () => {
     const baseCost = 558;
@@ -21,21 +24,31 @@ const Payment = () => {
 
   const totalCost = calculateTotalCost();
 
-  const handlePaymentSuccess = async (paymentMethod) => {
+  const handlePayment = async () => {
     setIsProcessing(true);
     try {
-      // Send notification to admin
-      await sendAdminNotification(formData, totalCost);
+      const paymentData = {
+        method: paymentMethod,
+        cardNumber,
+        expiryDate,
+        cvv,
+      };
 
-      // Show success message
-      toast({
-        title: 'Payment Processed',
-        description: 'Your payment has been successfully processed.',
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
-      setIsPaymentComplete(true);
+      const result = await processPayment(totalCost, false, paymentData);
+
+      if (result.success) {
+        await sendAdminNotification(formData, totalCost);
+        toast({
+          title: 'Payment Processed',
+          description: 'Your payment has been successfully processed.',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+        navigate('/confirmation', { state: { formData, totalCost } });
+      } else {
+        throw new Error(result.error);
+      }
     } catch (error) {
       toast({
         title: 'Payment Error',
@@ -47,20 +60,6 @@ const Payment = () => {
     } finally {
       setIsProcessing(false);
     }
-  };
-
-  const handlePaymentError = (errorMessage) => {
-    toast({
-      title: 'Payment Error',
-      description: errorMessage,
-      status: 'error',
-      duration: 5000,
-      isClosable: true,
-    });
-  };
-
-  const handleConfirmation = () => {
-    navigate('/confirmation', { state: { formData, totalCost } });
   };
 
   return (
@@ -77,17 +76,39 @@ const Payment = () => {
             <Text>Vehicle Size: {formData.vehicleSize}</Text>
             <Text fontWeight="bold">Total Cost: ${totalCost}</Text>
 
-            {!isPaymentComplete ? (
-              <StripePaymentForm
-                amount={totalCost}
-                onPaymentSuccess={handlePaymentSuccess}
-                onPaymentError={handlePaymentError}
-              />
-            ) : (
-              <Button colorScheme="green" onClick={handleConfirmation}>
-                Confirm Booking
-              </Button>
+            <Select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+              <option value="card">Credit/Debit Card</option>
+              {/* Add other payment options here */}
+            </Select>
+
+            {paymentMethod === 'card' && (
+              <>
+                <Input
+                  placeholder="Card Number"
+                  value={cardNumber}
+                  onChange={(e) => setCardNumber(e.target.value)}
+                />
+                <Input
+                  placeholder="Expiry Date (MM/YY)"
+                  value={expiryDate}
+                  onChange={(e) => setExpiryDate(e.target.value)}
+                />
+                <Input
+                  placeholder="CVV"
+                  value={cvv}
+                  onChange={(e) => setCvv(e.target.value)}
+                />
+              </>
             )}
+
+            <Button
+              colorScheme="blue"
+              onClick={handlePayment}
+              isLoading={isProcessing}
+              loadingText="Processing Payment"
+            >
+              Pay Now
+            </Button>
           </>
         ) : (
           <Text>No payment details available.</Text>
