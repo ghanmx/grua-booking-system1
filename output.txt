@@ -15,11 +15,11 @@
     "start:dev": "vite --host 0.0.0.0 --port 8080"
   },
   "devDependencies": {
-    "@types/react": "^18.3.9",
+    "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.1",
-    "eslint": "^8.57.1",
-    "eslint-plugin-react": "^7.36.1",
+    "@vitejs/plugin-react": "^4.3.2",
+    "eslint": "^9.11.1",
+    "eslint-plugin-react": "^7.37.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.12",
     "vite": "^5.4.8"
@@ -35,7 +35,7 @@
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/supabase-js": "^2.45.4",
     "@tanstack/react-query": "^5.56.2",
-    "framer-motion": "^11.7.0",
+    "framer-motion": "^11.9.0",
     "react": "^18.3.1",
     "react-datepicker": "^7.4.0",
     "react-dom": "^18.3.1",
@@ -49,7 +49,7 @@
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\package.json
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\package.json
 {
   "name": "vite-project",
   "private": true,
@@ -64,11 +64,11 @@
     "start:dev": "vite --host 0.0.0.0 --port 8080"
   },
   "devDependencies": {
-    "@types/react": "^18.3.9",
+    "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.1",
-    "eslint": "^8.57.1",
-    "eslint-plugin-react": "^7.36.1",
+    "@vitejs/plugin-react": "^4.3.2",
+    "eslint": "^9.11.1",
+    "eslint-plugin-react": "^7.37.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.12",
     "vite": "^5.4.8"
@@ -84,7 +84,7 @@
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/supabase-js": "^2.45.4",
     "@tanstack/react-query": "^5.56.2",
-    "framer-motion": "^11.7.0",
+    "framer-motion": "^11.9.0",
     "react": "^18.3.1",
     "react-datepicker": "^7.4.0",
     "react-dom": "^18.3.1",
@@ -98,7 +98,7 @@
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\vite.config.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\vite.config.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -120,7 +120,7 @@ export default defineConfig({
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\.gpt_engineer_internals\report-url-change.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\.gpt_engineer_internals\report-url-change.js
 const main = () => {
   /**
    * Function to send a message to parent windows
@@ -182,7 +182,7 @@ main();
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\.vscode\launch.json
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\.vscode\launch.json
 {
     // Use IntelliSense para saber los atributos posibles.
     // Mantenga el puntero para ver las descripciones de los existentes atributos.
@@ -200,7 +200,7 @@ main();
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\scripts\update-package-json.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\scripts\update-package-json.js
 const fs = require('fs');
 const path = require('path');
 
@@ -224,7 +224,7 @@ try {
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\authentication\authentication.domain.facade.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\authentication\authentication.domain.facade.ts
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -252,7 +252,7 @@ export class AuthenticationDomainFacade {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\authentication\authentication.domain.module.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\authentication\authentication.domain.module.ts
 import { Module } from '@nestjs/common';
 import { AuthenticationDomainFacade } from './authentication.domain.facade';
 
@@ -263,12 +263,12 @@ import { AuthenticationDomainFacade } from './authentication.domain.facade';
 export class AuthenticationDomainModule {}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\config\supabase.config.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\config\supabase.config.ts
 export const supabaseUrl = 'https://gjwhxrajesykwmomorhw.supabase.co';
 export const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdqd2h4cmFqZXN5a3dtb21vcmh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg4NTYzOTIsImV4cCI6MjAzNDQzMjM5Mn0.fDk88E2zfp64VhiEYL7KCh7KSEF1mNioaII7IaRwRgQ';
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\event\event.service.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\event\event.service.ts
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -286,7 +286,7 @@ export class EventService {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\integrations\supabase\index.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\integrations\supabase\index.js
 import { createClient } from '@supabase/supabase-js';
 import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -354,11 +354,11 @@ export const useDeleteTOW = () => {
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\integrations\supabase\openapi.json
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\integrations\supabase\openapi.json
 {"swagger":"2.0","info":{"description":"","title":"standard public schema","version":"12.1 (8cbcf98)"},"host":"gjwhxrajesykwmomorhw.supabase.co:443","basePath":"/","schemes":["https"],"consumes":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json","text/csv"],"produces":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json","text/csv"],"paths":{"/":{"get":{"produces":["application/openapi+json","application/json"],"responses":{"200":{"description":"OK"}},"summary":"OpenAPI description (this document)","tags":["Introspection"]}},"/TOW":{"get":{"parameters":[{"$ref":"#/parameters/rowFilter.TOW.id"},{"$ref":"#/parameters/rowFilter.TOW.created_at"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/order"},{"$ref":"#/parameters/range"},{"$ref":"#/parameters/rangeUnit"},{"$ref":"#/parameters/offset"},{"$ref":"#/parameters/limit"},{"$ref":"#/parameters/preferCount"}],"responses":{"200":{"description":"OK","schema":{"items":{"$ref":"#/definitions/TOW"},"type":"array"}},"206":{"description":"Partial Content"}},"summary":"TOW","tags":["TOW"]},"post":{"parameters":[{"$ref":"#/parameters/body.TOW"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/preferPost"}],"responses":{"201":{"description":"Created"}},"summary":"TOW","tags":["TOW"]},"delete":{"parameters":[{"$ref":"#/parameters/rowFilter.TOW.id"},{"$ref":"#/parameters/rowFilter.TOW.created_at"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"summary":"TOW","tags":["TOW"]},"patch":{"parameters":[{"$ref":"#/parameters/rowFilter.TOW.id"},{"$ref":"#/parameters/rowFilter.TOW.created_at"},{"$ref":"#/parameters/body.TOW"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"summary":"TOW","tags":["TOW"]}}},"definitions":{"TOW":{"description":"TOW","required":["id","created_at"],"properties":{"id":{"description":"Note:\nThis is a Primary Key.<pk/>","format":"bigint","type":"integer"},"created_at":{"default":"now()","format":"timestamp with time zone","type":"string"}},"type":"object"}},"parameters":{"preferParams":{"name":"Prefer","description":"Preference","required":false,"enum":["params=single-object"],"in":"header","type":"string"},"preferReturn":{"name":"Prefer","description":"Preference","required":false,"enum":["return=representation","return=minimal","return=none"],"in":"header","type":"string"},"preferCount":{"name":"Prefer","description":"Preference","required":false,"enum":["count=none"],"in":"header","type":"string"},"preferPost":{"name":"Prefer","description":"Preference","required":false,"enum":["return=representation","return=minimal","return=none","resolution=ignore-duplicates","resolution=merge-duplicates"],"in":"header","type":"string"},"select":{"name":"select","description":"Filtering Columns","required":false,"in":"query","type":"string"},"on_conflict":{"name":"on_conflict","description":"On Conflict","required":false,"in":"query","type":"string"},"order":{"name":"order","description":"Ordering","required":false,"in":"query","type":"string"},"range":{"name":"Range","description":"Limiting and Pagination","required":false,"in":"header","type":"string"},"rangeUnit":{"name":"Range-Unit","description":"Limiting and Pagination","required":false,"default":"items","in":"header","type":"string"},"offset":{"name":"offset","description":"Limiting and Pagination","required":false,"in":"query","type":"string"},"limit":{"name":"limit","description":"Limiting and Pagination","required":false,"in":"query","type":"string"},"body.TOW":{"name":"TOW","description":"TOW","required":false,"in":"body","schema":{"$ref":"#/definitions/TOW"}},"rowFilter.TOW.id":{"name":"id","required":false,"format":"bigint","in":"query","type":"string"},"rowFilter.TOW.created_at":{"name":"created_at","required":false,"format":"timestamp with time zone","in":"query","type":"string"}},"externalDocs":{"description":"PostgREST Documentation","url":"https://postgrest.org/en/v12.1/api.html"}}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\towingRequest\towingRequest.domain.facade.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\towingRequest\towingRequest.domain.facade.ts
 import { Injectable } from '@nestjs/common';
 import { TowingRequest } from './towingRequest.entity';
 
@@ -404,7 +404,7 @@ export class TowingRequestDomainFacade {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\towingRequest\towingRequest.domain.module.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\towingRequest\towingRequest.domain.module.ts
 import { Module } from '@nestjs/common';
 import { TowingRequestDomainFacade } from './towingRequest.domain.facade';
 
@@ -415,7 +415,7 @@ import { TowingRequestDomainFacade } from './towingRequest.domain.facade';
 export class TowingRequestDomainModule {}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\towingRequest\towingRequest.entity.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\towingRequest\towingRequest.entity.ts
 export class TowingRequest {
   id: string;
   userId: string;
@@ -425,7 +425,7 @@ export class TowingRequest {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\towingRequest\application\towingRequest.application.event.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\towingRequest\application\towingRequest.application.event.ts
 export namespace TowingRequestApplicationEvent {
   export class TowingRequestCreated {
     static readonly key = 'towingRequest.created';
@@ -434,7 +434,7 @@ export namespace TowingRequestApplicationEvent {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\towingRequest\application\towingRequest.application.module.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\towingRequest\application\towingRequest.application.module.ts
 import { Module } from '@nestjs/common';
 import { AuthenticationDomainModule } from '../authentication/authentication.domain.module';
 import { TowingRequestDomainModule } from '../towing-request/towingRequest.domain.module';
@@ -465,7 +465,7 @@ import { NewService } from '../new/new.service';
 export class TowingRequestApplicationModule {}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\towingRequest\application\towingRequest.controller.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\towingRequest\application\towingRequest.controller.ts
 import { Controller, Get, Post, Patch, Delete, Body, Param } from '@nestjs/common';
 import { EventService } from '../event/event.service';
 import { TowingRequestDomainFacade } from '../towingRequest/towingRequest.domain.facade';
@@ -527,7 +527,7 @@ export class TowingRequestController {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\towingRequest\application\towingRequest.dto.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\towingRequest\application\towingRequest.dto.ts
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class TowingRequestCreateDto {
@@ -559,7 +559,7 @@ export class TowingRequestUpdateDto {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\towingRequest\application\towingRequestByUser.controller.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\towingRequest\application\towingRequestByUser.controller.ts
 import { Controller, Get, Param } from '@nestjs/common';
 import { TowingRequestDomainFacade } from '../towingRequest/towingRequest.domain.facade';
 
@@ -574,14 +574,14 @@ export class TowingRequestByUserController {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\user\user.domain.module.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\user\user.domain.module.ts
 import { Module } from '@nestjs/common';
 
 @Module({})
 export class UserDomainModule {}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\utils\adminNotification.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\utils\adminNotification.js
 import { supabase } from '../integrations/supabase';
 
 export const sendAdminNotification = async (formData, totalCost) => {
@@ -597,50 +597,78 @@ export const sendAdminNotification = async (formData, totalCost) => {
           vehicle_model: formData.vehicleModel,
           vehicle_size: formData.vehicleSize,
           total_cost: totalCost,
-          status: 'paid'
+          status: 'paid',
+          created_at: new Date().toISOString()  // Ensuring the notification has a timestamp
         }
       ]);
 
     if (error) throw error;
-    console.log('Admin notification sent successfully');
+    console.log('Admin notification sent successfully:', data);
+    return data; // Return data for further use if needed
   } catch (error) {
     console.error('Error sending admin notification:', error);
+    throw new Error('Failed to send admin notification'); // Ensure error is propagated
   }
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\utils\paymentProcessing.js
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\utils\paymentProcessing.js
 import { loadStripe } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-export const processPayment = async (amount) => {
+export const processPayment = async (amount, isTestMode = false, paymentData) => {
+  if (isTestMode) {
+    console.log('Test mode: Simulating payment processing');
+    return { success: true };
+  }
+
   try {
+    // Validate card number
+    if (paymentData.cardNumber.length !== 16) {
+      return { success: false, error: 'Payment Failed: El número de tarjeta está incompleto.' };
+    }
+
     const stripe = await stripePromise;
-    const { error } = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: {
-        card: elements.getElement(CardElement),
-        billing_details: {
-          name: 'Jenny Rosen',
-        },
+
+    if (!stripe) {
+      throw new Error('Stripe initialization failed.');
+    }
+
+    // Create payment method object
+    const paymentMethod = {
+      type: 'card',
+      card: {
+        number: paymentData.cardNumber,
+        exp_month: paymentData.expiryDate.split('/')[0],
+        exp_year: `20${paymentData.expiryDate.split('/')[1]}`,
+        cvc: paymentData.cvv,
       },
+    };
+
+    // Simulate creating a PaymentIntent via backend
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount * 100, // Stripe works with cents
+      currency: 'usd',
+      payment_method: paymentMethod,
+      confirm: true,
     });
 
-    if (error) {
-      console.log('[error]', error);
-      return { success: false, error: error.message };
+    if (paymentIntent.status === 'succeeded') {
+      return { success: true, paymentIntent };
     } else {
-      console.log('Payment succeeded!');
-      return { success: true };
+      return { success: false, error: 'Payment failed: ' + paymentIntent.status };
     }
   } catch (error) {
     console.error('Error processing payment:', error);
-    return { success: false, error: 'An unexpected error occurred while processing the payment.' };
+    return { success: false, error: error.message };
   }
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-80\src\utils\towTruckSelection.js
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-54\src\utils\towTruckSelection.js
 export const getTowTruckType = (vehicleSize) => {
   switch (vehicleSize) {
     case 'Small':
@@ -668,6 +696,6 @@ export const getTowTruckPricing = (towTruckType) => {
 
 export const calculateTotalCost = (distance, towTruckType) => {
   const { perKm, basePrice } = getTowTruckPricing(towTruckType);
-  return basePrice + (distance * perKm);
+  // Calculate the cost for the round trip (company to pickup to destination and back to company)
+  return basePrice + (distance * perKm * 2);
 };
-

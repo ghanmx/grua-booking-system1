@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Box, VStack, Heading, Text, Button, Spinner, useToast, FormControl, FormLabel, Input, Select } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { processPayment } from '../utils/paymentProcessing'; // Assuming the correct path
+import { sendAdminNotification } from '../utils/adminNotification'; // Assuming the correct path
 
 const BillingProcess = () => {
   const location = useLocation();
@@ -53,22 +55,33 @@ const BillingProcess = () => {
     setIsProcessing(true);
 
     try {
-      // Simulate payment process (replace with actual payment logic)
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Real payment process using the Stripe utility
+      const paymentData = {
+        cardNumber,
+        expiryDate,
+        cvv,
+        amount: bookingData.totalCost,
+      };
+      const result = await processPayment(bookingData.totalCost, false, paymentData);
 
-      // Mark payment as successful
-      setIsPaymentComplete(true);
+      if (result.success) {
+        // Mark payment as successful
+        setIsPaymentComplete(true);
+        sendAdminNotification(bookingData, bookingData.totalCost); // Notify admin
 
-      toast({
-        title: 'Payment Successful',
-        description: 'Your payment has been processed successfully.',
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
+        toast({
+          title: 'Payment Successful',
+          description: 'Your payment has been processed successfully.',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
 
-      // Navigate to the confirmation page
-      navigate('/confirmation', { state: { bookingData, paymentMethod } });
+        // Navigate to the confirmation page
+        navigate('/confirmation', { state: { bookingData, paymentMethod } });
+      } else {
+        throw new Error(result.error || 'An unexpected error occurred.');
+      }
     } catch (error) {
       toast({
         title: 'Payment Error',

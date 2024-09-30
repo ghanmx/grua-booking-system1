@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Text, VStack, Button, useToast } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { sendAdminNotification } from '../utils/adminNotification';
+import StripePaymentForm from '../components/StripePaymentForm'; // Import the Stripe form
 
 const Payment = () => {
   const location = useLocation();
@@ -20,18 +21,12 @@ const Payment = () => {
 
   const totalCost = calculateTotalCost();
 
-  const handlePayment = async () => {
+  const handlePaymentSuccess = async (paymentMethod) => {
     setIsProcessing(true);
     try {
-      // Simulate payment processing
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      
-      // Payment successful
-      setIsPaymentComplete(true);
-      
       // Send notification to admin
       await sendAdminNotification(formData, totalCost);
-      
+
       // Show success message
       toast({
         title: 'Payment Processed',
@@ -40,6 +35,7 @@ const Payment = () => {
         duration: 5000,
         isClosable: true,
       });
+      setIsPaymentComplete(true);
     } catch (error) {
       toast({
         title: 'Payment Error',
@@ -51,6 +47,16 @@ const Payment = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handlePaymentError = (errorMessage) => {
+    toast({
+      title: 'Payment Error',
+      description: errorMessage,
+      status: 'error',
+      duration: 5000,
+      isClosable: true,
+    });
   };
 
   const handleConfirmation = () => {
@@ -70,19 +76,15 @@ const Payment = () => {
             <Text>Vehicle Model: {formData.vehicleModel}</Text>
             <Text>Vehicle Size: {formData.vehicleSize}</Text>
             <Text fontWeight="bold">Total Cost: ${totalCost}</Text>
+
             {!isPaymentComplete ? (
-              <Button 
-                colorScheme="blue" 
-                onClick={handlePayment} 
-                isLoading={isProcessing}
-              >
-                Pay Now
-              </Button>
+              <StripePaymentForm
+                amount={totalCost}
+                onPaymentSuccess={handlePaymentSuccess}
+                onPaymentError={handlePaymentError}
+              />
             ) : (
-              <Button 
-                colorScheme="green" 
-                onClick={handleConfirmation}
-              >
+              <Button colorScheme="green" onClick={handleConfirmation}>
                 Confirm Booking
               </Button>
             )}

@@ -10,15 +10,40 @@ export const processPayment = async (amount, isTestMode = false, paymentData) =>
 
   try {
     // Validate card number
-    if (paymentData.cardNumber.length < 16) {
+    if (paymentData.cardNumber.length !== 16) {
       return { success: false, error: 'Payment Failed: El número de tarjeta está incompleto.' };
     }
 
-    // In a real-world scenario, you would integrate with Stripe's API here
-    // For this example, we'll simulate a successful payment
-    console.log('Processing payment with data:', paymentData);
+    const stripe = await stripePromise;
 
-    return { success: true, paymentIntent: { id: 'simulated_payment_intent_id' } };
+    if (!stripe) {
+      throw new Error('Stripe initialization failed.');
+    }
+
+    // Create payment method object
+    const paymentMethod = {
+      type: 'card',
+      card: {
+        number: paymentData.cardNumber,
+        exp_month: paymentData.expiryDate.split('/')[0],
+        exp_year: `20${paymentData.expiryDate.split('/')[1]}`,
+        cvc: paymentData.cvv,
+      },
+    };
+
+    // Simulate creating a PaymentIntent via backend
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount * 100, // Stripe works with cents
+      currency: 'usd',
+      payment_method: paymentMethod,
+      confirm: true,
+    });
+
+    if (paymentIntent.status === 'succeeded') {
+      return { success: true, paymentIntent };
+    } else {
+      return { success: false, error: 'Payment failed: ' + paymentIntent.status };
+    }
   } catch (error) {
     console.error('Error processing payment:', error);
     return { success: false, error: error.message };
