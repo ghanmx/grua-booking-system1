@@ -4,12 +4,15 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../integrations/supabase";
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
 import FloatingForm from '../components/FloatingForm';
-import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { PaymentElement, useStripe, useElements, Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 import { getTowTruckType, getTowTruckPricing } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
 import { sendAdminNotification } from '../utils/adminNotification';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { v4 as uuidv4 } from 'uuid';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const BookingForm = () => {
   const [formData, setFormData] = useState({
@@ -37,11 +40,32 @@ const BookingForm = () => {
   const [cardNumber, setCardNumber] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [cvv, setCvv] = useState('');
+  const [clientSecret, setClientSecret] = useState('');
   const toast = useToast();
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   const stripe = useStripe();
   const elements = useElements();
+
+  useEffect(() => {
+    // Fetch the client secret from your backend
+    const fetchClientSecret = async () => {
+      // Replace this with your actual API call to get the client secret
+      const response = await fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount: totalCost * 100 }), // amount in cents
+      });
+      const data = await response.json();
+      setClientSecret(data.clientSecret);
+    };
+
+    if (totalCost > 0) {
+      fetchClientSecret();
+    }
+  }, [totalCost]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -89,17 +113,15 @@ const BookingForm = () => {
         throw new Error('Stripe has not been initialized');
       }
 
-      const paymentData = {
-        method: formData.paymentMethod,
-        cardNumber,
-        expiryDate,
-        cvv,
-      };
+      const { error: stripeError } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/confirmation`,
+        },
+      });
 
-      const result = await processPayment(totalCost, isTestMode, paymentData);
-
-      if (!result.success) {
-        throw new Error(result.error || 'Payment processing failed');
+      if (stripeError) {
+        throw new Error(stripeError.message);
       }
 
       const dynamicKey = uuidv4();
@@ -156,6 +178,11 @@ const BookingForm = () => {
     }
   };
 
+  const options = {
+    clientSecret,
+    appearance: { /* Customize the appearance of the payment form */ },
+  };
+
   return (
     <Box position="relative" height="100vh" width="100vw">
       <GoogleMapsRoute
@@ -180,14 +207,14 @@ const BookingForm = () => {
         setExpiryDate={setExpiryDate}
         setCvv={setCvv}
       />
-      <PaymentElement
-        options={{
-          layout: 'tabs',
-          paymentMethodOrder: ['card', 'paypal'],
-          business: { name: 'M.R. Gruas' },
-          wallets: { applePay: 'auto', googlePay: 'auto' },
-        }}
-      />
+      {clientSecret && (
+        <Elements stripe={stripePromise} options={options}>
+          <PaymentElement />
+          <Button onClick={handleBookingProcess} isLoading={isLoading}>
+            Pay and Book
+          </Button>
+        </Elements>
+      )}
     </Box>
   );
 };
