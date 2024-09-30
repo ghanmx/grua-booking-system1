@@ -1,8 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { supabaseUrl, supabaseKey } from '../../config/supabase.config';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_API_KEY;
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
 import React from "react";
@@ -16,17 +15,6 @@ const fromSupabase = async (query) => {
     if (error) throw new Error(error.message);
     return data;
 };
-
-/* supabase integration types
-
-### TOW
-
-| name       | type        | format | required |
-|------------|-------------|--------|----------|
-| id         | int8        | number | true     |
-| created_at | timestamptz | string | true     |
-
-*/
 
 export const useTOW = () => useQuery({
     queryKey: ['TOW'],
