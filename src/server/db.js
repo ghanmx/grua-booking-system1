@@ -88,7 +88,6 @@ export const createAdminUser = async (userData) => {
   return data;
 };
 
-// Add the createService function
 export const createService = async (serviceData) => {
   const { data, error } = await supabase
     .from('services_logs')
@@ -97,11 +96,31 @@ export const createService = async (serviceData) => {
   return data;
 };
 
-// Add the createBooking function (assuming it's needed based on the import in BookingForm.jsx)
 export const createBooking = async (bookingData) => {
   const { data, error } = await supabase
-    .from('bookings')
+    .from('services_logs')
     .insert(bookingData);
+  if (error) throw error;
+  return data;
+};
+
+// New function to get paid services waiting to be performed
+export const getPaidServicesWaiting = async () => {
+  const { data, error } = await supabase
+    .from('services_logs')
+    .select('*')
+    .eq('status', 'paid')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data;
+};
+
+// New function to update service status
+export const updateServiceStatus = async (id, newStatus) => {
+  const { data, error } = await supabase
+    .from('services_logs')
+    .update({ status: newStatus })
+    .eq('id', id);
   if (error) throw error;
   return data;
 };
