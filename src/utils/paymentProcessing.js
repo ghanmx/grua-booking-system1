@@ -9,7 +9,6 @@ export const processPayment = async (amount, isTestMode = false, paymentData) =>
   }
 
   try {
-    // Validate card number
     if (paymentData.cardNumber.length !== 16) {
       return { success: false, error: 'Payment Failed: El número de tarjeta está incompleto.' };
     }

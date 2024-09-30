@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Box, VStack, Heading, Text, Button, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
 import { supabase } from "../integrations/supabase";
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
 import FloatingForm from '../components/FloatingForm';
-import StripePaymentForm from '../components/StripePaymentForm';
 import PaymentWindow from '../components/PaymentWindow';
 import { getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const BookingForm = () => {
   const [formData, setFormData] = useState({
@@ -38,33 +33,10 @@ const BookingForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTowTruck, setSelectedTowTruck] = useState('');
   const [isTestMode, setIsTestMode] = useState(false);
+  const [isPaymentWindowOpen, setIsPaymentWindowOpen] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
-
-  useEffect(() => {
-    const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
-    if (testModeUser && testModeUser.isTestMode) {
-      setIsTestMode(true);
-      setFormData({
-        serviceType: 'Tow',
-        userName: 'Test User',
-        phoneNumber: '1234567890',
-        vehicleBrand: 'Toyota',
-        vehicleModel: 'Corolla',
-        vehicleColor: 'Red',
-        licensePlate: 'TEST123',
-        vehicleSize: 'Small',
-        pickupAddress: '123 Test St, Test City',
-        dropOffAddress: '456 Test Ave, Test City',
-        vehicleIssue: 'Test Issue',
-        additionalDetails: 'Test Details',
-        wheelsStatus: 'Wheels Turn',
-        pickupDateTime: new Date(),
-        paymentMethod: 'Credit/Debit Card',
-      });
-    }
-  }, []);
 
   useEffect(() => {
     const towTruckType = getTowTruckType(formData.vehicleSize);
@@ -86,8 +58,6 @@ const BookingForm = () => {
   };
 
   const validateForm = () => {
-    if (isTestMode) return true; // Skip validation in test mode
-
     const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleBrand', 'vehicleModel', 'vehicleColor', 'licensePlate', 'vehicleSize', 'pickupAddress', 'dropOffAddress', 'vehicleIssue', 'wheelsStatus', 'pickupDateTime', 'paymentMethod'];
     for (let field of requiredFields) {
       if (!formData[field]) {
@@ -104,13 +74,9 @@ const BookingForm = () => {
     return true;
   };
 
-
-  const [isPaymentWindowOpen, setIsPaymentWindowOpen] = useState(false);
-
   const handleBookingProcess = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
     setIsPaymentWindowOpen(true);
   };
 
@@ -122,19 +88,10 @@ const BookingForm = () => {
         return;
       }
 
-      const paymentResult = await processPayment(totalCost * 100, isTestMode, paymentData);
+      const paymentResult = await processPayment(totalCost, paymentData.isTestMode, paymentData);
 
       if (!paymentResult.success) {
-        console.error('Payment failed:', paymentResult.error);
-        toast({
-          title: 'Payment Failed',
-          description: paymentResult.error,
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
-        setIsLoading(false);
-        return;
+        throw new Error(paymentResult.error || 'Payment processing failed');
       }
 
       const bookingData = {
@@ -146,7 +103,7 @@ const BookingForm = () => {
         createdAt: new Date().toISOString(),
       };
 
-      if (!isTestMode) {
+      if (!paymentData.isTestMode) {
         const { data, error } = await supabase.from('bookings').insert([bookingData]);
         if (error) throw error;
       } else {
@@ -155,7 +112,7 @@ const BookingForm = () => {
 
       toast({
         title: 'Booking Successful',
-        description: isTestMode ? 'Test booking simulated successfully.' : 'Your tow service has been booked successfully.',
+        description: paymentData.isTestMode ? 'Test booking simulated successfully.' : 'Your tow service has been booked successfully.',
         status: 'success',
         duration: 5000,
         isClosable: true,
@@ -202,30 +159,8 @@ const BookingForm = () => {
         isOpen={isPaymentWindowOpen}
         onClose={() => setIsPaymentWindowOpen(false)}
         onPaymentSubmit={handlePaymentSubmit}
+        totalCost={totalCost}
       />
-      {!isTestMode && (
-        <Box position="absolute" bottom="20px" right="20px" width="400px" bg="white" p={4} borderRadius="md" boxShadow="xl">
-          <Elements stripe={stripePromise}>
-            <StripePaymentForm
-              amount={totalCost}
-              onPaymentSuccess={(paymentMethod) => {
-                console.log('Payment successful:', paymentMethod);
-                handlePaymentSubmit({ paymentMethod });
-              }}
-              onPaymentError={(error) => {
-                console.error('Payment error:', error);
-                toast({
-                  title: 'Payment Failed',
-                  description: error,
-                  status: 'error',
-                  duration: 5000,
-                  isClosable: true,
-                });
-              }}
-            />
-          </Elements>
-        </Box>
-      )}
     </Box>
   );
 };
