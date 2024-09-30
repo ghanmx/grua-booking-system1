@@ -1,8 +1,33 @@
 import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
 
-export const supabaseUrl = 'https://gjwhxrajesykwmomorhw.supabase.co';
-export const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdqd2h4cmFqZXN5a3dtb21vcmh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg4NTYzOTIsImV4cCI6MjAzNDQzMjM5Mn0.fDk88E2zfp64VhiEYL7KCh7KSEF1mNioaII7IaRwRgQ';
+dotenv.config();
+
+export const supabaseUrl = process.env.VITE_SUPABASE_PROJECT_URL;
+export const supabaseKey = process.env.VITE_SUPABASE_API_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Add caching to queries
+const cachedQuery = (queryFn) => {
+  const cache = new Map();
+  return async (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    const result = await queryFn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+export const getUsers = cachedQuery(async () => {
+  const { data, error } = await supabase
+    .from('users')
+    .select('id, email, full_name, phone_number, is_admin');
+  if (error) throw error;
+  return data;
+});
 
 export default supabase;

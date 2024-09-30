@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bookingRoutes = require('./routes/bookingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
@@ -10,6 +11,9 @@ app.use(express.json());
 
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
+
+// Use the error handler middleware
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
