@@ -27,13 +27,16 @@ const BookingForm = () => {
     additionalDetails: '',
     wheelsStatus: '',
     pickupDateTime: new Date(),
-    paymentMethod: '',
+    paymentMethod: 'card',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [distance, setDistance] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   const [selectedTowTruck, setSelectedTowTruck] = useState('');
   const [isTestMode, setIsTestMode] = useState(false);
+  const [cardNumber, setCardNumber] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [cvv, setCvv] = useState('');
   const toast = useToast();
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
@@ -55,6 +58,16 @@ const BookingForm = () => {
     }));
   };
 
+  const calculateTotalCost = () => {
+    const towTruckType = getTowTruckType(formData.vehicleSize);
+    return calculateTotalCost(distance, towTruckType);
+  };
+
+  useEffect(() => {
+    const newTotalCost = calculateTotalCost();
+    setTotalCost(newTotalCost);
+  }, [distance, formData.vehicleSize]);
+
   const validateForm = () => {
     // Add form validation logic here
     return true;
@@ -75,15 +88,17 @@ const BookingForm = () => {
         throw new Error('Stripe has not been initialized');
       }
 
-      const { error: paymentError } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/confirmation`,
-        },
-      });
+      const paymentData = {
+        method: formData.paymentMethod,
+        cardNumber,
+        expiryDate,
+        cvv,
+      };
 
-      if (paymentError) {
-        throw new Error(paymentError.message);
+      const result = await processPayment(totalCost, isTestMode, paymentData);
+
+      if (!result.success) {
+        throw new Error(result.error || 'Payment processing failed');
       }
 
       const dynamicKey = uuidv4();
@@ -160,6 +175,9 @@ const BookingForm = () => {
         setIsTestMode={setIsTestMode}
         selectedTowTruck={selectedTowTruck}
         totalCost={totalCost}
+        setCardNumber={setCardNumber}
+        setExpiryDate={setExpiryDate}
+        setCvv={setCvv}
       />
       <PaymentElement
         options={{
