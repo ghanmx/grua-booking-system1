@@ -13,8 +13,23 @@ const FloatingForm = ({
   selectedTowTruck,
   totalCost,
   vehicleBrands,
-  vehicleModels
+  vehicleModels,
+  setManualPickup,
+  setManualDropoff
 }) => {
+  const handleAddressChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
+    if (name === 'pickupAddress') {
+      setManualPickup(value);
+    } else if (name === 'dropOffAddress') {
+      setManualDropoff(value);
+    }
+  };
+
   return (
     <Box
       position="absolute"
@@ -92,11 +107,11 @@ const FloatingForm = ({
           </FormControl>
           <FormControl isRequired>
             <FormLabel>Pickup Address</FormLabel>
-            <Input name="pickupAddress" value={formData.pickupAddress} onChange={handleChange} />
+            <Input name="pickupAddress" value={formData.pickupAddress} onChange={handleAddressChange} />
           </FormControl>
           <FormControl isRequired>
             <FormLabel>Drop Off Address</FormLabel>
-            <Input name="dropOffAddress" value={formData.dropOffAddress} onChange={handleChange} />
+            <Input name="dropOffAddress" value={formData.dropOffAddress} onChange={handleAddressChange} />
           </FormControl>
           <FormControl isRequired>
             <FormLabel>Vehicle Issue</FormLabel>

@@ -10,6 +10,8 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
   const [destination, setDestination] = useState(null);
   const [directions, setDirections] = useState(null);
   const [map, setMap] = useState(null);
+  const [manualPickup, setManualPickup] = useState('');
+  const [manualDropoff, setManualDropoff] = useState('');
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -53,12 +55,53 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
       setPickup(clickedLocation);
       const address = await getAddressFromLatLng(clickedLocation);
       setPickupAddress(address);
+      setManualPickup(address);
     } else if (!destination) {
       setDestination(clickedLocation);
       const address = await getAddressFromLatLng(clickedLocation);
       setDropOffAddress(address);
+      setManualDropoff(address);
     }
   }, [pickup, destination, setPickupAddress, setDropOffAddress, getAddressFromLatLng]);
+
+  const handleManualAddressUpdate = useCallback(async (address, isPickup) => {
+    const geocoder = new window.google.maps.Geocoder();
+    try {
+      const result = await new Promise((resolve, reject) => {
+        geocoder.geocode({ address }, (results, status) => {
+          if (status === 'OK') {
+            resolve(results[0].geometry.location);
+          } else {
+            reject(new Error('Geocoding failed'));
+          }
+        });
+      });
+      
+      if (isPickup) {
+        setPickup(result.toJSON());
+        setPickupAddress(address);
+        setManualPickup(address);
+      } else {
+        setDestination(result.toJSON());
+        setDropOffAddress(address);
+        setManualDropoff(address);
+      }
+    } catch (error) {
+      console.error('Error geocoding address:', error);
+    }
+  }, [setPickupAddress, setDropOffAddress]);
+
+  useEffect(() => {
+    if (manualPickup) {
+      handleManualAddressUpdate(manualPickup, true);
+    }
+  }, [manualPickup, handleManualAddressUpdate]);
+
+  useEffect(() => {
+    if (manualDropoff) {
+      handleManualAddressUpdate(manualDropoff, false);
+    }
+  }, [manualDropoff, handleManualAddressUpdate]);
 
   const updateRouteAndCost = useCallback(() => {
     if (map && pickup && destination) {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, VStack, Heading, Text, Button, FormControl, FormLabel, Input, Select, Textarea, useToast } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
@@ -38,7 +38,8 @@ const BookingForm = () => {
   const [totalCost, setTotalCost] = useState(0);
   const [selectedTowTruck, setSelectedTowTruck] = useState('');
   const [clientSecret, setClientSecret] = useState('');
-  const toast = useToast();
+  const [manualPickup, setManualPickup] = useState('');
+  const [manualDropoff, setManualDropoff] = useState('');
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
 
@@ -197,6 +198,8 @@ const BookingForm = () => {
         totalCost={totalCost}
         vehicleBrands={vehicleBrands}
         vehicleModels={vehicleModels}
+        setManualPickup={setManualPickup}
+        setManualDropoff={setManualDropoff}
       />
       {clientSecret && (
         <Box position="absolute" bottom="20px" right="20px" width="400px" bg="white" p={4} borderRadius="md" boxShadow="xl">
