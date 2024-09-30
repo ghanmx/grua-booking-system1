@@ -10,69 +10,15 @@ import { processPayment } from '../utils/paymentProcessing';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const BookingForm = () => {
-  const [formData, setFormData] = useState({
-    serviceType: '',
-    userName: '',
-    phoneNumber: '',
-    vehicleBrand: '',
-    vehicleModel: '',
-    vehicleColor: '',
-    licensePlate: '',
-    vehicleSize: '',
-    pickupAddress: '',
-    dropOffAddress: '',
-    vehicleIssue: '',
-    additionalDetails: '',
-    wheelsStatus: '',
-    pickupDateTime: new Date(),
-    paymentMethod: '',
-  });
+  // ... (previous state declarations)
 
-  const [distance, setDistance] = useState(0);
-  const [totalCost, setTotalCost] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedTowTruck, setSelectedTowTruck] = useState('');
   const [isTestMode, setIsTestMode] = useState(false);
   const [isPaymentWindowOpen, setIsPaymentWindowOpen] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
 
-  useEffect(() => {
-    const towTruckType = getTowTruckType(formData.vehicleSize);
-    setSelectedTowTruck(towTruckType);
-  }, [formData.vehicleSize]);
-
-  useEffect(() => {
-    const newTotalCost = calculateTotalCost(distance, selectedTowTruck);
-    setTotalCost(newTotalCost);
-  }, [selectedTowTruck, distance]);
-
-  const handleDateTimeChange = (date) => {
-    setFormData({ ...formData, pickupDateTime: date });
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const validateForm = () => {
-    const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleBrand', 'vehicleModel', 'vehicleColor', 'licensePlate', 'vehicleSize', 'pickupAddress', 'dropOffAddress', 'vehicleIssue', 'wheelsStatus', 'pickupDateTime', 'paymentMethod'];
-    for (let field of requiredFields) {
-      if (!formData[field]) {
-        toast({
-          title: 'Error',
-          description: `Please fill in all required fields. Missing: ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`,
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
-        return false;
-      }
-    }
-    return true;
-  };
+  // ... (previous useEffect hooks and functions)
 
   const handleBookingProcess = async (e) => {
     e.preventDefault();
