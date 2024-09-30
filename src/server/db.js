@@ -87,3 +87,21 @@ export const createAdminUser = async (userData) => {
   if (error) throw error;
   return data;
 };
+
+// Add the createService function
+export const createService = async (serviceData) => {
+  const { data, error } = await supabase
+    .from('services_logs')
+    .insert(serviceData);
+  if (error) throw error;
+  return data;
+};
+
+// Add the createBooking function (assuming it's needed based on the import in BookingForm.jsx)
+export const createBooking = async (bookingData) => {
+  const { data, error } = await supabase
+    .from('bookings')
+    .insert(bookingData);
+  if (error) throw error;
+  return data;
+};
