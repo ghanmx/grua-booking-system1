@@ -3,7 +3,7 @@ import { Box } from '@chakra-ui/react';
 import { GoogleMap, useJsApiLoader, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
 import { getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
 
-const libraries = ['places'];
+const libraries = ['places', 'marker'];
 
 const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, selectedTowTruck }) => {
   const [pickup, setPickup] = useState(null);
@@ -74,7 +74,7 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
   }, [calculateRouteDistance, setDistance, setTotalCost, selectedTowTruck]);
 
   const createAdvancedMarker = useCallback((position, label) => {
-    if (map && window.google) {
+    if (map && window.google && window.google.maps.marker) {
       const advancedMarkerElement = new window.google.maps.marker.AdvancedMarkerElement({
         position,
         map,

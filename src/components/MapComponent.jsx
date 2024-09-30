@@ -2,6 +2,8 @@ import { Box } from '@chakra-ui/react';
 import { GoogleMap, LoadScript } from '@react-google-maps/api';
 import { useState, useCallback, useEffect } from 'react';
 
+const libraries = ['places', 'marker'];
+
 const MapComponent = () => {
   const [markers, setMarkers] = useState([]);
   const [map, setMap] = useState(null);
@@ -16,7 +18,7 @@ const MapComponent = () => {
   }, []);
 
   const createAdvancedMarker = useCallback((position) => {
-    if (map && window.google) {
+    if (map && window.google && window.google.maps.marker) {
       const advancedMarkerElement = new window.google.maps.marker.AdvancedMarkerElement({
         position,
         map,
@@ -36,7 +38,10 @@ const MapComponent = () => {
 
   return (
     <Box height="400px" width="100%" my={4}>
-      <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+      <LoadScript 
+        googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+        libraries={libraries}
+      >
         <GoogleMap
           mapContainerStyle={{ height: '100%', width: '100%' }}
           center={{ lat: 26.509672, lng: -100.0095504 }}
