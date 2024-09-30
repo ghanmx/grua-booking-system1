@@ -1,18 +1,16 @@
 import { supabase } from '../integrations/supabase';
 
-export const sendAdminNotification = async (bookingData, action) => {
+export const sendAdminNotification = async (bookingData, totalCost) => {
   try {
     const notificationData = {
-      action,
-      booking_id: bookingData.id,
       service_type: bookingData.serviceType,
       user_name: bookingData.userName,
       phone_number: bookingData.phoneNumber,
-      vehicle_make: bookingData.vehicleMake,
+      vehicle_make: bookingData.vehicleBrand,
       vehicle_model: bookingData.vehicleModel,
       vehicle_size: bookingData.vehicleSize,
-      total_cost: bookingData.totalCost,
-      status: 'active',
+      total_cost: totalCost,
+      status: 'paid',
       created_at: new Date().toISOString(),
     };
 
@@ -21,7 +19,7 @@ export const sendAdminNotification = async (bookingData, action) => {
       .insert([notificationData]);
 
     if (error) throw error;
-    console.log(`Admin notification sent: ${action}`, data);
+    console.log('Admin notification sent successfully:', data);
     return data;
   } catch (error) {
     console.error('Error sending admin notification:', error);

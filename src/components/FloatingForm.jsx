@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, VStack, Heading, Text, Button, FormControl, FormLabel, Input, Select, Textarea, Switch } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, Button, FormControl, FormLabel, Input, Select, Textarea } from "@chakra-ui/react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -10,8 +10,6 @@ const FloatingForm = ({
   handleDateTimeChange,
   handleBookingProcess,
   isLoading,
-  isTestMode,
-  setIsTestMode,
   selectedTowTruck,
   totalCost,
   vehicleBrands,
@@ -32,16 +30,6 @@ const FloatingForm = ({
     >
       <VStack spacing={4} align="stretch">
         <Heading as="h1" size="lg">Booking Form</Heading>
-        <FormControl display="flex" alignItems="center">
-          <FormLabel htmlFor="test-mode" mb="0">
-            Test Mode
-          </FormLabel>
-          <Switch
-            id="test-mode"
-            isChecked={isTestMode}
-            onChange={(e) => setIsTestMode(e.target.checked)}
-          />
-        </FormControl>
         <form onSubmit={handleBookingProcess}>
           <FormControl isRequired>
             <FormLabel>Service Type</FormLabel>
@@ -144,7 +132,7 @@ const FloatingForm = ({
             </Select>
           </FormControl>
           <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading}>
-            {isTestMode ? 'Simulate Booking' : 'Book Now'}
+            Book Now
           </Button>
         </form>
         {selectedTowTruck && totalCost > 0 && (
