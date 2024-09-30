@@ -55,10 +55,8 @@ const BookingForm = () => {
   };
 
   const handlePaymentSubmit = (paymentData) => {
-    // Implement payment submission logic here
     console.log('Payment submitted:', paymentData);
     setIsPaymentWindowOpen(false);
-    // Proceed with booking after successful payment
     handleBookingProcess();
   };
 
@@ -133,9 +131,11 @@ const BookingForm = () => {
     }
   };
 
-  // ... (rest of the component code)
+  const validateForm = () => {
+    // Add form validation logic here
+    return true;
+  };
 
-  return (
   return (
     <Box position="relative" height="100vh" width="100vw">
       <GoogleMapsRoute
