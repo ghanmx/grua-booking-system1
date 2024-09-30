@@ -42,6 +42,54 @@ const BookingForm = () => {
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
 
+  const PaymentForm = () => {
+    const stripe = useStripe();
+    const elements = useElements();
+
+    const handlePaymentSubmit = async (event) => {
+      event.preventDefault();
+
+      if (!stripe || !elements) {
+        console.error('Stripe has not been initialized');
+        return;
+      }
+
+      setIsLoading(true);
+
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/confirmation`,
+        },
+      });
+
+      if (error) {
+        toast({
+          title: 'Payment Error',
+          description: error.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      } else {
+        handleBookingProcess(event);
+      }
+
+      setIsLoading(false);
+    };
+
+    return (
+      <form onSubmit={handlePaymentSubmit}>
+        <Elements stripe={stripePromise} options={{ clientSecret }}>
+          {/* Stripe Elements will be rendered here */}
+        </Elements>
+        <Button type="submit" mt={4} colorScheme="blue" isLoading={isLoading} disabled={!stripe}>
+          Pay and Book
+        </Button>
+      </form>
+    );
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevData => ({
@@ -160,54 +208,6 @@ const BookingForm = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const PaymentForm = () => {
-    const stripe = useStripe();
-    const elements = useElements();
-
-    const handlePaymentSubmit = async (event) => {
-      event.preventDefault();
-
-      if (!stripe || !elements) {
-        console.error('Stripe has not been initialized');
-        return;
-      }
-
-      setIsLoading(true);
-
-      const { error } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/confirmation`,
-        },
-      });
-
-      if (error) {
-        toast({
-          title: 'Payment Error',
-          description: error.message,
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
-      } else {
-        handleBookingProcess(event);
-      }
-
-      setIsLoading(false);
-    };
-
-    return (
-      <form onSubmit={handlePaymentSubmit}>
-        <Elements stripe={stripePromise} options={{ clientSecret }}>
-          {/* Stripe Elements will be rendered here */}
-        </Elements>
-        <Button type="submit" mt={4} colorScheme="blue" isLoading={isLoading} disabled={!stripe}>
-          Pay and Book
-        </Button>
-      </form>
-    );
   };
 
   return (
