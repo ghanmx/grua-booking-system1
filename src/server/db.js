@@ -25,11 +25,7 @@ export const createUser = async (userData) => {
 export const updateUser = async (id, userData) => {
   const { data, error } = await supabase
     .from('users')
-    .update({
-      full_name: userData.fullName,
-      phone_number: userData.phoneNumber,
-      is_admin: userData.isAdmin
-    })
+    .update(userData)
     .eq('id', id);
   if (error) throw error;
   return data;
