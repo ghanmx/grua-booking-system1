@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
 import { GoogleMap, useJsApiLoader, DirectionsService, DirectionsRenderer, Marker } from '@react-google-maps/api';
-import { getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
+import { calculateTotalCost } from '../utils/towTruckSelection';
 
 const libraries = ['places'];
 
@@ -81,9 +81,8 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
       const directionsService = new window.google.maps.DirectionsService();
       directionsService.route(
         {
-          origin: companyLocation,
+          origin: pickup,
           destination: destination,
-          waypoints: [{ location: pickup }],
           travelMode: window.google.maps.TravelMode.DRIVING,
         },
         (result, status) => {
@@ -95,7 +94,7 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
         }
       );
     }
-  }, [map, pickup, destination, companyLocation, handleDirectionsLoad]);
+  }, [map, pickup, destination, handleDirectionsLoad]);
 
   if (loadError) {
     return <Box>Error loading maps</Box>;
