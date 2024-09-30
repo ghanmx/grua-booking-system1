@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Box, VStack, Heading, Text, Button, FormControl, FormLabel, Input, Select, Textarea, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../integrations/supabase";
-import GoogleMapsRoute from '../components/GoogleMapsRoute';
-import FloatingForm from '../components/FloatingForm';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
+import GoogleMapsRoute from '../components/GoogleMapsRoute';
+import FloatingForm from '../components/FloatingForm';
 import { getTowTruckType, getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
 import { sendAdminNotification } from '../utils/adminNotification';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { vehicleBrands, vehicleModels } from '../utils/vehicleData';
+import { createBooking, createService } from '../server/db';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -158,44 +158,50 @@ const BookingForm = () => {
       }
 
       const dynamicKey = uuidv4();
-      const { data: serviceData, error: serviceError } = await supabase
-        .from('services')
-        .insert({
-          user_id: session.user.id,
-          dynamic_key: dynamicKey,
-          status: 'pending',
-        })
-        .select('id, service_number')
-        .single();
-
-      if (serviceError) throw serviceError;
-
-      const bookingData = {
-        ...formData,
-        distance,
-        totalCost,
-        towTruckType: selectedTowTruck,
+      const serviceData = {
+        user_id: session.user.id,
+        dynamic_key: dynamicKey,
         status: 'pending',
-        serviceId: serviceData.id,
-        serviceNumber: serviceData.service_number,
-        dynamicKey,
-        createdAt: new Date().toISOString(),
+        service_type: formData.serviceType,
       };
 
-      const { data, error } = await supabase.from('bookings').insert([bookingData]);
-      if (error) throw error;
+      const createdService = await createService(serviceData);
+
+      const bookingData = {
+        user_id: session.user.id,
+        service_id: createdService[0].id,
+        vehicle_brand: formData.vehicleBrand,
+        vehicle_model: formData.vehicleModel,
+        vehicle_color: formData.vehicleColor,
+        license_plate: formData.licensePlate,
+        vehicle_size: formData.vehicleSize,
+        pickup_address: formData.pickupAddress,
+        dropoff_address: formData.dropOffAddress,
+        vehicle_issue: formData.vehicleIssue,
+        additional_details: formData.additionalDetails,
+        wheels_status: formData.wheelsStatus,
+        pickup_datetime: formData.pickupDateTime,
+        payment_method: formData.paymentMethod,
+        distance,
+        total_cost: totalCost,
+        tow_truck_type: selectedTowTruck,
+        status: 'pending',
+        dynamic_key: dynamicKey,
+      };
+
+      const createdBooking = await createBooking(bookingData);
 
       await sendAdminNotification(formData, totalCost);
 
       toast({
         title: 'Booking Successful',
-        description: `Your tow service has been booked successfully. Service number: ${serviceData.service_number}`,
+        description: `Your tow service has been booked successfully. Service number: ${createdService[0].id}`,
         status: 'success',
         duration: 5000,
         isClosable: true,
       });
 
-      navigate('/confirmation', { state: { bookingData } });
+      navigate('/confirmation', { state: { bookingData: createdBooking[0] } });
     } catch (error) {
       console.error('Booking error:', error);
       toast({
