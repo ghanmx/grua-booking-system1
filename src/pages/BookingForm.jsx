@@ -10,15 +10,65 @@ import { processPayment } from '../utils/paymentProcessing';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const BookingForm = () => {
-  // ... (previous state declarations)
-
+  const [formData, setFormData] = useState({
+    serviceType: '',
+    userName: '',
+    phoneNumber: '',
+    vehicleBrand: '',
+    vehicleModel: '',
+    vehicleColor: '',
+    licensePlate: '',
+    vehicleSize: '',
+    pickupAddress: '',
+    dropOffAddress: '',
+    vehicleIssue: '',
+    additionalDetails: '',
+    wheelsStatus: '',
+    pickupDateTime: new Date(),
+    paymentMethod: '',
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [distance, setDistance] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
+  const [selectedTowTruck, setSelectedTowTruck] = useState('');
   const [isTestMode, setIsTestMode] = useState(false);
   const [isPaymentWindowOpen, setIsPaymentWindowOpen] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
 
-  // ... (previous useEffect hooks and functions)
+  useEffect(() => {
+    if (formData.vehicleSize) {
+      const truckType = getTowTruckType(formData.vehicleSize);
+      setSelectedTowTruck(truckType);
+    }
+  }, [formData.vehicleSize]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevData => ({ ...prevData, [name]: value }));
+  };
+
+  const handleDateTimeChange = (date) => {
+    setFormData(prevData => ({ ...prevData, pickupDateTime: date }));
+  };
+
+  const validateForm = () => {
+    const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleBrand', 'vehicleModel', 'vehicleSize', 'pickupAddress', 'dropOffAddress'];
+    for (const field of requiredFields) {
+      if (!formData[field]) {
+        toast({
+          title: 'Missing Information',
+          description: `Please fill in the ${field.replace(/([A-Z])/g, ' $1').toLowerCase()} field.`,
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+        return false;
+      }
+    }
+    return true;
+  };
 
   const handleBookingProcess = async (e) => {
     e.preventDefault();
