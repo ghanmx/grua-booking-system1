@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Box, VStack, Heading, Text, Button, useToast } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, Button, FormControl, FormLabel, Input, Select, Textarea, Switch, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../integrations/supabase";
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
 import FloatingForm from '../components/FloatingForm';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { getTowTruckType, getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
 import { sendAdminNotification } from '../utils/adminNotification';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { v4 as uuidv4 } from 'uuid';
+import { vehicleBrands, vehicleModels } from '../utils/vehicleData';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -48,6 +49,14 @@ const BookingForm = () => {
       ...prevData,
       [name]: value
     }));
+
+    // Reset vehicle model when brand changes
+    if (name === 'vehicleBrand') {
+      setFormData(prevData => ({
+        ...prevData,
+        vehicleModel: ''
+      }));
+    }
   };
 
   const handleDateTimeChange = (date) => {
@@ -194,7 +203,9 @@ const BookingForm = () => {
 
     return (
       <form onSubmit={handlePaymentSubmit}>
-        <PaymentElement />
+        <Elements stripe={stripePromise} options={{ clientSecret }}>
+          {/* Stripe Elements will be rendered here */}
+        </Elements>
         <Button type="submit" mt={4} colorScheme="blue" isLoading={isLoading} disabled={!stripe}>
           Pay and Book
         </Button>
@@ -222,12 +233,12 @@ const BookingForm = () => {
         setIsTestMode={setIsTestMode}
         selectedTowTruck={selectedTowTruck}
         totalCost={totalCost}
+        vehicleBrands={vehicleBrands}
+        vehicleModels={vehicleModels}
       />
       {clientSecret && (
         <Box position="absolute" bottom="20px" right="20px" width="400px" bg="white" p={4} borderRadius="md" boxShadow="xl">
-          <Elements stripe={stripePromise} options={{ clientSecret }}>
-            <PaymentForm />
-          </Elements>
+          <PaymentForm />
         </Box>
       )}
     </Box>

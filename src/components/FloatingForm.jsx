@@ -13,7 +13,9 @@ const FloatingForm = ({
   isTestMode,
   setIsTestMode,
   selectedTowTruck,
-  totalCost
+  totalCost,
+  vehicleBrands,
+  vehicleModels
 }) => {
   return (
     <Box
@@ -61,11 +63,26 @@ const FloatingForm = ({
           </FormControl>
           <FormControl isRequired>
             <FormLabel>Vehicle Brand</FormLabel>
-            <Input name="vehicleBrand" value={formData.vehicleBrand} onChange={handleChange} />
+            <Select name="vehicleBrand" value={formData.vehicleBrand} onChange={handleChange}>
+              <option value="">Select a brand</option>
+              {vehicleBrands.map((brand) => (
+                <option key={brand} value={brand}>{brand}</option>
+              ))}
+            </Select>
           </FormControl>
           <FormControl isRequired>
             <FormLabel>Vehicle Model</FormLabel>
-            <Input name="vehicleModel" value={formData.vehicleModel} onChange={handleChange} />
+            <Select 
+              name="vehicleModel" 
+              value={formData.vehicleModel} 
+              onChange={handleChange}
+              isDisabled={!formData.vehicleBrand}
+            >
+              <option value="">Select a model</option>
+              {formData.vehicleBrand && vehicleModels[formData.vehicleBrand].map((model) => (
+                <option key={model} value={model}>{model}</option>
+              ))}
+            </Select>
           </FormControl>
           <FormControl isRequired>
             <FormLabel>Vehicle Color</FormLabel>
