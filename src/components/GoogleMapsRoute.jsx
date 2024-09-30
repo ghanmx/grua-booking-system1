@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
-import { GoogleMap, useJsApiLoader, Marker, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
 import { getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
 
 const libraries = ['places'];
@@ -10,6 +10,7 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
   const [destination, setDestination] = useState(null);
   const [directions, setDirections] = useState(null);
   const [mapCenter, setMapCenter] = useState({ lat: 26.509672, lng: -100.0095504 });
+  const [map, setMap] = useState(null);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -72,6 +73,26 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
     }
   }, [calculateRouteDistance, setDistance, setTotalCost, selectedTowTruck]);
 
+  const createAdvancedMarker = useCallback((position, label) => {
+    if (map && window.google) {
+      const advancedMarkerElement = new window.google.maps.marker.AdvancedMarkerElement({
+        position,
+        map,
+        title: label,
+      });
+      return advancedMarkerElement;
+    }
+    return null;
+  }, [map]);
+
+  useEffect(() => {
+    if (map) {
+      if (companyLocation) createAdvancedMarker(companyLocation, 'Company');
+      if (pickup) createAdvancedMarker(pickup, 'Pickup');
+      if (destination) createAdvancedMarker(destination, 'Destination');
+    }
+  }, [map, companyLocation, pickup, destination, createAdvancedMarker]);
+
   if (loadError) {
     return <Box>Error loading maps</Box>;
   }
@@ -87,10 +108,8 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
         center={mapCenter}
         zoom={10}
         onClick={handleMapClick}
+        onLoad={setMap}
       >
-        {companyLocation && <Marker position={companyLocation} label="Company" />}
-        {pickup && <Marker position={pickup} label="Pickup" />}
-        {destination && <Marker position={destination} label="Destination" />}
         {pickup && destination && (
           <DirectionsService
             options={{
