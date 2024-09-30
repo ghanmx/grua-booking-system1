@@ -5,7 +5,7 @@ import { supabase } from "../integrations/supabase";
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
 import FloatingForm from '../components/FloatingForm';
 import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
+import { getTowTruckType, getTowTruckPricing } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
 import { sendAdminNotification } from '../utils/adminNotification';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
@@ -60,7 +60,8 @@ const BookingForm = () => {
 
   const calculateTotalCost = () => {
     const towTruckType = getTowTruckType(formData.vehicleSize);
-    return calculateTotalCost(distance, towTruckType);
+    const { perKm, basePrice } = getTowTruckPricing(towTruckType);
+    return basePrice + (distance * perKm * 2);
   };
 
   useEffect(() => {
