@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Table, Thead, Tbody, Tr, Th, Td, Button, useToast, Select } from "@chakra-ui/react";
+import { Box, Table, Thead, Tbody, Tr, Th, Td, Button, Select } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUsers, updateUser, deleteUser } from '../server/db';
 
-const UserManagement = () => {
-  const toast = useToast();
+const UserManagement = ({ showNotification }) => {
   const queryClient = useQueryClient();
   const [users, setUsers] = useState([]);
 
@@ -23,12 +22,7 @@ const UserManagement = () => {
     mutationFn: ({ id, userData }) => updateUser(id, userData),
     onSuccess: () => {
       queryClient.invalidateQueries('users');
-      toast({
-        title: 'User Updated',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
+      showNotification('User Updated', 'The user role has been updated successfully.', 'success');
     },
   });
 
@@ -36,12 +30,7 @@ const UserManagement = () => {
     mutationFn: deleteUser,
     onSuccess: () => {
       queryClient.invalidateQueries('users');
-      toast({
-        title: 'User Deleted',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
+      showNotification('User Deleted', 'The user has been deleted successfully.', 'success');
     },
   });
 
@@ -55,8 +44,8 @@ const UserManagement = () => {
     }
   };
 
-  if (isLoading) return <Box>Loading...</Box>;
-  if (error) return <Box>Error: {error.message}</Box>;
+  if (isLoading) return <Box>Loading users...</Box>;
+  if (error) return <Box>Error loading users: {error.message}</Box>;
 
   return (
     <Box>
@@ -84,6 +73,7 @@ const UserManagement = () => {
               <Td>
                 <Button
                   colorScheme="red"
+                  size="sm"
                   onClick={() => handleDeleteUser(user.id)}
                 >
                   Delete
