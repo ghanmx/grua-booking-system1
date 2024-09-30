@@ -3,8 +3,14 @@ import { Box, Flex, Link, Spacer, Button, Image } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 
-const Navbar = () => {
+const Navbar = ({ isTestMode }) => {
   const { session, logout } = useSupabaseAuth();
+  const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
+
+  const handleLogout = () => {
+    logout();
+    localStorage.removeItem('testModeUser');
+  };
 
   return (
     <Box bg="blue.500" p={4} color="white" position="sticky" top="0" zIndex="sticky">
@@ -16,8 +22,11 @@ const Navbar = () => {
           <Link as={RouterLink} to="/about" p={2} mx={2} _hover={{ textDecoration: "none", bg: "blue.600" }}>About</Link>
           <Link as={RouterLink} to="/contact" p={2} mx={2} _hover={{ textDecoration: "none", bg: "blue.600" }}>Contact</Link>
           <Link as={RouterLink} to="/booking" p={2} mx={2} _hover={{ textDecoration: "none", bg: "blue.600" }}>Book Now</Link>
-          {session ? (
-            <Button onClick={logout} colorScheme="red" size="sm" ml={2}>Logout</Button>
+          {(session || isTestMode) && (testModeUser?.isAdmin || session?.user?.email === 'admin@example.com') && (
+            <Link as={RouterLink} to="/admin" p={2} mx={2} _hover={{ textDecoration: "none", bg: "blue.600" }}>Admin Panel</Link>
+          )}
+          {session || isTestMode ? (
+            <Button onClick={handleLogout} colorScheme="red" size="sm" ml={2}>Logout</Button>
           ) : (
             <Link as={RouterLink} to="/login" p={2} mx={2} _hover={{ textDecoration: "none", bg: "blue.600" }}>Login</Link>
           )}

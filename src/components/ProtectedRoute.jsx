@@ -16,7 +16,7 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     }
 
     // Check if the route is admin-only and if the user has admin privileges
-    if (adminOnly && session?.user?.email !== 'admin@example.com') {
+    if (adminOnly && !testModeUser?.isAdmin && session?.user?.email !== 'admin@example.com') {
         return <Navigate to="/" replace />;
     }
 

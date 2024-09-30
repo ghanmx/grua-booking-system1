@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Container, Heading, VStack } from '@chakra-ui/react';
+import { Box, Container, Heading, VStack, Button, Checkbox, FormControl, FormLabel } from '@chakra-ui/react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '../integrations/supabase/index.js';
@@ -9,6 +9,7 @@ import { useSupabaseAuth } from '../integrations/supabase/auth';
 const Login = () => {
     const navigate = useNavigate();
     const { session } = useSupabaseAuth();
+    const [isTestMode, setIsTestMode] = useState(false);
 
     React.useEffect(() => {
         if (session) {
@@ -16,18 +17,39 @@ const Login = () => {
         }
     }, [session, navigate]);
 
+    const handleTestModeLogin = () => {
+        localStorage.setItem('testModeUser', JSON.stringify({ isTestMode: true, isAdmin: true }));
+        navigate('/booking');
+    };
+
     return (
         <Box bg="#EBECF0" minHeight="calc(100vh - 60px)" py={10}>
             <Container maxW="md">
                 <VStack spacing={8} align="stretch" bg="#EBECF0" p={8} borderRadius="md" boxShadow="md">
                     <Heading as="h1" size="xl" textAlign="center" color="#61677C" textShadow="1px 1px 1px #FFF">Account</Heading>
-                    <Auth
-                        supabaseClient={supabase}
-                        appearance={{ theme: ThemeSupa }}
-                        theme="dark"
-                        providers={[]}
-                        redirectTo={`${window.location.origin}/booking`}
-                    />
+                    {!isTestMode ? (
+                        <Auth
+                            supabaseClient={supabase}
+                            appearance={{ theme: ThemeSupa }}
+                            theme="dark"
+                            providers={[]}
+                            redirectTo={`${window.location.origin}/booking`}
+                        />
+                    ) : (
+                        <Button onClick={handleTestModeLogin} colorScheme="blue">
+                            Login (Test Mode)
+                        </Button>
+                    )}
+                    <FormControl>
+                        <FormLabel htmlFor="test-mode">Test Mode</FormLabel>
+                        <Checkbox 
+                            id="test-mode" 
+                            isChecked={isTestMode} 
+                            onChange={(e) => setIsTestMode(e.target.checked)}
+                        >
+                            Enable Test Mode
+                        </Checkbox>
+                    </FormControl>
                 </VStack>
             </Container>
         </Box>

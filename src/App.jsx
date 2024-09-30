@@ -30,6 +30,13 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  const [isTestMode, setIsTestMode] = React.useState(false);
+
+  React.useEffect(() => {
+    const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
+    setIsTestMode(!!testModeUser?.isTestMode);
+  }, []);
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -39,7 +46,7 @@ function App() {
               <ColorModeScript initialColorMode={theme.config.initialColorMode} />
               <Router>
                 <Box minHeight="100vh" display="flex" flexDirection="column">
-                  <Navbar />
+                  <Navbar isTestMode={isTestMode} />
                   <Box flex="1">
                     <Routes>
                       <Route path="/" element={<Index />} />
