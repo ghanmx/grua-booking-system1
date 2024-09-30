@@ -29,6 +29,13 @@ export const SupabaseAuthProvider = ({ children }) => {
     };
   }, [queryClient]);
 
+  const login = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    setSession(data.session);
+    return data;
+  };
+
   const logout = async () => {
     await supabase.auth.signOut();
     setSession(null);
@@ -36,7 +43,7 @@ export const SupabaseAuthProvider = ({ children }) => {
   };
 
   return (
-    <SupabaseAuthContext.Provider value={{ session, loading, logout }}>
+    <SupabaseAuthContext.Provider value={{ session, loading, login, logout }}>
       {children}
     </SupabaseAuthContext.Provider>
   );
