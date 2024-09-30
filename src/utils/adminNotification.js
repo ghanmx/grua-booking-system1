@@ -1,16 +1,18 @@
 import { supabase } from '../integrations/supabase';
 
-export const sendAdminNotification = async (formData, totalCost, isTestMode = false) => {
+export const sendAdminNotification = async (bookingData, action, isTestMode = false) => {
   try {
     const notificationData = {
-      service_type: formData.serviceType,
-      user_name: formData.userName,
-      phone_number: formData.phoneNumber,
-      vehicle_make: formData.vehicleMake,
-      vehicle_model: formData.vehicleModel,
-      vehicle_size: formData.vehicleSize,
-      total_cost: totalCost,
-      status: isTestMode ? 'test_mode' : 'paid',
+      action,
+      booking_id: bookingData.id,
+      service_type: bookingData.serviceType,
+      user_name: bookingData.userName,
+      phone_number: bookingData.phoneNumber,
+      vehicle_make: bookingData.vehicleMake,
+      vehicle_model: bookingData.vehicleModel,
+      vehicle_size: bookingData.vehicleSize,
+      total_cost: bookingData.totalCost,
+      status: isTestMode ? 'test_mode' : 'active',
       created_at: new Date().toISOString(),
       is_test_mode: isTestMode
     };
@@ -20,7 +22,7 @@ export const sendAdminNotification = async (formData, totalCost, isTestMode = fa
       .insert([notificationData]);
 
     if (error) throw error;
-    console.log('Admin notification sent successfully:', data);
+    console.log(`Admin notification sent: ${action}`, data);
     return data;
   } catch (error) {
     console.error('Error sending admin notification:', error);
