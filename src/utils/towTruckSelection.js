@@ -25,5 +25,6 @@ export const getTowTruckPricing = (towTruckType) => {
 
 export const calculateTotalCost = (distance, towTruckType) => {
   const { perKm, basePrice } = getTowTruckPricing(towTruckType);
-  return basePrice + (distance * perKm * 2);
+  const totalCost = basePrice + (distance * perKm * 2);
+  return Number(totalCost.toFixed(2)); // Round to 2 decimal places
 };

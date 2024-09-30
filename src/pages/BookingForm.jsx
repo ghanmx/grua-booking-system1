@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../integrations/supabase";
 import GoogleMapsRoute from '../components/GoogleMapsRoute';
 import FloatingForm from '../components/FloatingForm';
-import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import { getTowTruckType, getTowTruckPricing } from '../utils/towTruckSelection';
+import { getTowTruckType, getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
 import { sendAdminNotification } from '../utils/adminNotification';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
@@ -41,54 +41,6 @@ const BookingForm = () => {
   const toast = useToast();
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
-  const stripe = useStripe();
-  const elements = useElements();
-
-  const generateTestData = () => ({
-    serviceType: 'Tow',
-    userName: 'Test User',
-    phoneNumber: '1234567890',
-    vehicleBrand: 'Test Brand',
-    vehicleModel: 'Test Model',
-    vehicleColor: 'Red',
-    licensePlate: 'TEST123',
-    vehicleSize: 'Medium',
-    pickupAddress: '123 Test St, Test City',
-    dropOffAddress: '456 Example Ave, Sample Town',
-    vehicleIssue: 'Test Issue',
-    additionalDetails: 'This is a test booking',
-    wheelsStatus: 'Wheels Turn',
-    pickupDateTime: new Date(),
-    paymentMethod: 'card',
-  });
-
-  useEffect(() => {
-    if (isTestMode) {
-      setFormData(generateTestData());
-    }
-  }, [isTestMode]);
-
-  useEffect(() => {
-    const fetchClientSecret = async () => {
-      if (totalCost > 0) {
-        try {
-          const response = await fetch('/api/create-payment-intent', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ amount: totalCost * 100 }), // amount in cents
-          });
-          const data = await response.json();
-          setClientSecret(data.clientSecret);
-        } catch (error) {
-          console.error('Error fetching client secret:', error);
-        }
-      }
-    };
-
-    fetchClientSecret();
-  }, [totalCost]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -105,16 +57,34 @@ const BookingForm = () => {
     }));
   };
 
-  const calculateTotalCost = () => {
-    const towTruckType = getTowTruckType(formData.vehicleSize);
-    const { perKm, basePrice } = getTowTruckPricing(towTruckType);
-    return basePrice + (distance * perKm * 2);
-  };
-
   useEffect(() => {
-    const newTotalCost = calculateTotalCost();
+    const newTowTruckType = getTowTruckType(formData.vehicleSize);
+    setSelectedTowTruck(newTowTruckType);
+    const newTotalCost = calculateTotalCost(distance, newTowTruckType);
     setTotalCost(newTotalCost);
   }, [distance, formData.vehicleSize]);
+
+  useEffect(() => {
+    const fetchClientSecret = async () => {
+      if (totalCost > 0) {
+        try {
+          const response = await fetch('/api/create-payment-intent', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ amount: Math.round(totalCost * 100) }), // amount in cents
+          });
+          const data = await response.json();
+          setClientSecret(data.clientSecret);
+        } catch (error) {
+          console.error('Error fetching client secret:', error);
+        }
+      }
+    };
+
+    fetchClientSecret();
+  }, [totalCost]);
 
   const validateForm = () => {
     // Add form validation logic here
@@ -130,21 +100,6 @@ const BookingForm = () => {
       if (!session && !isTestMode) {
         navigate('/login', { state: { from: '/booking' } });
         return;
-      }
-
-      if (!stripe || !elements) {
-        throw new Error('Stripe has not been initialized');
-      }
-
-      const { error: stripeError } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/confirmation`,
-        },
-      });
-
-      if (stripeError) {
-        throw new Error(stripeError.message);
       }
 
       const dynamicKey = uuidv4();
@@ -201,6 +156,52 @@ const BookingForm = () => {
     }
   };
 
+  const PaymentForm = () => {
+    const stripe = useStripe();
+    const elements = useElements();
+
+    const handlePaymentSubmit = async (event) => {
+      event.preventDefault();
+
+      if (!stripe || !elements) {
+        console.error('Stripe has not been initialized');
+        return;
+      }
+
+      setIsLoading(true);
+
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/confirmation`,
+        },
+      });
+
+      if (error) {
+        toast({
+          title: 'Payment Error',
+          description: error.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      } else {
+        handleBookingProcess(event);
+      }
+
+      setIsLoading(false);
+    };
+
+    return (
+      <form onSubmit={handlePaymentSubmit}>
+        <PaymentElement />
+        <Button type="submit" mt={4} colorScheme="blue" isLoading={isLoading} disabled={!stripe}>
+          Pay and Book
+        </Button>
+      </form>
+    );
+  };
+
   return (
     <Box position="relative" height="100vh" width="100vw">
       <GoogleMapsRoute
@@ -224,10 +225,9 @@ const BookingForm = () => {
       />
       {clientSecret && (
         <Box position="absolute" bottom="20px" right="20px" width="400px" bg="white" p={4} borderRadius="md" boxShadow="xl">
-          <PaymentElement />
-          <Button onClick={handleBookingProcess} isLoading={isLoading} mt={4} colorScheme="blue" width="100%">
-            Pay and Book
-          </Button>
+          <Elements stripe={stripePromise} options={{ clientSecret }}>
+            <PaymentForm />
+          </Elements>
         </Box>
       )}
     </Box>
