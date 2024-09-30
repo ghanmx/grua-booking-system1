@@ -4,6 +4,7 @@ import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { isAdmin } from '../utils/adminUtils';
 import UserManagement from '../components/UserManagement';
 import ServiceHistory from '../components/ServiceHistory';
+import CreateAdminUser from '../components/CreateAdminUser';
 
 const AdminPanel = () => {
   const { session } = useSupabaseAuth();
@@ -28,6 +29,7 @@ const AdminPanel = () => {
     <Box p={4}>
       <VStack spacing={8} align="stretch">
         <Heading as="h1" size="xl">Admin Panel</Heading>
+        <CreateAdminUser />
         <UserManagement showNotification={(title, description, status) => 
           toast({ title, description, status, duration: 3000, isClosable: true })}
         />
