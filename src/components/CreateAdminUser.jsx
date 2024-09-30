@@ -1,34 +1,22 @@
 import React, { useState } from 'react';
-import { Box, Button, Input, VStack, useToast } from "@chakra-ui/react";
+import { Box, Button, Input, VStack } from "@chakra-ui/react";
 import { createAdminUser } from '../server/db';
 
-const CreateAdminUser = () => {
+const CreateAdminUser = ({ showNotification }) => {
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const toast = useToast();
 
   const handleCreateAdmin = async () => {
     try {
       await createAdminUser({ email, fullName, phoneNumber });
-      toast({
-        title: "Admin user created",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
+      showNotification("Admin user created", "New admin user has been successfully created.", "success");
       // Clear the form
       setEmail('');
       setFullName('');
       setPhoneNumber('');
     } catch (error) {
-      toast({
-        title: "Error creating admin user",
-        description: error.message,
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
+      showNotification("Error creating admin user", error.message, "error");
     }
   };
 
