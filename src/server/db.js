@@ -113,3 +113,17 @@ export const deleteBooking = async (id) => {
   if (error) throw error;
   return data;
 };
+
+// Add this new function at the end of the file
+export const createAdminUser = async (userData) => {
+  const { data, error } = await supabase
+    .from('users')
+    .insert({
+      email: userData.email,
+      full_name: userData.fullName,
+      phone_number: userData.phoneNumber,
+      is_admin: true // This ensures the user is created as an admin
+    });
+  if (error) throw error;
+  return data;
+};
