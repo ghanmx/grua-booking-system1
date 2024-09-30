@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
-import { GoogleMap, useJsApiLoader, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, DirectionsService, DirectionsRenderer, Marker } from '@react-google-maps/api';
 import { getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
 
-const libraries = ['places', 'marker'];
+const libraries = ['places'];
 
 const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, selectedTowTruck }) => {
   const [pickup, setPickup] = useState(null);
@@ -17,7 +17,7 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
     libraries,
   });
 
-  const mapId = import.meta.env.VITE_GOOGLE_MAPS_ID; // Add this line
+  const mapId = import.meta.env.VITE_GOOGLE_MAPS_ID;
   const companyLocation = { lat: 26.509672, lng: -100.0095504 };
 
   const calculateRouteDistance = useCallback((result) => {
@@ -76,25 +76,26 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
     }
   }, [calculateRouteDistance, setDistance, setTotalCost, selectedTowTruck]);
 
-  const createAdvancedMarker = useCallback((position, label) => {
-    if (map && window.google && window.google.maps.marker) {
-      const advancedMarkerElement = new window.google.maps.marker.AdvancedMarkerElement({
-        position,
-        map,
-        title: label,
-      });
-      return advancedMarkerElement;
-    }
-    return null;
-  }, [map]);
-
   useEffect(() => {
-    if (map) {
-      if (companyLocation) createAdvancedMarker(companyLocation, 'Company');
-      if (pickup) createAdvancedMarker(pickup, 'Pickup');
-      if (destination) createAdvancedMarker(destination, 'Destination');
+    if (map && pickup && destination) {
+      const directionsService = new window.google.maps.DirectionsService();
+      directionsService.route(
+        {
+          origin: companyLocation,
+          destination: destination,
+          waypoints: [{ location: pickup }],
+          travelMode: window.google.maps.TravelMode.DRIVING,
+        },
+        (result, status) => {
+          if (status === 'OK') {
+            handleDirectionsLoad(result);
+          } else {
+            console.error('Directions request failed:', status);
+          }
+        }
+      );
     }
-  }, [map, companyLocation, pickup, destination, createAdvancedMarker]);
+  }, [map, pickup, destination, companyLocation, handleDirectionsLoad]);
 
   if (loadError) {
     return <Box>Error loading maps</Box>;
@@ -112,19 +113,10 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
         zoom={10}
         onClick={handleMapClick}
         onLoad={setMap}
-        options={{ mapId }} // Add this line
+        options={{ mapId }}
       >
-        {pickup && destination && (
-          <DirectionsService
-            options={{
-              destination: destination,
-              origin: companyLocation,
-              waypoints: [{ location: pickup }],
-              travelMode: 'DRIVING',
-            }}
-            callback={handleDirectionsLoad}
-          />
-        )}
+        {pickup && <Marker position={pickup} label="Pickup" />}
+        {destination && <Marker position={destination} label="Destination" />}
         {directions && (
           <DirectionsRenderer
             options={{
