@@ -8,6 +8,7 @@ import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -41,9 +42,9 @@ function App() {
             <ChakraProvider theme={theme}>
               <ColorModeScript initialColorMode={theme.config.initialColorMode} />
               <Router>
-                <Box minHeight="100vh" bg="gray.50">
+                <Box minHeight="100vh" display="flex" flexDirection="column">
                   <Navbar />
-                  <Box p={4}>
+                  <Box flex="1">
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/about" element={<About />} />
@@ -79,6 +80,7 @@ function App() {
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                   </Box>
+                  <Footer />
                 </Box>
               </Router>
             </ChakraProvider>

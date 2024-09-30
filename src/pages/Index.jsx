@@ -14,8 +14,17 @@ const Index = () => {
     <Box bg="gray.100" minHeight="100vh">
       <Container maxW="container.xl" py={10}>
         <VStack spacing={8} align="stretch">
+          <Box
+            className="wow fadeIn"
+            visibility="visible"
+            animation="fadeIn"
+            data-wow-delay="0.5s"
+          >
+            <Image src="/mr-gruas-highway.jpg" alt="M.R. Gruas" w="100%" />
+          </Box>
+
           <Flex direction={{ base: "column", md: "row" }} align="center" justify="space-between">
-            <Image src="/logo.png" alt="Mr Gruas Logo" maxW="200px" mb={{ base: 4, md: 0 }} />
+            <Image src="/mr-gruas-logo.png" alt="Mr Gruas Logo" maxW="200px" mb={{ base: 4, md: 0 }} />
             <HStack spacing={4}>
               <Button leftIcon={<FaPhone />} colorScheme="blue" variant="outline">
                 Llamar

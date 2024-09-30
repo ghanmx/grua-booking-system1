@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Flex, Link, Spacer, Text, Button, Switch, FormControl, FormLabel } from "@chakra-ui/react";
+import { Box, Flex, Link, Spacer, Text, Button, Switch, FormControl, FormLabel, Image } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 
@@ -10,7 +10,7 @@ const Navbar = () => {
   return (
     <Box bg="blue.500" p={4} color="white" position="sticky" top="0" zIndex="sticky">
       <Flex maxW="1200px" mx="auto" align="center">
-        <Text fontSize="xl" fontWeight="bold">Tow Service</Text>
+        <Image src="/mr-gruas-logo-navbar.png" alt="M.R. Gruas Logo" h="40px" />
         <Spacer />
         <Flex align="center">
           <Link as={RouterLink} to="/" p={2} mx={2} _hover={{ textDecoration: "none", bg: "blue.600" }}>Home</Link>

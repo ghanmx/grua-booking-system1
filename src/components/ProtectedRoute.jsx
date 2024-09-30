@@ -15,6 +15,11 @@ const ProtectedRoute = ({ children }) => {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
+    // Check if the route is /admin and if the user has admin privileges
+    if (location.pathname === '/admin' && session?.user?.email !== 'admin@example.com') {
+        return <Navigate to="/" replace />;
+    }
+
     return children;
 };
 
