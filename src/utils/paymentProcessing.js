@@ -1,6 +1,10 @@
 import { loadStripe } from '@stripe/stripe-js';
+import axios from 'axios';
+import axiosRetry from 'axios-retry';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+axiosRetry(axios, { retries: 3 });
 
 export const processPayment = async (amount, isTestMode = false, paymentData) => {
   if (isTestMode) {
@@ -42,52 +46,23 @@ export const processPayment = async (amount, isTestMode = false, paymentData) =>
 
     const selectedMethod = paymentMethods[paymentData.method] || paymentMethods.card;
 
-    // Retry mechanism
-    let retryCount = 0;
-    let paymentIntent;
+    const { data: paymentIntent } = await axios.post('/api/create-payment-intent', {
+      amount: Math.round(amount * 100),
+      payment_method: selectedMethod,
+    });
 
-    while (retryCount < 3) {
-      try {
-        // 3D Secure
-        paymentIntent = await stripe.paymentIntents.create({
-          amount: amount * 100, // Stripe works with cents
-          currency: 'mxn',
-          payment_method: selectedMethod,
-          payment_method_types: ['card'],
-          payment_method_options: {
-            card: {
-              request_three_d_secure: 'any',
-            },
-          },
-          confirm: true,
-        });
-
-        // Enhanced logging
-        console.log(`Processing payment for amount: ${amount}. Status: ${paymentIntent.status}`);
-
-        if (paymentIntent.status === 'succeeded') {
-          return { success: true, paymentIntent };
-        } else if (paymentIntent.status === 'requires_action') {
-          // Handle 3D Secure authentication
-          const { error, paymentIntent: confirmedIntent } = await stripe.confirmCardPayment(paymentIntent.client_secret);
-          if (error) {
-            console.error('3D Secure authentication failed:', error);
-            throw error;
-          } else {
-            console.log('3D Secure authentication successful');
-            return { success: true, paymentIntent: confirmedIntent };
-          }
-        } else {
-          throw new Error(`Payment failed: ${paymentIntent.status}`);
-        }
-      } catch (error) {
-        console.error(`Payment attempt ${retryCount + 1} failed:`, error);
-        retryCount++;
-        if (retryCount === 3) {
-          return { success: false, error: error.message };
-        }
+    if (paymentIntent.status === 'requires_action') {
+      const { error, paymentIntent: confirmedIntent } = await stripe.confirmCardPayment(paymentIntent.client_secret);
+      if (error) {
+        console.error('3D Secure authentication failed:', error);
+        throw error;
+      } else {
+        console.log('3D Secure authentication successful');
+        return { success: true, paymentIntent: confirmedIntent };
       }
     }
+
+    return { success: true, paymentIntent };
   } catch (error) {
     console.error('Error processing payment:', error);
     return { success: false, error: error.message };

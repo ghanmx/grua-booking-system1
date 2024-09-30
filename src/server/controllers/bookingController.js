@@ -33,7 +33,7 @@ exports.getAllBookings = async (req, res, next) => {
 
     const { data, error, count } = await supabase
       .from('bookings')
-      .select('*', { count: 'exact' })
+      .select('id, user_id, service_id, vehicle_brand, vehicle_model, pickup_address, dropoff_address, status', { count: 'exact' })
       .range(startIndex, startIndex + limit - 1);
     
     if (error) throw error;
