@@ -55,6 +55,13 @@ const BookingForm = () => {
         vehicleModel: ''
       }));
     }
+
+    if (name === 'vehicleSize') {
+      const newTowTruckType = getTowTruckType(value);
+      setSelectedTowTruck(newTowTruckType);
+      const newTotalCost = calculateTotalCost(distance, newTowTruckType);
+      setTotalCost(newTotalCost);
+    }
   };
 
   const handleDateTimeChange = (date) => {
@@ -143,17 +150,28 @@ const BookingForm = () => {
 
       const createdBooking = await createBooking(bookingData);
 
-      await sendAdminNotification(formData, totalCost);
-
-      toast({
-        title: 'Booking Successful',
-        description: `Your tow service has been booked successfully. Service number: ${createdService[0].id}`,
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
+      // Process payment
+      const paymentResult = await processPayment(totalCost, false, {
+        cardNumber: '4242424242424242', // This should be replaced with actual card details in a production environment
+        expiryDate: '12/25',
+        cvv: '123',
       });
 
-      navigate('/confirmation', { state: { bookingData: createdBooking[0] } });
+      if (paymentResult.success) {
+        await sendAdminNotification(formData, totalCost);
+
+        toast({
+          title: 'Booking Successful',
+          description: `Your tow service has been booked successfully. Service number: ${createdService[0].id}`,
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+
+        navigate('/confirmation', { state: { bookingData: createdBooking[0] } });
+      } else {
+        throw new Error('Payment failed');
+      }
     } catch (error) {
       console.error('Booking error:', error);
       toast({
