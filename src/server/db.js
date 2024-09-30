@@ -124,3 +124,33 @@ export const updateServiceStatus = async (id, newStatus) => {
   if (error) throw error;
   return data;
 };
+
+// Add the missing getBookings function
+export const getBookings = async () => {
+  const { data, error } = await supabase
+    .from('services_logs')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data;
+};
+
+// Add the missing updateBooking function
+export const updateBooking = async (id, bookingData) => {
+  const { data, error } = await supabase
+    .from('services_logs')
+    .update(bookingData)
+    .eq('id', id);
+  if (error) throw error;
+  return data;
+};
+
+// Add the missing deleteBooking function
+export const deleteBooking = async (id) => {
+  const { data, error } = await supabase
+    .from('services_logs')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+  return data;
+};
