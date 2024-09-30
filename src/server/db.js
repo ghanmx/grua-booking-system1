@@ -1,8 +1,32 @@
-const { createClient } = require('@supabase/supabase-js');
+const supabase = require('../config/supabase.config').default;
 
-const supabaseUrl = process.env.VITE_SUPABASE_PROJECT_URL;
-const supabaseKey = process.env.VITE_SUPABASE_API_KEY;
+const getUsers = async () => {
+  const { data, error } = await supabase.from('users').select('*');
+  if (error) throw error;
+  return data;
+};
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const createUser = async (userData) => {
+  const { data, error } = await supabase.from('users').insert(userData);
+  if (error) throw error;
+  return data;
+};
 
-module.exports = supabase;
+const updateUser = async (id, userData) => {
+  const { data, error } = await supabase.from('users').update(userData).eq('id', id);
+  if (error) throw error;
+  return data;
+};
+
+const deleteUser = async (id) => {
+  const { data, error } = await supabase.from('users').delete().eq('id', id);
+  if (error) throw error;
+  return data;
+};
+
+module.exports = {
+  getUsers,
+  createUser,
+  updateUser,
+  deleteUser,
+};

@@ -1,88 +1,86 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, VStack, Heading, Text, Table, Thead, Tbody, Tr, Th, Td, Button, useToast } from "@chakra-ui/react";
-import { supabase } from "../integrations/supabase";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getUsers, createUser, updateUser, deleteUser } from '../server/db';
+import { isAdmin, getAdminUsers, setAdminStatus } from '../utils/adminUtils';
 
 const AdminPanel = () => {
   const { session } = useSupabaseAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const [userIsAdmin, setUserIsAdmin] = useState(false);
 
-  const fetchServices = async () => {
-    const { data, error } = await supabase
-      .from('services')
-      .select('*, bookings(*)')
-      .order('created_at', { ascending: false });
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (session?.user?.id) {
+        const adminStatus = await isAdmin(session.user.id);
+        setUserIsAdmin(adminStatus);
+      }
+    };
+    checkAdminStatus();
+  }, [session]);
 
-    if (error) throw error;
-    return data;
+  const { data: users, isLoading, error } = useQuery({
+    queryKey: ['users'],
+    queryFn: getUsers,
+  });
+
+  const createUserMutation = useMutation({
+    mutationFn: createUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries('users');
+      toast({
+        title: 'User Created',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    },
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: updateUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries('users');
+      toast({
+        title: 'User Updated',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    },
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries('users');
+      toast({
+        title: 'User Deleted',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    },
+  });
+
+  const toggleAdminStatus = async (userId, currentStatus) => {
+    const success = await setAdminStatus(userId, !currentStatus);
+    if (success) {
+      queryClient.invalidateQueries('users');
+      toast({
+        title: `User ${currentStatus ? 'removed from' : 'added to'} admin`,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
   };
 
-  const { data: services, isLoading, error } = useQuery({
-    queryKey: ['services'],
-    queryFn: fetchServices,
-  });
-
-  const updateServiceStatus = useMutation({
-    mutationFn: async ({ id, status }) => {
-      const { error } = await supabase
-        .from('services')
-        .update({ status })
-        .eq('id', id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries('services');
-      toast({
-        title: 'Status Updated',
-        description: 'Service status has been updated successfully',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: 'Update Failed',
-        description: error.message,
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-    },
-  });
-
-  const deleteService = useMutation({
-    mutationFn: async (id) => {
-      const { error } = await supabase
-        .from('services')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries('services');
-      toast({
-        title: 'Service Deleted',
-        description: 'Service has been deleted successfully',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: 'Delete Failed',
-        description: error.message,
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-    },
-  });
+  if (!userIsAdmin) {
+    return <Box p={4}><Text>You do not have admin privileges.</Text></Box>;
+  }
 
   if (isLoading) return <Text>Loading...</Text>;
   if (error) return <Text>Error: {error.message}</Text>;
@@ -93,43 +91,35 @@ const AdminPanel = () => {
         <Heading as="h1" size="xl">Admin Panel</Heading>
 
         <Box>
-          <Heading as="h2" size="lg" mb={4}>Services</Heading>
+          <Heading as="h2" size="lg" mb={4}>Users</Heading>
           <Table variant="simple">
             <Thead>
               <Tr>
-                <Th>Service Number</Th>
-                <Th>Status</Th>
-                <Th>User</Th>
+                <Th>ID</Th>
+                <Th>Email</Th>
+                <Th>Admin</Th>
                 <Th>Actions</Th>
               </Tr>
             </Thead>
             <Tbody>
-              {services.map((service) => (
-                <Tr key={service.id}>
-                  <Td>{service.service_number}</Td>
-                  <Td>{service.status}</Td>
-                  <Td>{service.bookings?.[0]?.userName || 'N/A'}</Td>
+              {users.map((user) => (
+                <Tr key={user.id}>
+                  <Td>{user.id}</Td>
+                  <Td>{user.email}</Td>
+                  <Td>{user.is_admin ? 'Yes' : 'No'}</Td>
                   <Td>
                     <Button
                       size="sm"
-                      colorScheme="green"
+                      colorScheme={user.is_admin ? "red" : "green"}
                       mr={2}
-                      onClick={() => updateServiceStatus.mutate({ id: service.id, status: 'approved' })}
+                      onClick={() => toggleAdminStatus(user.id, user.is_admin)}
                     >
-                      Approve
+                      {user.is_admin ? 'Remove Admin' : 'Make Admin'}
                     </Button>
                     <Button
                       size="sm"
                       colorScheme="red"
-                      mr={2}
-                      onClick={() => updateServiceStatus.mutate({ id: service.id, status: 'rejected' })}
-                    >
-                      Reject
-                    </Button>
-                    <Button
-                      size="sm"
-                      colorScheme="gray"
-                      onClick={() => deleteService.mutate(service.id)}
+                      onClick={() => deleteUserMutation.mutate(user.id)}
                     >
                       Delete
                     </Button>
