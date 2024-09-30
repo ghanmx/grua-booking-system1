@@ -16,6 +16,7 @@ import BillingProcess from "./pages/BillingProcess";
 import Confirmation from "./pages/Confirmation";
 import Payment from "./pages/Payment";
 import Login from "./pages/Login";
+import AdminPanel from "./pages/AdminPanel";
 import ProtectedRoute from "./components/ProtectedRoute";
 import theme from "./theme";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -67,6 +68,11 @@ function App() {
                       <Route path="/confirmation" element={
                         <ProtectedRoute>
                           <Confirmation />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/admin" element={
+                        <ProtectedRoute>
+                          <AdminPanel />
                         </ProtectedRoute>
                       } />
                       <Route path="/login" element={<Login />} />

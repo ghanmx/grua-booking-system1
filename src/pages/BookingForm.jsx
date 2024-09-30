@@ -8,6 +8,7 @@ import PaymentWindow from '../components/PaymentWindow';
 import { getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { v4 as uuidv4 } from 'uuid';
 
 const BookingForm = () => {
   const [formData, setFormData] = useState({
@@ -37,46 +38,10 @@ const BookingForm = () => {
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
 
-  useEffect(() => {
-    if (formData.vehicleSize) {
-      const truckType = getTowTruckType(formData.vehicleSize);
-      setSelectedTowTruck(truckType);
-    }
-  }, [formData.vehicleSize]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevData => ({ ...prevData, [name]: value }));
-  };
-
-  const handleDateTimeChange = (date) => {
-    setFormData(prevData => ({ ...prevData, pickupDateTime: date }));
-  };
-
-  const validateForm = () => {
-    const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleBrand', 'vehicleModel', 'vehicleSize', 'pickupAddress', 'dropOffAddress'];
-    for (const field of requiredFields) {
-      if (!formData[field]) {
-        toast({
-          title: 'Missing Information',
-          description: `Please fill in the ${field.replace(/([A-Z])/g, ' $1').toLowerCase()} field.`,
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
-        });
-        return false;
-      }
-    }
-    return true;
-  };
-
   const handleBookingProcess = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-    setIsPaymentWindowOpen(true);
-  };
 
-  const handlePaymentSubmit = async (paymentData) => {
     setIsLoading(true);
     try {
       if (!session && !isTestMode) {
@@ -90,25 +55,37 @@ const BookingForm = () => {
         throw new Error(paymentResult.error || 'Payment processing failed');
       }
 
+      const dynamicKey = uuidv4();
+      const { data: serviceData, error: serviceError } = await supabase
+        .from('services')
+        .insert({
+          user_id: session?.user?.id,
+          dynamic_key: dynamicKey,
+          status: 'pending',
+        })
+        .select('id, service_number')
+        .single();
+
+      if (serviceError) throw serviceError;
+
       const bookingData = {
         ...formData,
         distance,
         totalCost,
         towTruckType: selectedTowTruck,
         status: 'pending',
+        serviceId: serviceData.id,
+        serviceNumber: serviceData.service_number,
+        dynamicKey,
         createdAt: new Date().toISOString(),
       };
 
-      if (!isTestMode) {
-        const { data, error } = await supabase.from('bookings').insert([bookingData]);
-        if (error) throw error;
-      } else {
-        console.log('Test mode: Simulating database insert', bookingData);
-      }
+      const { data, error } = await supabase.from('bookings').insert([bookingData]);
+      if (error) throw error;
 
       toast({
         title: 'Booking Successful',
-        description: isTestMode ? 'Test booking simulated successfully.' : 'Your tow service has been booked successfully.',
+        description: `Your tow service has been booked successfully. Service number: ${serviceData.service_number}`,
         status: 'success',
         duration: 5000,
         isClosable: true,
@@ -126,7 +103,6 @@ const BookingForm = () => {
       });
     } finally {
       setIsLoading(false);
-      setIsPaymentWindowOpen(false);
     }
   };
 
@@ -160,6 +136,9 @@ const BookingForm = () => {
       />
     </Box>
   );
+};
+
+export default BookingForm;
 };
 
 export default BookingForm;
