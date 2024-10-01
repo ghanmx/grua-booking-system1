@@ -48,7 +48,9 @@ const Login = () => {
 
     const handleGoogleLogin = async () => {
         try {
-            const { error } = await supabase.auth.signIn({ provider: 'google' });
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google'
+            });
             if (error) throw error;
         } catch (error) {
             toast({
