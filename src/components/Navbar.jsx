@@ -1,8 +1,8 @@
 import React from "react";
 import { Box, Flex, Link, Button, Image, useDisclosure } from "@chakra-ui/react";
+import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 
 const Navbar = () => {
   const { session, logout } = useSupabaseAuth();
