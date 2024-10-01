@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Container, Heading, VStack, Button, Checkbox, FormControl, FormLabel, Input, useToast } from '@chakra-ui/react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { supabase } from '../integrations/supabase/index.js';
+import { supabase } from '../integrations/supabase/index.jsx';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const Login = () => {
