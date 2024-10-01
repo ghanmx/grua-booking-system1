@@ -29,19 +29,7 @@ const queryClient = new QueryClient({
   },
 });
 
-// Disable PostHog for now to avoid CORS issues
-// If you need PostHog, you'll need to configure it properly on the server side
-// import posthog from 'posthog-js';
-// posthog.init('<your-project-api-key>', { api_host: 'https://app.posthog.com' });
-
 function App() {
-  const [isTestMode, setIsTestMode] = React.useState(false);
-
-  React.useEffect(() => {
-    const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
-    setIsTestMode(!!testModeUser?.isTestMode);
-  }, []);
-
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -51,7 +39,7 @@ function App() {
               <ColorModeScript initialColorMode={theme.config.initialColorMode} />
               <Router>
                 <Box minHeight="100vh" display="flex" flexDirection="column">
-                  <Navbar isTestMode={isTestMode} />
+                  <Navbar />
                   <Box flex="1">
                     <Routes>
                       <Route path="/" element={<Index />} />
