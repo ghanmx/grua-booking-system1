@@ -1,3 +1,4 @@
+import React, { createContext, useContext } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
@@ -16,6 +17,24 @@ supabase.auth.signIn = async ({ provider }) => {
   if (provider === 'google') {
     return await supabase.auth.signInWithOAuth({ provider: 'google' });
   }
+};
+
+const SupabaseContext = createContext();
+
+export const SupabaseProvider = ({ children }) => {
+  return (
+    <SupabaseContext.Provider value={supabase}>
+      {children}
+    </SupabaseContext.Provider>
+  );
+};
+
+export const useSupabase = () => {
+  const context = useContext(SupabaseContext);
+  if (context === undefined) {
+    throw new Error('useSupabase must be used within a SupabaseProvider');
+  }
+  return context;
 };
 
 export default supabase;
