@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Box, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { Elements } from '@stripe/react-stripe-js';
@@ -42,7 +42,7 @@ const BookingForm = () => {
   const { session } = useSupabaseAuth();
   const toast = useToast();
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData(prevData => ({
       ...prevData,
@@ -60,14 +60,28 @@ const BookingForm = () => {
       const newTowTruckType = getTowTruckType(value);
       setSelectedTowTruck(newTowTruckType);
     }
-  };
+  }, []);
 
-  const handleDateTimeChange = (date) => {
+  const handleDateTimeChange = useCallback((date) => {
     setFormData(prevData => ({
       ...prevData,
       pickupDateTime: date
     }));
-  };
+  }, []);
+
+  const setPickupAddress = useCallback((address) => {
+    setFormData(prevData => ({
+      ...prevData,
+      pickupAddress: address
+    }));
+  }, []);
+
+  const setDropOffAddress = useCallback((address) => {
+    setFormData(prevData => ({
+      ...prevData,
+      dropOffAddress: address
+    }));
+  }, []);
 
   const validateForm = () => {
     const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleBrand', 'vehicleModel', 'vehicleColor', 'licensePlate', 'vehicleSize', 'pickupAddress', 'dropOffAddress', 'wheelsStatus'];
@@ -170,8 +184,8 @@ const BookingForm = () => {
   return (
     <Box position="relative" height="100vh" width="100vw">
       <MapRoute
-        setPickupAddress={(address) => setFormData(prev => ({ ...prev, pickupAddress: address }))}
-        setDropOffAddress={(address) => setFormData(prev => ({ ...prev, dropOffAddress: address }))}
+        setPickupAddress={setPickupAddress}
+        setDropOffAddress={setDropOffAddress}
         setDistance={setDistance}
         setTotalCost={setTotalCost}
         vehicleSize={formData.vehicleSize}

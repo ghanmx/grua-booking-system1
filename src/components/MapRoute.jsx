@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -23,13 +23,13 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
   const companyLocation = [26.509672, -100.0095504]; // Company location coordinates
 
   const MapEvents = () => {
-    useMapEvents({
+    const map = useMapEvents({
       click: handleMapClick,
     });
     return null;
   };
 
-  const handleMapClick = async (e) => {
+  const handleMapClick = useCallback(async (e) => {
     const { lat, lng } = e.latlng;
     if (!pickup) {
       setPickup([lat, lng]);
@@ -54,7 +54,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
         setDropOffAddress(address);
       }
     }
-  };
+  }, [pickup, destination, setPickupAddress, setDropOffAddress]);
 
   const getAddressFromLatLng = async (lat, lng) => {
     try {
@@ -67,30 +67,44 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
     }
   };
 
-  useEffect(() => {
-    const calculateRoute = async () => {
-      if (pickup && destination) {
-        try {
-          const fullRoute = `${companyLocation[1]},${companyLocation[0]};${pickup[1]},${pickup[0]};${destination[1]},${destination[0]};${companyLocation[1]},${companyLocation[0]}`;
-          const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${fullRoute}?overview=full&geometries=geojson`);
-          const data = await response.json();
-          if (data.routes && data.routes.length > 0) {
-            setRoute(data.routes[0].geometry.coordinates);
-            const distanceInMeters = data.routes[0].distance;
-            const distanceInKm = distanceInMeters / 1000;
-            setDistance(distanceInKm);
-            const towTruckType = getTowTruckType(vehicleSize);
-            const cost = calculateTotalCost(distanceInKm, towTruckType);
-            setTotalCost(cost);
-          }
-        } catch (error) {
-          console.error('Error calculating route:', error);
+  const calculateRoute = useCallback(async () => {
+    if (pickup && destination) {
+      try {
+        const fullRoute = `${companyLocation[1]},${companyLocation[0]};${pickup[1]},${pickup[0]};${destination[1]},${destination[0]};${companyLocation[1]},${companyLocation[0]}`;
+        const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${fullRoute}?overview=full&geometries=geojson`);
+        const data = await response.json();
+        if (data.routes && data.routes.length > 0) {
+          setRoute(data.routes[0].geometry.coordinates);
+          const distanceInMeters = data.routes[0].distance;
+          const distanceInKm = distanceInMeters / 1000;
+          setDistance(distanceInKm);
+          const towTruckType = getTowTruckType(vehicleSize);
+          const cost = calculateTotalCost(distanceInKm, towTruckType);
+          setTotalCost(cost);
         }
+      } catch (error) {
+        console.error('Error calculating route:', error);
       }
-    };
-
-    calculateRoute();
+    }
   }, [pickup, destination, setDistance, setTotalCost, vehicleSize, companyLocation]);
+
+  useEffect(() => {
+    calculateRoute();
+  }, [calculateRoute]);
+
+  const handleMarkerDragEnd = useCallback(async (e, isPickup) => {
+    const { lat, lng } = e.target.getLatLng();
+    const newPosition = [lat, lng];
+    const address = await getAddressFromLatLng(lat, lng);
+
+    if (isPickup) {
+      setPickup(newPosition);
+      setPickupAddress(address);
+    } else {
+      setDestination(newPosition);
+      setDropOffAddress(address);
+    }
+  }, [setPickupAddress, setDropOffAddress]);
 
   return (
     <Box position="absolute" top="0" left="0" height="100%" width="100%">
@@ -101,8 +115,28 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
         />
         <MapEvents />
         <Marker position={companyLocation}><Popup>Company Location</Popup></Marker>
-        {pickup && <Marker position={pickup}><Popup>Pickup Location</Popup></Marker>}
-        {destination && <Marker position={destination}><Popup>Drop-off Location</Popup></Marker>}
+        {pickup && (
+          <Marker 
+            position={pickup} 
+            draggable={true}
+            eventHandlers={{
+              dragend: (e) => handleMarkerDragEnd(e, true)
+            }}
+          >
+            <Popup>Pickup Location</Popup>
+          </Marker>
+        )}
+        {destination && (
+          <Marker 
+            position={destination} 
+            draggable={true}
+            eventHandlers={{
+              dragend: (e) => handleMarkerDragEnd(e, false)
+            }}
+          >
+            <Popup>Drop-off Location</Popup>
+          </Marker>
+        )}
         {route && <Polyline positions={route.map(coord => [coord[1], coord[0]])} color="blue" />}
       </MapContainer>
     </Box>
