@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, Input } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../integrations/supabase';
+import { supabase } from '../integrations/supabase/index.jsx';
 
 const UserManagement = ({ showNotification }) => {
   const queryClient = useQueryClient();
