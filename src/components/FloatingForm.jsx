@@ -47,7 +47,6 @@ const FloatingForm = ({
       <VStack spacing={4} align="stretch">
         <Heading as="h1" size="lg">Booking Form</Heading>
         <form onSubmit={handleBookingProcess}>
-          {/* Form fields remain unchanged */}
           <FormControl isRequired>
             <FormLabel>Service Type</FormLabel>
             <Select name="serviceType" value={formData.serviceType} onChange={handleChange}>

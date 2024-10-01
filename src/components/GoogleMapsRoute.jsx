@@ -12,6 +12,7 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
   const [map, setMap] = useState(null);
   const [manualPickup, setManualPickup] = useState('');
   const [manualDropoff, setManualDropoff] = useState('');
+  const companyLocation = { lat: 26.509672, lng: -100.0095504 }; // Example company location
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -106,10 +107,16 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
   const updateRouteAndCost = useCallback(() => {
     if (map && pickup && destination) {
       const directionsService = new window.google.maps.DirectionsService();
+      const waypoints = [
+        { location: pickup },
+        { location: destination },
+      ];
+
       directionsService.route(
         {
-          origin: pickup,
-          destination: destination,
+          origin: companyLocation,
+          destination: companyLocation,
+          waypoints: waypoints,
           travelMode: window.google.maps.TravelMode.DRIVING,
         },
         (result, status) => {
@@ -126,7 +133,7 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
         }
       );
     }
-  }, [map, pickup, destination, calculateRouteDistance, setDistance, setTotalCost, vehicleSize]);
+  }, [map, pickup, destination, calculateRouteDistance, setDistance, setTotalCost, vehicleSize, companyLocation]);
 
   useEffect(() => {
     updateRouteAndCost();
@@ -144,7 +151,7 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
     <Box position="absolute" top="0" left="0" height="100%" width="100%">
       <GoogleMap
         mapContainerStyle={{ height: "100%", width: "100%" }}
-        center={{ lat: 26.509672, lng: -100.0095504 }}
+        center={companyLocation}
         zoom={10}
         onClick={handleMapClick}
         onLoad={setMap}
@@ -152,6 +159,7 @@ const GoogleMapsRoute = ({ setPickupAddress, setDropOffAddress, setDistance, set
       >
         {pickup && <Marker position={pickup} label="Pickup" />}
         {destination && <Marker position={destination} label="Destination" />}
+        <Marker position={companyLocation} label="Company" />
         {directions && (
           <DirectionsRenderer
             options={{
