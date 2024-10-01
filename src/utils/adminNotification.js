@@ -20,6 +20,18 @@ export const sendAdminNotification = async (bookingData, totalCost) => {
 
     if (error) throw error;
     console.log('Admin notification sent successfully:', data);
+
+    // Send a real-time notification to admin users
+    await supabase
+      .from('admin_notifications')
+      .on('INSERT', (payload) => {
+        // This callback will be triggered when a new notification is inserted
+        console.log('New admin notification:', payload.new);
+        // Here you can implement additional logic to notify admins in real-time
+        // For example, you could use a websocket or push notification service
+      })
+      .subscribe();
+
     return data;
   } catch (error) {
     console.error('Error sending admin notification:', error);

@@ -160,6 +160,21 @@ const FloatingForm = ({
             />
             <FormErrorMessage>{errors.pickupDateTime && errors.pickupDateTime.message}</FormErrorMessage>
           </FormControl>
+
+          <FormControl isInvalid={errors.paymentMethod}>
+            <FormLabel>Payment Method</FormLabel>
+            <Select
+              {...register("paymentMethod", { required: "Payment method is required" })}
+              value={formData.paymentMethod}
+              onChange={handleChange}
+              name="paymentMethod"
+            >
+              <option value="">Select a payment method</option>
+              <option value="card">Credit/Debit Card</option>
+              <option value="paypal">PayPal</option>
+            </Select>
+            <FormErrorMessage>{errors.paymentMethod && errors.paymentMethod.message}</FormErrorMessage>
+          </FormControl>
           
           <Text mt={4} fontWeight="bold">Vehicle Size: {formData.vehicleSize}</Text>
           <Text mt={2} fontWeight="bold">Tow Truck Type: {selectedTowTruck}</Text>

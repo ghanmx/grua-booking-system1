@@ -13,6 +13,7 @@ import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { vehicleBrands, vehicleModels } from '../utils/vehicleData';
 import { createBooking, createService } from '../server/db';
+import PaymentWindow from '../components/PaymentWindow';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -39,6 +40,7 @@ const BookingForm = () => {
   const [totalCost, setTotalCost] = useState(0);
   const [selectedTowTruck, setSelectedTowTruck] = useState('');
   const [clientSecret, setClientSecret] = useState('');
+  const [isPaymentWindowOpen, setIsPaymentWindowOpen] = useState(false);
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   const toast = useToast();
@@ -156,6 +158,24 @@ const BookingForm = () => {
         return;
       }
 
+      setIsPaymentWindowOpen(true);
+    } catch (error) {
+      console.error('Booking error:', error);
+      toast({
+        title: 'Booking Failed',
+        description: error.message || 'An unexpected error occurred',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePaymentSubmit = async (paymentData) => {
+    setIsLoading(true);
+    try {
       const dynamicKey = uuidv4();
       const serviceData = {
         user_id: session.user.id,
@@ -191,11 +211,7 @@ const BookingForm = () => {
       const createdBooking = await createBooking(bookingData);
 
       // Process payment
-      const paymentResult = await processPayment(totalCost, false, {
-        cardNumber: '4242424242424242', // This should be replaced with actual card input
-        expiryDate: '12/25',
-        cvv: '123',
-      });
+      const paymentResult = await processPayment(totalCost, false, paymentData);
 
       if (paymentResult.success) {
         await sendAdminNotification(formData, totalCost);
@@ -213,16 +229,17 @@ const BookingForm = () => {
         throw new Error('Payment failed');
       }
     } catch (error) {
-      console.error('Booking error:', error);
+      console.error('Payment error:', error);
       toast({
-        title: 'Booking Failed',
-        description: error.message || 'An unexpected error occurred',
+        title: 'Payment Failed',
+        description: error.message || 'An unexpected error occurred during payment',
         status: 'error',
         duration: 5000,
         isClosable: true,
       });
     } finally {
       setIsLoading(false);
+      setIsPaymentWindowOpen(false);
     }
   };
 
@@ -251,6 +268,14 @@ const BookingForm = () => {
         vehicleBrands={vehicleBrands}
         vehicleModels={vehicleModels}
       />
+      {isPaymentWindowOpen && (
+        <PaymentWindow
+          isOpen={isPaymentWindowOpen}
+          onClose={() => setIsPaymentWindowOpen(false)}
+          onPaymentSubmit={handlePaymentSubmit}
+          totalCost={totalCost}
+        />
+      )}
       {clientSecret && (
         <Box position="absolute" bottom="20px" right="20px" width="400px" bg="white" p={4} borderRadius="md" boxShadow="xl">
           <Elements stripe={stripePromise} options={{ clientSecret }}>
