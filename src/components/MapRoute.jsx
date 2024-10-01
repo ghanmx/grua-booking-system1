@@ -39,6 +39,20 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
       setDestination([lat, lng]);
       const address = await getAddressFromLatLng(lat, lng);
       setDropOffAddress(address);
+    } else {
+      // Allow changing existing markers
+      const distanceToPickup = L.latLng(pickup).distanceTo([lat, lng]);
+      const distanceToDestination = L.latLng(destination).distanceTo([lat, lng]);
+      
+      if (distanceToPickup < distanceToDestination) {
+        setPickup([lat, lng]);
+        const address = await getAddressFromLatLng(lat, lng);
+        setPickupAddress(address);
+      } else {
+        setDestination([lat, lng]);
+        const address = await getAddressFromLatLng(lat, lng);
+        setDropOffAddress(address);
+      }
     }
   };
 
