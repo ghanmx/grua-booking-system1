@@ -147,7 +147,7 @@ const BookingForm = () => {
 
       // Process payment
       const paymentResult = await processPayment(totalCost, false, {
-        cardNumber: '4242424242424242',
+        cardNumber: '4242424242424242', // This should be replaced with actual card input
         expiryDate: '12/25',
         cvv: '123',
       });
