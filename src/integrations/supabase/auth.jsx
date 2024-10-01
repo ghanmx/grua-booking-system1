@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { supabase } from './index.js';
+import { supabase } from './index.jsx';
 import { useQueryClient } from '@tanstack/react-query';
 
 const SupabaseAuthContext = createContext();
