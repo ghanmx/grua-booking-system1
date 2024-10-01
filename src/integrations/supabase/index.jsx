@@ -1,5 +1,5 @@
-import React, { createContext, useContext } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import React, { createContext, useContext } from 'react';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_API_KEY;
@@ -11,13 +11,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true
   }
 });
-
-// Simplified Google OAuth provider
-supabase.auth.signIn = async ({ provider }) => {
-  if (provider === 'google') {
-    return await supabase.auth.signInWithOAuth({ provider: 'google' });
-  }
-};
 
 const SupabaseContext = createContext();
 

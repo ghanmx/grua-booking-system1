@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Input, useToast } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../integrations/supabase';
+import { supabase } from '../integrations/supabase/index.jsx';
 
 const ServiceManagement = ({ showNotification }) => {
   const [newService, setNewService] = useState({ name: '', description: '', price: '' });
