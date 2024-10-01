@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Container, Heading, VStack, Button, Checkbox, FormControl, FormLabel, Input, useToast } from '@chakra-ui/react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
@@ -8,6 +8,7 @@ import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const Login = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { session, login } = useSupabaseAuth();
     const [isTestMode, setIsTestMode] = useState(false);
     const [email, setEmail] = useState('');
@@ -16,9 +17,10 @@ const Login = () => {
 
     useEffect(() => {
         if (session) {
-            navigate('/booking');
+            const from = location.state?.from || '/booking';
+            navigate(from);
         }
-    }, [session, navigate]);
+    }, [session, navigate, location]);
 
     const handleTestModeLogin = () => {
         localStorage.setItem('testModeUser', JSON.stringify({ isTestMode: true, isAdmin: true }));
@@ -32,7 +34,6 @@ const Login = () => {
         } else {
             try {
                 await login(email, password);
-                navigate('/booking');
             } catch (error) {
                 toast({
                     title: "Login failed",
@@ -42,6 +43,21 @@ const Login = () => {
                     isClosable: true,
                 });
             }
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        try {
+            const { error } = await supabase.auth.signIn({ provider: 'google' });
+            if (error) throw error;
+        } catch (error) {
+            toast({
+                title: "Google login failed",
+                description: error.message,
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            });
         }
     };
 
@@ -63,6 +79,9 @@ const Login = () => {
                                 </FormControl>
                                 <Button type="submit" colorScheme="blue" width="full">
                                     Login
+                                </Button>
+                                <Button onClick={handleGoogleLogin} colorScheme="red" width="full">
+                                    Sign in with Google
                                 </Button>
                             </VStack>
                         </form>

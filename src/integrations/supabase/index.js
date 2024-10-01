@@ -1,53 +1,24 @@
 import { createClient } from '@supabase/supabase-js';
-import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_API_KEY;
-export const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_API_KEY;
 
-import React from "react";
-export const queryClient = new QueryClient();
-export function SupabaseProvider({ children }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-}
-
-const fromSupabase = async (query) => {
-    const { data, error } = await query;
-    if (error) throw new Error(error.message);
-    return data;
-};
-
-export const useTOW = () => useQuery({
-    queryKey: ['TOW'],
-    queryFn: () => fromSupabase(supabase.from('TOW').select('*')),
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
 });
 
-export const useAddTOW = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (newTOW) => fromSupabase(supabase.from('TOW').insert([newTOW])),
-        onSuccess: () => {
-            queryClient.invalidateQueries('TOW');
-        },
+// Add Google OAuth provider
+supabase.auth.signIn = async ({ provider }) => {
+  if (provider === 'google') {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
     });
+    return { data, error };
+  }
 };
 
-export const useUpdateTOW = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (updatedTOW) => fromSupabase(supabase.from('TOW').update(updatedTOW).eq('id', updatedTOW.id)),
-        onSuccess: () => {
-            queryClient.invalidateQueries('TOW');
-        },
-    });
-};
-
-export const useDeleteTOW = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (id) => fromSupabase(supabase.from('TOW').delete().eq('id', id)),
-        onSuccess: () => {
-            queryClient.invalidateQueries('TOW');
-        },
-    });
-};
+export default supabase;
