@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Box } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import GoogleMapsRoute from '../components/GoogleMapsRoute';
+import MapRoute from '../components/MapRoute';
 import FloatingForm from '../components/FloatingForm';
 import { getTowTruckType, getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
@@ -38,8 +38,6 @@ const BookingForm = () => {
   const [totalCost, setTotalCost] = useState(0);
   const [selectedTowTruck, setSelectedTowTruck] = useState('');
   const [clientSecret, setClientSecret] = useState('');
-  const [manualPickup, setManualPickup] = useState('');
-  const [manualDropoff, setManualDropoff] = useState('');
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
 
@@ -180,7 +178,7 @@ const BookingForm = () => {
 
   return (
     <Box position="relative" height="100vh" width="100vw">
-      <GoogleMapsRoute
+      <MapRoute
         setPickupAddress={(address) => setFormData(prev => ({ ...prev, pickupAddress: address }))}
         setDropOffAddress={(address) => setFormData(prev => ({ ...prev, dropOffAddress: address }))}
         setDistance={setDistance}
@@ -198,8 +196,6 @@ const BookingForm = () => {
         totalCost={totalCost}
         vehicleBrands={vehicleBrands}
         vehicleModels={vehicleModels}
-        setManualPickup={setManualPickup}
-        setManualDropoff={setManualDropoff}
       />
       {clientSecret && (
         <Box position="absolute" bottom="20px" right="20px" width="400px" bg="white" p={4} borderRadius="md" boxShadow="xl">
