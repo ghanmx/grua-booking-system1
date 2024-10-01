@@ -154,3 +154,30 @@ export const deleteBooking = async (id) => {
   if (error) throw error;
   return data;
 };
+
+// Settings-related functions
+export const getSettings = async () => {
+  const { data, error } = await supabase
+    .from('settings')
+    .select('*');
+  if (error) throw error;
+  return data;
+};
+
+export const updateSetting = async (key, value) => {
+  const { data, error } = await supabase
+    .from('settings')
+    .upsert({ key, value })
+    .select();
+  if (error) throw error;
+  return data;
+};
+
+export const deleteSetting = async (key) => {
+  const { data, error } = await supabase
+    .from('settings')
+    .delete()
+    .eq('key', key);
+  if (error) throw error;
+  return data;
+};
