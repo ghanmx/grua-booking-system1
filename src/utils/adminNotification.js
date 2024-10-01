@@ -1,4 +1,4 @@
-import { supabase } from '../integrations/supabase';
+import { supabase } from '../integrations/supabase/index.jsx';
 
 export const sendAdminNotification = async (bookingData, totalCost) => {
   try {

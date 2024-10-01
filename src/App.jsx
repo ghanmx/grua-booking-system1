@@ -29,6 +29,11 @@ const queryClient = new QueryClient({
   },
 });
 
+// Disable PostHog for now to avoid CORS issues
+// If you need PostHog, you'll need to configure it properly on the server side
+// import posthog from 'posthog-js';
+// posthog.init('<your-project-api-key>', { api_host: 'https://app.posthog.com' });
+
 function App() {
   const [isTestMode, setIsTestMode] = React.useState(false);
 
