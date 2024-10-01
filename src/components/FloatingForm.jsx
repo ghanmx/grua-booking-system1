@@ -32,7 +32,7 @@ const FloatingForm = ({
 
   return (
     <Box
-      position="absolute"
+      position="fixed"
       top="20px"
       right="20px"
       width="400px"
@@ -42,10 +42,12 @@ const FloatingForm = ({
       p={4}
       borderRadius="md"
       boxShadow="xl"
+      zIndex={1000}
     >
       <VStack spacing={4} align="stretch">
         <Heading as="h1" size="lg">Booking Form</Heading>
         <form onSubmit={handleBookingProcess}>
+          {/* Form fields remain unchanged */}
           <FormControl isRequired>
             <FormLabel>Service Type</FormLabel>
             <Select name="serviceType" value={formData.serviceType} onChange={handleChange}>
