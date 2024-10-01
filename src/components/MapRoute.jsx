@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Box } from '@chakra-ui/react';
@@ -21,6 +21,13 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
   const [destination, setDestination] = useState(null);
   const [route, setRoute] = useState(null);
   const companyLocation = [26.509672, -100.0095504]; // Company location coordinates
+
+  const MapEvents = () => {
+    useMapEvents({
+      click: handleMapClick,
+    });
+    return null;
+  };
 
   const handleMapClick = async (e) => {
     const { lat, lng } = e.latlng;
@@ -73,11 +80,12 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
 
   return (
     <Box position="absolute" top="0" left="0" height="100%" width="100%">
-      <MapContainer center={companyLocation} zoom={10} style={{ height: "100%", width: "100%" }} onClick={handleMapClick}>
+      <MapContainer center={companyLocation} zoom={10} style={{ height: "100%", width: "100%" }}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
+        <MapEvents />
         <Marker position={companyLocation}><Popup>Company Location</Popup></Marker>
         {pickup && <Marker position={pickup}><Popup>Pickup Location</Popup></Marker>}
         {destination && <Marker position={destination}><Popup>Drop-off Location</Popup></Marker>}
