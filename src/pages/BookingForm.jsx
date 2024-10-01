@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { Box, useToast } from "@chakra-ui/react";
+import React, { useState, useCallback, useEffect } from 'react';
+import { Box, useToast, FormControl, FormLabel, Select, Input } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
@@ -57,11 +57,46 @@ const BookingForm = () => {
       }));
     }
 
-    if (name === 'vehicleSize') {
-      const newTowTruckType = getTowTruckType(value);
-      setSelectedTowTruck(newTowTruckType);
+    if (name === 'vehicleModel') {
+      const vehicleType = getVehicleType(value);
+      const vehicleSize = getVehicleSize(vehicleType);
+      const towTruckType = getTowTruckType(vehicleSize);
+      setFormData(prevData => ({
+        ...prevData,
+        vehicleSize: vehicleSize
+      }));
+      setSelectedTowTruck(towTruckType);
+      updateTotalCost(distance, towTruckType);
     }
-  }, []);
+  }, [distance]);
+
+  const getVehicleType = (model) => {
+    const coupeModels = ['Mustang', 'Camaro', 'Corvette', '911', 'M4'];
+    const truckModels = ['F-150', 'Silverado', 'RAM 1500', 'Tundra', 'Sierra'];
+    const vanModels = ['Sienna', 'Odyssey', 'Pacifica', 'Transit', 'Sprinter'];
+
+    if (coupeModels.includes(model)) return 'coupe';
+    if (truckModels.includes(model)) return 'truck';
+    if (vanModels.includes(model)) return 'van';
+    return 'sedan';
+  };
+
+  const getVehicleSize = (type) => {
+    switch (type) {
+      case 'coupe':
+        return 'Small';
+      case 'truck':
+      case 'van':
+        return 'Large';
+      default:
+        return 'Medium';
+    }
+  };
+
+  const updateTotalCost = (distance, towTruckType) => {
+    const newTotalCost = calculateTotalCost(distance, towTruckType);
+    setTotalCost(newTotalCost);
+  };
 
   const handleDateTimeChange = useCallback((date) => {
     setFormData(prevData => ({
@@ -83,6 +118,12 @@ const BookingForm = () => {
       dropOffAddress: address
     }));
   }, []);
+
+  useEffect(() => {
+    if (distance > 0 && selectedTowTruck) {
+      updateTotalCost(distance, selectedTowTruck);
+    }
+  }, [distance, selectedTowTruck]);
 
   const validateForm = () => {
     const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleBrand', 'vehicleModel', 'vehicleColor', 'licensePlate', 'vehicleSize', 'pickupAddress', 'dropOffAddress', 'wheelsStatus'];

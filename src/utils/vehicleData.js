@@ -12,14 +12,14 @@ export const vehicleBrands = [
 ];
 
 export const vehicleModels = {
-  Toyota: ['Corolla', 'Camry', 'RAV4', 'Highlander', 'Tacoma'],
+  Toyota: ['Corolla', 'Camry', 'RAV4', 'Highlander', 'Tacoma', 'Tundra', 'Sienna'],
   Honda: ['Civic', 'Accord', 'CR-V', 'Pilot', 'Odyssey'],
-  Ford: ['F-150', 'Mustang', 'Explorer', 'Escape', 'Focus'],
-  Chevrolet: ['Silverado', 'Malibu', 'Equinox', 'Traverse', 'Camaro'],
+  Ford: ['F-150', 'Mustang', 'Explorer', 'Escape', 'Focus', 'Transit'],
+  Chevrolet: ['Silverado', 'Malibu', 'Equinox', 'Traverse', 'Camaro', 'Corvette'],
   Nissan: ['Altima', 'Rogue', 'Sentra', 'Maxima', 'Pathfinder'],
   Volkswagen: ['Jetta', 'Passat', 'Tiguan', 'Atlas', 'Golf'],
-  BMW: ['3 Series', '5 Series', 'X3', 'X5', '7 Series'],
-  'Mercedes-Benz': ['C-Class', 'E-Class', 'GLC', 'GLE', 'S-Class'],
+  BMW: ['3 Series', '5 Series', 'X3', 'X5', '7 Series', 'M4'],
+  'Mercedes-Benz': ['C-Class', 'E-Class', 'GLC', 'GLE', 'S-Class', 'Sprinter'],
   Audi: ['A4', 'A6', 'Q5', 'Q7', 'e-tron'],
   Hyundai: ['Elantra', 'Sonata', 'Tucson', 'Santa Fe', 'Kona'],
 };

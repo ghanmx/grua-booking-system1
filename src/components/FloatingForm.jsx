@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 const FloatingForm = ({
   formData,
   setFormData,
+  handleChange,
   handleDateTimeChange,
   handleBookingProcess,
   isLoading,
@@ -43,7 +44,8 @@ const FloatingForm = ({
             <Select
               {...register("serviceType", { required: "Service type is required" })}
               value={formData.serviceType}
-              onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
+              onChange={handleChange}
+              name="serviceType"
             >
               <option value="">Select a service</option>
               <option value="Tow">Tow</option>
@@ -59,7 +61,8 @@ const FloatingForm = ({
             <Input
               {...register("userName", { required: "Name is required" })}
               value={formData.userName}
-              onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
+              onChange={handleChange}
+              name="userName"
             />
             <FormErrorMessage>{errors.userName && errors.userName.message}</FormErrorMessage>
           </FormControl>
@@ -75,9 +78,65 @@ const FloatingForm = ({
                 }
               })}
               value={formData.phoneNumber}
-              onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+              onChange={handleChange}
+              name="phoneNumber"
             />
             <FormErrorMessage>{errors.phoneNumber && errors.phoneNumber.message}</FormErrorMessage>
+          </FormControl>
+
+          <FormControl isInvalid={errors.vehicleBrand}>
+            <FormLabel>Vehicle Brand</FormLabel>
+            <Select
+              {...register("vehicleBrand", { required: "Vehicle brand is required" })}
+              value={formData.vehicleBrand}
+              onChange={handleChange}
+              name="vehicleBrand"
+            >
+              <option value="">Select a brand</option>
+              {vehicleBrands.map((brand) => (
+                <option key={brand} value={brand}>{brand}</option>
+              ))}
+            </Select>
+            <FormErrorMessage>{errors.vehicleBrand && errors.vehicleBrand.message}</FormErrorMessage>
+          </FormControl>
+
+          <FormControl isInvalid={errors.vehicleModel}>
+            <FormLabel>Vehicle Model</FormLabel>
+            <Select
+              {...register("vehicleModel", { required: "Vehicle model is required" })}
+              value={formData.vehicleModel}
+              onChange={handleChange}
+              name="vehicleModel"
+              disabled={!formData.vehicleBrand}
+            >
+              <option value="">Select a model</option>
+              {formData.vehicleBrand && vehicleModels[formData.vehicleBrand].map((model) => (
+                <option key={model} value={model}>{model}</option>
+              ))}
+            </Select>
+            <FormErrorMessage>{errors.vehicleModel && errors.vehicleModel.message}</FormErrorMessage>
+          </FormControl>
+
+          <FormControl isInvalid={errors.vehicleColor}>
+            <FormLabel>Vehicle Color</FormLabel>
+            <Input
+              {...register("vehicleColor", { required: "Vehicle color is required" })}
+              value={formData.vehicleColor}
+              onChange={handleChange}
+              name="vehicleColor"
+            />
+            <FormErrorMessage>{errors.vehicleColor && errors.vehicleColor.message}</FormErrorMessage>
+          </FormControl>
+
+          <FormControl isInvalid={errors.licensePlate}>
+            <FormLabel>License Plate</FormLabel>
+            <Input
+              {...register("licensePlate", { required: "License plate is required" })}
+              value={formData.licensePlate}
+              onChange={handleChange}
+              name="licensePlate"
+            />
+            <FormErrorMessage>{errors.licensePlate && errors.licensePlate.message}</FormErrorMessage>
           </FormControl>
           
           <FormControl isInvalid={errors.pickupDateTime}>
@@ -96,7 +155,9 @@ const FloatingForm = ({
             <FormErrorMessage>{errors.pickupDateTime && errors.pickupDateTime.message}</FormErrorMessage>
           </FormControl>
           
-          <Text mt={4} fontWeight="bold">Total Cost: ${totalCost.toFixed(2)}</Text>
+          <Text mt={4} fontWeight="bold">Vehicle Size: {formData.vehicleSize}</Text>
+          <Text mt={2} fontWeight="bold">Tow Truck Type: {selectedTowTruck}</Text>
+          <Text mt={2} fontWeight="bold">Total Cost: ${totalCost.toFixed(2)}</Text>
           <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading}>
             Book Now
           </Button>
