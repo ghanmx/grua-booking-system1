@@ -71,13 +71,15 @@ const BookingForm = () => {
   }, [distance]);
 
   const getVehicleType = (model) => {
-    const coupeModels = ['Mustang', 'Camaro', 'Corvette', '911', 'M4'];
-    const truckModels = ['F-150', 'Silverado', 'RAM 1500', 'Tundra', 'Sierra'];
-    const vanModels = ['Sienna', 'Odyssey', 'Pacifica', 'Transit', 'Sprinter'];
+    const coupeModels = ['Mustang', 'Camaro', 'Corvette', '911', 'M4', 'BRZ', 'GT-R', '370Z', 'TT', 'F-TYPE'];
+    const truckModels = ['F-150', 'Silverado', 'RAM 1500', 'Tundra', 'Sierra', 'Tacoma', 'Ranger', 'Colorado', 'Titan', 'Frontier'];
+    const vanModels = ['Sienna', 'Odyssey', 'Pacifica', 'Transit', 'Sprinter', 'Carnival', 'Sedona', 'Express', 'NV200', 'ProMaster'];
+    const suvModels = ['RAV4', 'CR-V', 'Explorer', 'Equinox', 'Rogue', 'Tiguan', 'X3', 'GLC', 'Q5', 'Santa Fe'];
 
     if (coupeModels.includes(model)) return 'coupe';
     if (truckModels.includes(model)) return 'truck';
     if (vanModels.includes(model)) return 'van';
+    if (suvModels.includes(model)) return 'suv';
     return 'sedan';
   };
 
@@ -87,6 +89,7 @@ const BookingForm = () => {
         return 'Small';
       case 'truck':
       case 'van':
+      case 'suv':
         return 'Large';
       default:
         return 'Medium';
