@@ -3,7 +3,7 @@ import { Box, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import GoogleMapsRoute from '../components/GoogleMapsRoute';
+import MapRoute from '../components/MapRoute';
 import FloatingForm from '../components/FloatingForm';
 import { getTowTruckType, getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
 import { processPayment } from '../utils/paymentProcessing';
@@ -169,7 +169,7 @@ const BookingForm = () => {
 
   return (
     <Box position="relative" height="100vh" width="100vw">
-      <GoogleMapsRoute
+      <MapRoute
         setPickupAddress={(address) => setFormData(prev => ({ ...prev, pickupAddress: address }))}
         setDropOffAddress={(address) => setFormData(prev => ({ ...prev, dropOffAddress: address }))}
         setDistance={setDistance}

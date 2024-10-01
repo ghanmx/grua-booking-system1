@@ -20,6 +20,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
   const [route, setRoute] = useState(null);
+  const companyLocation = [26.509672, -100.0095504]; // Company location coordinates
 
   const handleMapClick = async (e) => {
     const { lat, lng } = e.latlng;
@@ -49,7 +50,8 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
     const calculateRoute = async () => {
       if (pickup && destination) {
         try {
-          const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${pickup[1]},${pickup[0]};${destination[1]},${destination[0]}?overview=full&geometries=geojson`);
+          const fullRoute = `${companyLocation[1]},${companyLocation[0]};${pickup[1]},${pickup[0]};${destination[1]},${destination[0]};${companyLocation[1]},${companyLocation[0]}`;
+          const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${fullRoute}?overview=full&geometries=geojson`);
           const data = await response.json();
           if (data.routes && data.routes.length > 0) {
             setRoute(data.routes[0].geometry.coordinates);
@@ -67,15 +69,16 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
     };
 
     calculateRoute();
-  }, [pickup, destination, setDistance, setTotalCost, vehicleSize]);
+  }, [pickup, destination, setDistance, setTotalCost, vehicleSize, companyLocation]);
 
   return (
     <Box position="absolute" top="0" left="0" height="100%" width="100%">
-      <MapContainer center={[26.509672, -100.0095504]} zoom={10} style={{ height: "100%", width: "100%" }} onClick={handleMapClick}>
+      <MapContainer center={companyLocation} zoom={10} style={{ height: "100%", width: "100%" }} onClick={handleMapClick}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
+        <Marker position={companyLocation}><Popup>Company Location</Popup></Marker>
         {pickup && <Marker position={pickup}><Popup>Pickup Location</Popup></Marker>}
         {destination && <Marker position={destination}><Popup>Drop-off Location</Popup></Marker>}
         {route && <Polyline positions={route.map(coord => [coord[1], coord[0]])} color="blue" />}
