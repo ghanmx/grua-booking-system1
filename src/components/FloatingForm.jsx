@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, VStack, Heading, Text, Button, FormControl, FormLabel, Input, Select, Textarea, FormErrorMessage } from "@chakra-ui/react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 
 const FloatingForm = ({
   formData,
@@ -16,7 +16,7 @@ const FloatingForm = ({
   vehicleBrands,
   vehicleModels
 }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, control, formState: { errors } } = useForm();
 
   const onSubmit = (data) => {
     handleBookingProcess(data);
@@ -141,16 +141,22 @@ const FloatingForm = ({
           
           <FormControl isInvalid={errors.pickupDateTime}>
             <FormLabel>Pickup Date and Time</FormLabel>
-            <DatePicker
-              selected={formData.pickupDateTime}
-              onChange={handleDateTimeChange}
-              showTimeSelect
-              dateFormat="Pp"
-              customInput={
-                <Input
-                  {...register("pickupDateTime", { required: "Pickup date and time is required" })}
+            <Controller
+              control={control}
+              name="pickupDateTime"
+              rules={{ required: "Pickup date and time is required" }}
+              render={({ field }) => (
+                <DatePicker
+                  selected={field.value}
+                  onChange={(date) => {
+                    field.onChange(date);
+                    handleDateTimeChange(date);
+                  }}
+                  showTimeSelect
+                  dateFormat="Pp"
+                  customInput={<Input />}
                 />
-              }
+              )}
             />
             <FormErrorMessage>{errors.pickupDateTime && errors.pickupDateTime.message}</FormErrorMessage>
           </FormControl>
