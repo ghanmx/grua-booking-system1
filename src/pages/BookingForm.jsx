@@ -173,7 +173,7 @@ const BookingForm = () => {
     }
   };
 
-  const handlePaymentSubmit = async (paymentData) => {
+  const handlePaymentSubmit = async (paymentMethod) => {
     setIsLoading(true);
     try {
       const dynamicKey = uuidv4();
@@ -210,8 +210,8 @@ const BookingForm = () => {
 
       const createdBooking = await createBooking(bookingData);
 
-      // Process payment
-      const paymentResult = await processPayment(totalCost, false, paymentData);
+      // Process payment using Stripe
+      const paymentResult = await processPayment(totalCost, paymentMethod.id);
 
       if (paymentResult.success) {
         await sendAdminNotification(formData, totalCost);
@@ -269,12 +269,14 @@ const BookingForm = () => {
         vehicleModels={vehicleModels}
       />
       {isPaymentWindowOpen && (
-        <PaymentWindow
-          isOpen={isPaymentWindowOpen}
-          onClose={() => setIsPaymentWindowOpen(false)}
-          onPaymentSubmit={handlePaymentSubmit}
-          totalCost={totalCost}
-        />
+        <Elements stripe={stripePromise}>
+          <PaymentWindow
+            isOpen={isPaymentWindowOpen}
+            onClose={() => setIsPaymentWindowOpen(false)}
+            onPaymentSubmit={handlePaymentSubmit}
+            totalCost={totalCost}
+          />
+        </Elements>
       )}
       {clientSecret && (
         <Box position="absolute" bottom="20px" right="20px" width="400px" bg="white" p={4} borderRadius="md" boxShadow="xl">

@@ -8,25 +8,37 @@ import {
   ModalBody,
   ModalCloseButton,
   Button,
-  FormControl,
-  FormLabel,
-  Input,
   VStack,
   Text,
 } from '@chakra-ui/react';
+import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [cvv, setCvv] = useState('');
+  const stripe = useStripe();
+  const elements = useElements();
   const [error, setError] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleSubmit = () => {
-    if (cardNumber.length < 16) {
-      setError('Payment Failed: El número de tarjeta está incompleto.');
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setIsProcessing(true);
+
+    if (!stripe || !elements) {
+      setError('Stripe has not loaded. Please try again later.');
+      setIsProcessing(false);
+      return;
+    }
+
+    const { error, paymentMethod } = await stripe.createPaymentMethod({
+      type: 'card',
+      card: elements.getElement(CardElement),
+    });
+
+    if (error) {
+      setError(error.message);
+      setIsProcessing(false);
     } else {
-      setError('');
-      onPaymentSubmit({ cardNumber, expiryDate, cvv });
+      onPaymentSubmit(paymentMethod);
     }
   };
 
@@ -38,39 +50,13 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4}>
-            <FormControl>
-              <FormLabel>Card Number</FormLabel>
-              <Input
-                type="text"
-                value={cardNumber}
-                onChange={(e) => setCardNumber(e.target.value)}
-                placeholder="1234 5678 9012 3456"
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>Expiry Date</FormLabel>
-              <Input
-                type="text"
-                value={expiryDate}
-                onChange={(e) => setExpiryDate(e.target.value)}
-                placeholder="MM/YY"
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>CVV</FormLabel>
-              <Input
-                type="text"
-                value={cvv}
-                onChange={(e) => setCvv(e.target.value)}
-                placeholder="123"
-              />
-            </FormControl>
+            <CardElement />
             <Text fontWeight="bold">Total Cost: ${totalCost.toFixed(2)}</Text>
             {error && <Text color="red.500">{error}</Text>}
           </VStack>
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={handleSubmit}>
+          <Button colorScheme="blue" mr={3} onClick={handleSubmit} isLoading={isProcessing}>
             Submit Payment
           </Button>
           <Button variant="ghost" onClick={onClose}>Cancel</Button>
