@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, Button, FormControl, FormLabel, Input, Select, Textarea, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
@@ -40,6 +40,7 @@ const BookingForm = () => {
   const [clientSecret, setClientSecret] = useState('');
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
+  const toast = useToast();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -68,30 +69,20 @@ const BookingForm = () => {
     }));
   };
 
-  useEffect(() => {
-    const fetchClientSecret = async () => {
-      if (totalCost > 0) {
-        try {
-          const response = await fetch('/api/create-payment-intent', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ amount: Math.round(totalCost * 100) }),
-          });
-          const data = await response.json();
-          setClientSecret(data.clientSecret);
-        } catch (error) {
-          console.error('Error fetching client secret:', error);
-        }
-      }
-    };
-
-    fetchClientSecret();
-  }, [totalCost]);
-
   const validateForm = () => {
-    // Add form validation logic here
+    const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleBrand', 'vehicleModel', 'vehicleColor', 'licensePlate', 'vehicleSize', 'pickupAddress', 'dropOffAddress', 'wheelsStatus'];
+    for (let field of requiredFields) {
+      if (!formData[field]) {
+        toast({
+          title: "Form Incomplete",
+          description: `Please fill in the ${field.replace(/([A-Z])/g, ' $1').toLowerCase()} field.`,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return false;
+      }
+    }
     return true;
   };
 
@@ -142,7 +133,7 @@ const BookingForm = () => {
 
       // Process payment
       const paymentResult = await processPayment(totalCost, false, {
-        cardNumber: '4242424242424242', // This should be replaced with actual card details in a production environment
+        cardNumber: '4242424242424242',
         expiryDate: '12/25',
         cvv: '123',
       });
