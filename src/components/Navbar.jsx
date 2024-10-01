@@ -1,11 +1,13 @@
 import React from "react";
-import { Box, Flex, Link, Spacer, Button, Image } from "@chakra-ui/react";
+import { Box, Flex, Link, Button, Image, useDisclosure } from "@chakra-ui/react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
 
 const Navbar = () => {
   const { session, logout } = useSupabaseAuth();
   const navigate = useNavigate();
+  const { isOpen, onToggle } = useDisclosure();
   const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
 
   const handleLogout = async () => {
@@ -17,26 +19,62 @@ const Navbar = () => {
     navigate('/');
   };
 
+  const NavLink = ({ to, children }) => (
+    <Link
+      as={RouterLink}
+      to={to}
+      px={2}
+      py={1}
+      rounded={'md'}
+      _hover={{
+        textDecoration: 'none',
+        bg: 'blue.600',
+      }}
+    >
+      {children}
+    </Link>
+  );
+
   return (
-    <Box bg="blue.500" p={4} color="white" position="sticky" top="0" zIndex="sticky">
-      <Flex maxW="1200px" mx="auto" align="center">
-        <Image src="/mr-gruas-logo-navbar.png" alt="M.R. Gruas Logo" h="40px" />
-        <Spacer />
-        <Flex align="center">
-          <Link as={RouterLink} to="/" p={2} mx={2} _hover={{ textDecoration: "none", bg: "blue.600" }}>Home</Link>
-          <Link as={RouterLink} to="/about" p={2} mx={2} _hover={{ textDecoration: "none", bg: "blue.600" }}>About</Link>
-          <Link as={RouterLink} to="/contact" p={2} mx={2} _hover={{ textDecoration: "none", bg: "blue.600" }}>Contact</Link>
-          <Link as={RouterLink} to="/booking" p={2} mx={2} _hover={{ textDecoration: "none", bg: "blue.600" }}>Book Now</Link>
+    <Box bg="blue.500" px={4} position="sticky" top="0" zIndex="sticky">
+      <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
+        <Flex alignItems={'center'}>
+          <Image src="/mr-gruas-logo-navbar.png" alt="M.R. Gruas Logo" h="40px" mr={4} />
+          <Box display={{ base: 'none', md: 'flex' }}>
+            <NavLink to="/">Home</NavLink>
+            <NavLink to="/about">About</NavLink>
+            <NavLink to="/contact">Contact</NavLink>
+            <NavLink to="/booking">Book Now</NavLink>
+          </Box>
+        </Flex>
+
+        <Flex alignItems={'center'}>
           {(session || testModeUser) && (testModeUser?.isAdmin || session?.user?.email === 'admin@example.com') && (
-            <Link as={RouterLink} to="/admin" p={2} mx={2} _hover={{ textDecoration: "none", bg: "blue.600" }}>Admin Panel</Link>
+            <NavLink to="/admin">Admin Panel</NavLink>
           )}
           {session || testModeUser ? (
             <Button onClick={handleLogout} colorScheme="red" size="sm" ml={2}>Logout</Button>
           ) : (
-            <Link as={RouterLink} to="/login" p={2} mx={2} _hover={{ textDecoration: "none", bg: "blue.600" }}>Login</Link>
+            <NavLink to="/login">Login</NavLink>
           )}
         </Flex>
+
+        <Box display={{ base: 'block', md: 'none' }} onClick={onToggle}>
+          {isOpen ? <CloseIcon /> : <HamburgerIcon />}
+        </Box>
       </Flex>
+
+      {isOpen && (
+        <Box pb={4} display={{ md: 'none' }}>
+          <NavLink to="/">Home</NavLink>
+          <NavLink to="/about">About</NavLink>
+          <NavLink to="/contact">Contact</NavLink>
+          <NavLink to="/booking">Book Now</NavLink>
+          {(session || testModeUser) && (testModeUser?.isAdmin || session?.user?.email === 'admin@example.com') && (
+            <NavLink to="/admin">Admin Panel</NavLink>
+          )}
+        </Box>
+      )}
     </Box>
   );
 };

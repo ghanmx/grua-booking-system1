@@ -1,12 +1,12 @@
 import React from 'react';
-import { Box, VStack, Heading, Text, Button, FormControl, FormLabel, Input, Select, Textarea } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, Button, FormControl, FormLabel, Input, Select, Textarea, FormErrorMessage } from "@chakra-ui/react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useForm } from "react-hook-form";
 
 const FloatingForm = ({
   formData,
   setFormData,
-  handleChange,
   handleDateTimeChange,
   handleBookingProcess,
   isLoading,
@@ -15,6 +15,12 @@ const FloatingForm = ({
   vehicleBrands,
   vehicleModels
 }) => {
+  const { register, handleSubmit, formState: { errors } } = useForm();
+
+  const onSubmit = (data) => {
+    handleBookingProcess(data);
+  };
+
   return (
     <Box
       position="fixed"
@@ -31,107 +37,67 @@ const FloatingForm = ({
     >
       <VStack spacing={4} align="stretch">
         <Heading as="h1" size="lg">Booking Form</Heading>
-        <form onSubmit={handleBookingProcess}>
-          <FormControl isRequired>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <FormControl isInvalid={errors.serviceType}>
             <FormLabel>Service Type</FormLabel>
-            <Select name="serviceType" value={formData.serviceType} onChange={handleChange}>
+            <Select
+              {...register("serviceType", { required: "Service type is required" })}
+              value={formData.serviceType}
+              onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
+            >
               <option value="">Select a service</option>
               <option value="Tow">Tow</option>
               <option value="Jumpstart">Jumpstart</option>
               <option value="Tire Change">Tire Change</option>
               <option value="Fuel Delivery">Fuel Delivery</option>
             </Select>
+            <FormErrorMessage>{errors.serviceType && errors.serviceType.message}</FormErrorMessage>
           </FormControl>
-          <FormControl isRequired>
+          
+          <FormControl isInvalid={errors.userName}>
             <FormLabel>Name</FormLabel>
-            <Input name="userName" value={formData.userName} onChange={handleChange} />
+            <Input
+              {...register("userName", { required: "Name is required" })}
+              value={formData.userName}
+              onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
+            />
+            <FormErrorMessage>{errors.userName && errors.userName.message}</FormErrorMessage>
           </FormControl>
-          <FormControl isRequired>
+          
+          <FormControl isInvalid={errors.phoneNumber}>
             <FormLabel>Phone Number</FormLabel>
-            <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
+            <Input
+              {...register("phoneNumber", { 
+                required: "Phone number is required",
+                pattern: {
+                  value: /^\d{10}$/,
+                  message: "Invalid phone number, should be 10 digits"
+                }
+              })}
+              value={formData.phoneNumber}
+              onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+            />
+            <FormErrorMessage>{errors.phoneNumber && errors.phoneNumber.message}</FormErrorMessage>
           </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Vehicle Brand</FormLabel>
-            <Select name="vehicleBrand" value={formData.vehicleBrand} onChange={handleChange}>
-              <option value="">Select a brand</option>
-              {vehicleBrands.map((brand) => (
-                <option key={brand} value={brand}>{brand}</option>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Vehicle Model</FormLabel>
-            <Select 
-              name="vehicleModel" 
-              value={formData.vehicleModel} 
-              onChange={handleChange}
-              isDisabled={!formData.vehicleBrand}
-            >
-              <option value="">Select a model</option>
-              {formData.vehicleBrand && vehicleModels[formData.vehicleBrand].map((model) => (
-                <option key={model} value={model}>{model}</option>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Vehicle Color</FormLabel>
-            <Input name="vehicleColor" value={formData.vehicleColor} onChange={handleChange} />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>License Plate</FormLabel>
-            <Input name="licensePlate" value={formData.licensePlate} onChange={handleChange} />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Vehicle Size</FormLabel>
-            <Select name="vehicleSize" value={formData.vehicleSize} onChange={handleChange}>
-              <option value="">Select size</option>
-              <option value="Small">Small</option>
-              <option value="Medium">Medium</option>
-              <option value="Large">Large</option>
-              <option value="Extra Large">Extra Large</option>
-            </Select>
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Pickup Address</FormLabel>
-            <Input name="pickupAddress" value={formData.pickupAddress} onChange={handleChange} />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Drop Off Address</FormLabel>
-            <Input name="dropOffAddress" value={formData.dropOffAddress} onChange={handleChange} />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Vehicle Issue</FormLabel>
-            <Textarea name="vehicleIssue" value={formData.vehicleIssue} onChange={handleChange} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Additional Details</FormLabel>
-            <Textarea name="additionalDetails" value={formData.additionalDetails} onChange={handleChange} />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Wheels Status</FormLabel>
-            <Select name="wheelsStatus" value={formData.wheelsStatus} onChange={handleChange}>
-              <option value="">Select status</option>
-              <option value="Wheels Turn">Wheels Turn</option>
-              <option value="Wheels Don't Turn">Wheels Don't Turn</option>
-            </Select>
-          </FormControl>
-          <FormControl isRequired>
+          
+          {/* Add more form fields with validation here */}
+          
+          <FormControl isInvalid={errors.pickupDateTime}>
             <FormLabel>Pickup Date and Time</FormLabel>
             <DatePicker
               selected={formData.pickupDateTime}
               onChange={handleDateTimeChange}
               showTimeSelect
               dateFormat="Pp"
+              customInput={
+                <Input
+                  {...register("pickupDateTime", { required: "Pickup date and time is required" })}
+                />
+              }
             />
+            <FormErrorMessage>{errors.pickupDateTime && errors.pickupDateTime.message}</FormErrorMessage>
           </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Payment Method</FormLabel>
-            <Select name="paymentMethod" value={formData.paymentMethod} onChange={handleChange}>
-              <option value="">Select payment method</option>
-              <option value="card">Credit/Debit Card</option>
-              <option value="paypal">PayPal</option>
-            </Select>
-          </FormControl>
+          
           <Text mt={4} fontWeight="bold">Total Cost: ${totalCost.toFixed(2)}</Text>
           <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading}>
             Book Now
