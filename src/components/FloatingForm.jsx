@@ -80,8 +80,6 @@ const FloatingForm = ({
             <FormErrorMessage>{errors.phoneNumber && errors.phoneNumber.message}</FormErrorMessage>
           </FormControl>
           
-          {/* Add more form fields with validation here */}
-          
           <FormControl isInvalid={errors.pickupDateTime}>
             <FormLabel>Pickup Date and Time</FormLabel>
             <DatePicker
