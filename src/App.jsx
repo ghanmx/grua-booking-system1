@@ -3,7 +3,7 @@ import { ChakraProvider, Box, ColorModeScript } from "@chakra-ui/react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { SupabaseProvider } from './integrations/supabase';
+import { SupabaseProvider } from './integrations/supabase/index.jsx';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import { Elements } from "@stripe/react-stripe-js";
 import stripePromise from './config/stripe';
