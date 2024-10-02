@@ -139,8 +139,20 @@ const BookingForm = () => {
       return;
     }
 
+    // Validate form data
+    if (!formData.serviceType || !formData.userName || !formData.phoneNumber || !formData.vehicleBrand || !formData.vehicleModel) {
+      toast({
+        title: 'Incomplete Form',
+        description: 'Please fill in all required fields.',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     setIsPaymentWindowOpen(true);
-  }, [session, toast]);
+  }, [session, toast, formData]);
 
   const handlePaymentSubmit = useCallback(async (paymentMethod) => {
     setIsPaymentWindowOpen(false);

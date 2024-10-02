@@ -10,6 +10,7 @@ import {
   Button,
   VStack,
   Text,
+  Box,
 } from '@chakra-ui/react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
@@ -40,7 +41,17 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
       setError(error.message);
       setIsProcessing(false);
     } else {
-      onPaymentSubmit(paymentMethod);
+      try {
+        // Here you would typically send the paymentMethod.id to your server
+        // and create a PaymentIntent or charge the card
+        // For this example, we'll simulate a successful payment
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+        onPaymentSubmit(paymentMethod);
+      } catch (err) {
+        setError('Payment processing failed. Please try again.');
+      } finally {
+        setIsProcessing(false);
+      }
     }
   };
 
@@ -52,20 +63,24 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4}>
-            <CardElement options={{
-              style: {
-                base: {
-                  fontSize: '16px',
-                  color: '#424770',
-                  '::placeholder': {
-                    color: '#aab7c4',
+            <Box width="100%">
+              <CardElement
+                options={{
+                  style: {
+                    base: {
+                      fontSize: '16px',
+                      color: '#424770',
+                      '::placeholder': {
+                        color: '#aab7c4',
+                      },
+                    },
+                    invalid: {
+                      color: '#9e2146',
+                    },
                   },
-                },
-                invalid: {
-                  color: '#9e2146',
-                },
-              },
-            }}/>
+                }}
+              />
+            </Box>
             <Text fontWeight="bold">Total Cost: ${totalCost.toFixed(2)}</Text>
             {error && <Text color="red.500">{error}</Text>}
           </VStack>
