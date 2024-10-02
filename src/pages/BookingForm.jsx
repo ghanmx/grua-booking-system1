@@ -126,7 +126,9 @@ const BookingForm = () => {
   });
 
   const handleBookingProcess = useCallback(async () => {
-    if (!session) {
+    const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
+    
+    if (!session && !testModeUser) {
       toast({
         title: 'Authentication required',
         description: 'Please log in to create a booking.',
@@ -143,12 +145,20 @@ const BookingForm = () => {
   const handlePaymentSubmit = useCallback(async (paymentMethod) => {
     setIsPaymentWindowOpen(false);
 
-    const paymentResult = await processPayment(totalCost, paymentMethod.id);
+    const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
+    let paymentResult;
+
+    if (testModeUser) {
+      // Simulate successful payment for test mode
+      paymentResult = { success: true, paymentIntent: { id: 'test_payment_intent_id' } };
+    } else {
+      paymentResult = await processPayment(totalCost, paymentMethod.id);
+    }
 
     if (paymentResult.success) {
       const bookingData = {
         ...formData,
-        userId: session.user.id,
+        userId: session?.user?.id || 'test_user_id',
         totalCost,
         paymentIntentId: paymentResult.paymentIntent.id,
         status: 'paid',
