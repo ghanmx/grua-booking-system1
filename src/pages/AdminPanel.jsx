@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Box, VStack, Heading, Tabs, TabList, TabPanels, Tab, TabPanel, useToast } from "@chakra-ui/react";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { isAdmin, isSuperAdmin } from '../utils/adminUtils';
 import UserManagement from '../components/UserManagement';
 import ServiceManagement from '../components/ServiceManagement';
 import BookingManagement from '../components/BookingManagement';
@@ -11,23 +10,8 @@ import { ROLES } from '../constants/roles';
 const AdminPanel = () => {
   const { session } = useSupabaseAuth();
   const toast = useToast();
-  const [userRole, setUserRole] = useState(ROLES.USER);
-  const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
 
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (testModeUser?.isAdmin) {
-        setUserRole(ROLES.ADMIN);
-      } else if (session?.user?.id) {
-        const adminStatus = await isAdmin(session.user.id);
-        const superAdminStatus = await isSuperAdmin(session.user.id);
-        setUserRole(superAdminStatus ? ROLES.SUPER_ADMIN : (adminStatus ? ROLES.ADMIN : ROLES.USER));
-      }
-    };
-    checkAdminStatus();
-  }, [session, testModeUser]);
-
-  if (userRole === ROLES.USER) {
+  if (!session || session.user.role !== ROLES.ADMIN) {
     return <Box p={4}><Heading as="h2" size="lg">You do not have admin privileges.</Heading></Box>;
   }
 
@@ -47,20 +31,21 @@ const AdminPanel = () => {
               <AnalyticsDashboard />
             </TabPanel>
             <TabPanel>
-              <BookingManagement showNotification={(title, description, status) => 
-                toast({ title, description, status, duration: 3000, isClosable: true })}
+              <BookingManagement
+                showNotification={(title, description, status) => 
+                  toast({ title, description, status, duration: 3000, isClosable: true })}
               />
             </TabPanel>
             <TabPanel>
-              <ServiceManagement showNotification={(title, description, status) => 
-                toast({ title, description, status, duration: 3000, isClosable: true })}
+              <ServiceManagement
+                showNotification={(title, description, status) => 
+                  toast({ title, description, status, duration: 3000, isClosable: true })}
               />
             </TabPanel>
             <TabPanel>
               <UserManagement 
                 showNotification={(title, description, status) => 
                   toast({ title, description, status, duration: 3000, isClosable: true })}
-                userRole={userRole}
               />
             </TabPanel>
           </TabPanels>
