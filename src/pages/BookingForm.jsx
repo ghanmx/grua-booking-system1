@@ -8,7 +8,6 @@ import MapRoute from '../components/MapRoute';
 import FloatingForm from '../components/FloatingForm';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { getTowTruckType, getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
-import { processPayment } from '../utils/paymentProcessing';
 import { sendAdminNotification } from '../utils/adminNotification';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { v4 as uuidv4 } from 'uuid';
@@ -162,9 +161,10 @@ const BookingForm = () => {
 
     if (testModeUser) {
       // Simulate successful payment for test mode
-      paymentResult = { success: true, paymentIntent: { id: 'test_payment_intent_id' } };
+      paymentResult = { success: true, paymentIntentId: 'test_payment_intent_id' };
     } else {
-      paymentResult = await processPayment(totalCost, paymentMethod.id);
+      // Real payment processing is now handled in the PaymentWindow component
+      paymentResult = { success: true, paymentIntentId: paymentMethod.id };
     }
 
     if (paymentResult.success) {
@@ -172,7 +172,7 @@ const BookingForm = () => {
         ...formData,
         userId: session?.user?.id || 'test_user_id',
         totalCost,
-        paymentIntentId: paymentResult.paymentIntent.id,
+        paymentIntentId: paymentResult.paymentIntentId,
         status: 'paid',
       };
 

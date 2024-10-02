@@ -11,14 +11,17 @@ import {
   VStack,
   Text,
   Box,
+  useToast,
 } from '@chakra-ui/react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import axios from 'axios';
 
 const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const toast = useToast();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -32,26 +35,47 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
 
     const cardElement = elements.getElement(CardElement);
 
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: 'card',
-      card: cardElement,
-    });
+    try {
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: cardElement,
+      });
 
-    if (error) {
-      setError(error.message);
-      setIsProcessing(false);
-    } else {
-      try {
-        // Here you would typically send the paymentMethod.id to your server
-        // and create a PaymentIntent or charge the card
-        // For this example, we'll simulate a successful payment
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
-        onPaymentSubmit(paymentMethod);
-      } catch (err) {
-        setError('Payment processing failed. Please try again.');
-      } finally {
+      if (error) {
+        setError(error.message);
         setIsProcessing(false);
+        return;
       }
+
+      // Process payment on the server
+      const response = await axios.post('/api/process-payment', {
+        paymentMethodId: paymentMethod.id,
+        amount: totalCost * 100, // Convert to cents
+      });
+
+      if (response.data.success) {
+        toast({
+          title: 'Payment Successful',
+          description: 'Your payment has been processed successfully.',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+        onPaymentSubmit(paymentMethod);
+      } else {
+        throw new Error(response.data.error || 'Payment processing failed');
+      }
+    } catch (err) {
+      setError(err.message || 'An unexpected error occurred');
+      toast({
+        title: 'Payment Error',
+        description: err.message || 'An unexpected error occurred during payment processing.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
