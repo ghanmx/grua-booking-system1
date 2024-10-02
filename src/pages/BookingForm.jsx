@@ -156,32 +156,39 @@ const BookingForm = () => {
   const handlePaymentSubmit = useCallback(async (paymentMethod) => {
     setIsPaymentWindowOpen(false);
 
-    const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
-    let paymentResult;
+    try {
+      // Process payment on the server
+      const response = await axios.post('/api/process-payment', {
+        paymentMethodId: paymentMethod.id,
+        amount: totalCost * 100, // Convert to cents
+      });
 
-    if (testModeUser) {
-      // Simulate successful payment for test mode
-      paymentResult = { success: true, paymentIntentId: 'test_payment_intent_id' };
-    } else {
-      // Real payment processing is now handled in the PaymentWindow component
-      paymentResult = { success: true, paymentIntentId: paymentMethod.id };
-    }
+      if (response.data.success) {
+        const bookingData = {
+          ...formData,
+          userId: session?.user?.id || 'test_user_id',
+          totalCost,
+          paymentIntentId: response.data.paymentIntentId,
+          status: 'paid',
+        };
 
-    if (paymentResult.success) {
-      const bookingData = {
-        ...formData,
-        userId: session?.user?.id || 'test_user_id',
-        totalCost,
-        paymentIntentId: paymentResult.paymentIntentId,
-        status: 'paid',
-      };
+        createBookingMutation.mutate(bookingData);
+        await sendAdminNotification(bookingData, totalCost);
 
-      createBookingMutation.mutate(bookingData);
-      await sendAdminNotification(bookingData, totalCost);
-    } else {
+        toast({
+          title: 'Payment Successful',
+          description: 'Your payment has been processed successfully.',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+      } else {
+        throw new Error('Payment processing failed');
+      }
+    } catch (error) {
       toast({
-        title: 'Payment failed',
-        description: paymentResult.error,
+        title: 'Payment Error',
+        description: error.message || 'An unexpected error occurred during payment processing.',
         status: 'error',
         duration: 5000,
         isClosable: true,

@@ -14,7 +14,6 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import axios from 'axios';
 
 const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
   const stripe = useStripe();
@@ -47,24 +46,7 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
         return;
       }
 
-      // Process payment on the server
-      const response = await axios.post('/api/process-payment', {
-        paymentMethodId: paymentMethod.id,
-        amount: totalCost * 100, // Convert to cents
-      });
-
-      if (response.data.success) {
-        toast({
-          title: 'Payment Successful',
-          description: 'Your payment has been processed successfully.',
-          status: 'success',
-          duration: 5000,
-          isClosable: true,
-        });
-        onPaymentSubmit(paymentMethod);
-      } else {
-        throw new Error(response.data.error || 'Payment processing failed');
-      }
+      onPaymentSubmit(paymentMethod);
     } catch (err) {
       setError(err.message || 'An unexpected error occurred');
       toast({

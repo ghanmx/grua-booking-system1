@@ -1,10 +1,11 @@
 import React from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { Box, Button, VStack, Text } from '@chakra-ui/react';
+import { Box, Button, VStack, Text, useToast } from '@chakra-ui/react';
 
 const StripePaymentForm = ({ amount, onPaymentSuccess, onPaymentError }) => {
   const stripe = useStripe();
   const elements = useElements();
+  const toast = useToast();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -13,16 +14,29 @@ const StripePaymentForm = ({ amount, onPaymentSuccess, onPaymentError }) => {
       return;
     }
 
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
-      type: 'card',
-      card: elements.getElement(CardElement),
-    });
+    const cardElement = elements.getElement(CardElement);
 
-    if (error) {
-      console.error('[error]', error);
-      onPaymentError(error.message);
-    } else {
+    try {
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: cardElement,
+      });
+
+      if (error) {
+        throw error;
+      }
+
       onPaymentSuccess(paymentMethod);
+    } catch (error) {
+      console.error('[Stripe Error]', error);
+      onPaymentError(error.message);
+      toast({
+        title: 'Payment Error',
+        description: error.message || 'An unexpected error occurred during payment processing.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     }
   };
 
