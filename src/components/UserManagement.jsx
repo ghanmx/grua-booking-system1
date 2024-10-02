@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, Input } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../integrations/supabase/index.jsx';
+import { ROLES, setUserRole } from '../utils/adminUtils';
 
-const UserManagement = ({ showNotification }) => {
+const UserManagement = ({ showNotification, userRole }) => {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -16,18 +17,17 @@ const UserManagement = ({ showNotification }) => {
     },
   });
 
-  const updateUserMutation = useMutation({
-    mutationFn: async ({ id, userData }) => {
-      const { data, error } = await supabase.from('users').update(userData).eq('id', id);
-      if (error) throw error;
-      return data;
+  const updateUserRoleMutation = useMutation({
+    mutationFn: async ({ id, role }) => {
+      const success = await setUserRole(id, role);
+      if (!success) throw new Error('Failed to update user role');
     },
     onSuccess: () => {
       queryClient.invalidateQueries('users');
-      showNotification('User Updated', 'The user has been updated successfully.', 'success');
+      showNotification('User Updated', 'The user role has been updated successfully.', 'success');
     },
     onError: (error) => {
-      showNotification('Error', `Failed to update user: ${error.message}`, 'error');
+      showNotification('Error', `Failed to update user role: ${error.message}`, 'error');
     },
   });
 
@@ -46,7 +46,7 @@ const UserManagement = ({ showNotification }) => {
   });
 
   const handleRoleChange = (userId, newRole) => {
-    updateUserMutation.mutate({ id: userId, userData: { is_admin: newRole === 'admin' } });
+    updateUserRoleMutation.mutate({ id: userId, role: newRole });
   };
 
   const handleDeleteUser = (userId) => {
@@ -57,7 +57,7 @@ const UserManagement = ({ showNotification }) => {
 
   const filteredUsers = users?.filter(user =>
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.full_name.toLowerCase().includes(searchTerm.toLowerCase())
+    user.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (isLoading) return <Box>Loading users...</Box>;
@@ -89,11 +89,13 @@ const UserManagement = ({ showNotification }) => {
                 <Td>{user.full_name}</Td>
                 <Td>
                   <Select
-                    value={user.is_admin ? 'admin' : 'user'}
+                    value={user.role}
                     onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                    isDisabled={userRole !== ROLES.SUPER_ADMIN || user.id === session?.user?.id}
                   >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
+                    <option value={ROLES.USER}>User</option>
+                    <option value={ROLES.ADMIN}>Admin</option>
+                    <option value={ROLES.SUPER_ADMIN}>Super Admin</option>
                   </Select>
                 </Td>
                 <Td>
@@ -101,6 +103,7 @@ const UserManagement = ({ showNotification }) => {
                     colorScheme="red"
                     size="sm"
                     onClick={() => handleDeleteUser(user.id)}
+                    isDisabled={userRole !== ROLES.SUPER_ADMIN || user.id === session?.user?.id}
                   >
                     Delete
                   </Button>
