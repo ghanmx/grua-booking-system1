@@ -33,7 +33,7 @@ exports.getAllBookings = async (req, res, next) => {
     const startIndex = (page - 1) * limit;
 
     const { data, error, count } = await supabase
-      .from('bookings')
+      .from('services_logs')
       .select('*', { count: 'exact' })
       .range(startIndex, startIndex + limit - 1);
     
@@ -54,7 +54,7 @@ exports.getAllBookings = async (req, res, next) => {
 exports.getBookingById = async (req, res, next) => {
   try {
     const { data, error } = await supabase
-      .from('bookings')
+      .from('services_logs')
       .select('*')
       .eq('id', req.params.id)
       .single();
@@ -76,7 +76,7 @@ exports.getBookingById = async (req, res, next) => {
 exports.updateBooking = async (req, res, next) => {
   try {
     const { data, error } = await supabase
-      .from('bookings')
+      .from('services_logs')
       .update(req.body)
       .eq('id', req.params.id);
     
@@ -95,7 +95,7 @@ exports.updateBooking = async (req, res, next) => {
 exports.deleteBooking = async (req, res, next) => {
   try {
     const { error } = await supabase
-      .from('bookings')
+      .from('services_logs')
       .delete()
       .eq('id', req.params.id);
     
