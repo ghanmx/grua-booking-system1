@@ -6,24 +6,25 @@ import UserManagement from '../components/UserManagement';
 import ServiceManagement from '../components/ServiceManagement';
 import BookingManagement from '../components/BookingManagement';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import { ROLES } from '../constants/roles';
 
 const AdminPanel = () => {
   const { session } = useSupabaseAuth();
   const toast = useToast();
-  const [userRole, setUserRole] = useState('user');
+  const [userRole, setUserRole] = useState(ROLES.USER);
 
   useEffect(() => {
     const checkAdminStatus = async () => {
       if (session?.user?.id) {
         const adminStatus = await isAdmin(session.user.id);
         const superAdminStatus = await isSuperAdmin(session.user.id);
-        setUserRole(superAdminStatus ? 'super_admin' : (adminStatus ? 'admin' : 'user'));
+        setUserRole(superAdminStatus ? ROLES.SUPER_ADMIN : (adminStatus ? ROLES.ADMIN : ROLES.USER));
       }
     };
     checkAdminStatus();
   }, [session]);
 
-  if (userRole === 'user') {
+  if (userRole === ROLES.USER) {
     return <Box p={4}><Heading as="h2" size="lg">You do not have admin privileges.</Heading></Box>;
   }
 

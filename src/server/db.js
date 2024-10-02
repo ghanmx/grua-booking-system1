@@ -1,10 +1,11 @@
 import supabase from '../config/supabase.config';
+import { ROLES } from '../constants/roles';
 
 // User-related functions
 export const getUsers = async () => {
   const { data, error } = await supabase
     .from('users')
-    .select('id, email, full_name, phone_number, is_admin');
+    .select('id, email, full_name, phone_number, role');
   if (error) throw error;
   return data;
 };
@@ -16,7 +17,7 @@ export const createUser = async (userData) => {
       email: userData.email,
       full_name: userData.fullName,
       phone_number: userData.phoneNumber,
-      is_admin: userData.isAdmin || false
+      role: userData.role || ROLES.USER
     });
   if (error) throw error;
   return data;
@@ -82,7 +83,7 @@ export const createAdminUser = async (userData) => {
       email: userData.email,
       full_name: userData.fullName,
       phone_number: userData.phoneNumber,
-      is_admin: true
+      role: ROLES.ADMIN
     });
   if (error) throw error;
   return data;
@@ -104,7 +105,6 @@ export const createBooking = async (bookingData) => {
   return data;
 };
 
-// New function to get paid services waiting to be performed
 export const getPaidServicesWaiting = async () => {
   const { data, error } = await supabase
     .from('services_logs')
@@ -115,7 +115,6 @@ export const getPaidServicesWaiting = async () => {
   return data;
 };
 
-// New function to update service status
 export const updateServiceStatus = async (id, newStatus) => {
   const { data, error } = await supabase
     .from('services_logs')
@@ -125,7 +124,6 @@ export const updateServiceStatus = async (id, newStatus) => {
   return data;
 };
 
-// Add the missing getBookings function
 export const getBookings = async () => {
   const { data, error } = await supabase
     .from('services_logs')
@@ -135,7 +133,6 @@ export const getBookings = async () => {
   return data;
 };
 
-// Add the missing updateBooking function
 export const updateBooking = async (id, bookingData) => {
   const { data, error } = await supabase
     .from('services_logs')
@@ -145,7 +142,6 @@ export const updateBooking = async (id, bookingData) => {
   return data;
 };
 
-// Add the missing deleteBooking function
 export const deleteBooking = async (id) => {
   const { data, error } = await supabase
     .from('services_logs')
