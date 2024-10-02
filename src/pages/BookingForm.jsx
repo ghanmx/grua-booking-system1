@@ -3,6 +3,7 @@ import { Box, useToast, FormControl, FormLabel, Select, Input } from "@chakra-ui
 import { useNavigate } from "react-router-dom";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import MapRoute from '../components/MapRoute';
 import FloatingForm from '../components/FloatingForm';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -18,32 +19,39 @@ import PaymentWindow from '../components/PaymentWindow';
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const BookingForm = () => {
-  const [formData, setFormData] = useState({
-    serviceType: '',
-    userName: '',
-    phoneNumber: '',
-    vehicleBrand: '',
-    vehicleModel: '',
-    vehicleColor: '',
-    licensePlate: '',
-    vehicleSize: '',
-    pickupAddress: '',
-    dropOffAddress: '',
-    vehicleIssue: '',
-    additionalDetails: '',
-    wheelsStatus: '',
-    pickupDateTime: new Date(),
-    paymentMethod: 'card',
+  const [formData, setFormData] = useState(() => {
+    const savedData = localStorage.getItem('bookingFormData');
+    return savedData ? JSON.parse(savedData) : {
+      serviceType: '',
+      userName: '',
+      phoneNumber: '',
+      vehicleBrand: '',
+      vehicleModel: '',
+      vehicleColor: '',
+      licensePlate: '',
+      vehicleSize: '',
+      pickupAddress: '',
+      dropOffAddress: '',
+      vehicleIssue: '',
+      additionalDetails: '',
+      wheelsStatus: '',
+      pickupDateTime: new Date(),
+      paymentMethod: 'card',
+    };
   });
   const [isLoading, setIsLoading] = useState(false);
   const [distance, setDistance] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   const [selectedTowTruck, setSelectedTowTruck] = useState('');
-  const [clientSecret, setClientSecret] = useState('');
   const [isPaymentWindowOpen, setIsPaymentWindowOpen] = useState(false);
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   const toast = useToast();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    localStorage.setItem('bookingFormData', JSON.stringify(formData));
+  }, [formData]);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -147,6 +155,37 @@ const BookingForm = () => {
     return true;
   };
 
+  const createBookingMutation = useMutation({
+    mutationFn: async (bookingData) => {
+      const createdService = await createService(bookingData.serviceData);
+      const createdBooking = await createBooking({
+        ...bookingData.bookingData,
+        service_id: createdService[0].id
+      });
+      return { service: createdService[0], booking: createdBooking[0] };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries('bookings');
+      toast({
+        title: 'Booking Successful',
+        description: `Your tow service has been booked successfully. Service number: ${data.service.id}`,
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+      navigate('/confirmation', { state: { bookingData: data.booking } });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Booking Failed',
+        description: error.message || 'An unexpected error occurred',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  });
+
   const handleBookingProcess = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -184,11 +223,8 @@ const BookingForm = () => {
         service_type: formData.serviceType,
       };
 
-      const createdService = await createService(serviceData);
-
       const bookingData = {
         user_id: session.user.id,
-        service_id: createdService[0].id,
         vehicle_brand: formData.vehicleBrand,
         vehicle_model: formData.vehicleModel,
         vehicle_color: formData.vehicleColor,
@@ -208,23 +244,12 @@ const BookingForm = () => {
         dynamic_key: dynamicKey,
       };
 
-      const createdBooking = await createBooking(bookingData);
-
       // Process payment using Stripe
       const paymentResult = await processPayment(totalCost, paymentMethod.id);
 
       if (paymentResult.success) {
+        await createBookingMutation.mutateAsync({ serviceData, bookingData });
         await sendAdminNotification(formData, totalCost);
-
-        toast({
-          title: 'Booking Successful',
-          description: `Your tow service has been booked successfully. Service number: ${createdService[0].id}`,
-          status: 'success',
-          duration: 5000,
-          isClosable: true,
-        });
-
-        navigate('/confirmation', { state: { bookingData: createdBooking[0] } });
       } else {
         throw new Error('Payment failed');
       }
@@ -277,13 +302,6 @@ const BookingForm = () => {
             totalCost={totalCost}
           />
         </Elements>
-      )}
-      {clientSecret && (
-        <Box position="absolute" bottom="20px" right="20px" width="400px" bg="white" p={4} borderRadius="md" boxShadow="xl">
-          <Elements stripe={stripePromise} options={{ clientSecret }}>
-            {/* Stripe Elements will be rendered here */}
-          </Elements>
-        </Box>
       )}
     </Box>
   );

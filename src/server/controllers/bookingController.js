@@ -4,19 +4,35 @@ const { logger } = require('../middleware/errorHandler');
 
 exports.createBooking = async (req, res, next) => {
   try {
-    const { data, error } = await supabase
-      .from('bookings')
-      .insert(req.body);
-    
-    if (error) throw error;
+    const { serviceData, bookingData } = req.body;
 
-    logger.info(`New booking created: ${JSON.stringify(data)}`);
-    await sendAdminNotification(data[0], 'New booking created');
+    // Create service
+    const { data: createdService, error: serviceError } = await supabase
+      .from('services')
+      .insert(serviceData);
+    
+    if (serviceError) throw serviceError;
+
+    // Create booking
+    const { data: createdBooking, error: bookingError } = await supabase
+      .from('bookings')
+      .insert({
+        ...bookingData,
+        service_id: createdService[0].id
+      });
+    
+    if (bookingError) throw bookingError;
+
+    logger.info(`New booking created: ${JSON.stringify(createdBooking)}`);
+    await sendAdminNotification(createdBooking[0], 'New booking created');
 
     res.status(201).json({
       success: true,
       message: 'Booking created successfully',
-      data: data[0]
+      data: {
+        service: createdService[0],
+        booking: createdBooking[0]
+      }
     });
   } catch (error) {
     next(error);
