@@ -4,7 +4,7 @@ import { ROLES } from '../constants/roles';
 // User-related functions
 export const getUsers = async () => {
   const { data, error } = await supabase
-    .from('profiles')  // Changed from 'users' to 'profiles'
+    .from('profiles')
     .select('id, email, full_name, phone_number, role');
   if (error) throw error;
   return data;
@@ -12,7 +12,7 @@ export const getUsers = async () => {
 
 export const createUser = async (userData) => {
   const { data, error } = await supabase
-    .from('profiles')  // Changed from 'users' to 'profiles'
+    .from('profiles')
     .insert({
       email: userData.email,
       full_name: userData.fullName,
@@ -25,7 +25,7 @@ export const createUser = async (userData) => {
 
 export const updateUser = async (id, userData) => {
   const { data, error } = await supabase
-    .from('profiles')  // Changed from 'users' to 'profiles'
+    .from('profiles')
     .update(userData)
     .eq('id', id);
   if (error) throw error;
@@ -34,7 +34,7 @@ export const updateUser = async (id, userData) => {
 
 export const deleteUser = async (id) => {
   const { data, error } = await supabase
-    .from('profiles')  // Changed from 'users' to 'profiles'
+    .from('profiles')
     .delete()
     .eq('id', id);
   if (error) throw error;
@@ -78,7 +78,7 @@ export const deleteServiceLog = async (id) => {
 
 export const createAdminUser = async (userData) => {
   const { data, error } = await supabase
-    .from('profiles')  // Changed from 'users' to 'profiles'
+    .from('profiles')
     .insert({
       email: userData.email,
       full_name: userData.fullName,
@@ -91,7 +91,7 @@ export const createAdminUser = async (userData) => {
 
 export const createService = async (serviceData) => {
   const { data, error } = await supabase
-    .from('services')  // Added new 'services' table
+    .from('services')
     .insert(serviceData);
   if (error) throw error;
   return data;
@@ -99,7 +99,7 @@ export const createService = async (serviceData) => {
 
 export const getServices = async () => {
   const { data, error } = await supabase
-    .from('services')  // Added new 'services' table
+    .from('services')
     .select('*');
   if (error) throw error;
   return data;
@@ -135,7 +135,7 @@ export const updateServiceStatus = async (id, newStatus) => {
 export const getBookings = async () => {
   const { data, error } = await supabase
     .from('services_logs')
-    .select('*')
+    .select('*, profiles(full_name), services(service_name)')
     .order('created_at', { ascending: false });
   if (error) throw error;
   return data;
@@ -155,33 +155,6 @@ export const deleteBooking = async (id) => {
     .from('services_logs')
     .delete()
     .eq('id', id);
-  if (error) throw error;
-  return data;
-};
-
-// Settings-related functions
-export const getSettings = async () => {
-  const { data, error } = await supabase
-    .from('settings')
-    .select('*');
-  if (error) throw error;
-  return data;
-};
-
-export const updateSetting = async (key, value) => {
-  const { data, error } = await supabase
-    .from('settings')
-    .upsert({ key, value })
-    .select();
-  if (error) throw error;
-  return data;
-};
-
-export const deleteSetting = async (key) => {
-  const { data, error } = await supabase
-    .from('settings')
-    .delete()
-    .eq('key', key);
   if (error) throw error;
   return data;
 };

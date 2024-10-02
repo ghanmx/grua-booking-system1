@@ -4,9 +4,13 @@ const { logger } = require('../middleware/errorHandler');
 
 exports.createBooking = async (req, res, next) => {
   try {
-    const bookingData = req.body;
+    const bookingData = {
+      profile_id: req.body.userId,
+      service_id: req.body.serviceId,
+      status: 'pending',
+      total_cost: req.body.totalCost
+    };
 
-    // Create booking
     const { data: createdBooking, error: bookingError } = await supabase
       .from('services_logs')
       .insert(bookingData);
@@ -34,7 +38,7 @@ exports.getAllBookings = async (req, res, next) => {
 
     const { data, error, count } = await supabase
       .from('services_logs')
-      .select('*', { count: 'exact' })
+      .select('*, profiles(full_name), services(service_name)', { count: 'exact' })
       .range(startIndex, startIndex + limit - 1);
     
     if (error) throw error;
@@ -55,7 +59,7 @@ exports.getBookingById = async (req, res, next) => {
   try {
     const { data, error } = await supabase
       .from('services_logs')
-      .select('*')
+      .select('*, profiles(full_name), services(service_name)')
       .eq('id', req.params.id)
       .single();
     
