@@ -29,9 +29,11 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
       return;
     }
 
+    const cardElement = elements.getElement(CardElement);
+
     const { error, paymentMethod } = await stripe.createPaymentMethod({
       type: 'card',
-      card: elements.getElement(CardElement),
+      card: cardElement,
     });
 
     if (error) {
@@ -50,7 +52,20 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4}>
-            <CardElement />
+            <CardElement options={{
+              style: {
+                base: {
+                  fontSize: '16px',
+                  color: '#424770',
+                  '::placeholder': {
+                    color: '#aab7c4',
+                  },
+                },
+                invalid: {
+                  color: '#9e2146',
+                },
+              },
+            }}/>
             <Text fontWeight="bold">Total Cost: ${totalCost.toFixed(2)}</Text>
             {error && <Text color="red.500">{error}</Text>}
           </VStack>
