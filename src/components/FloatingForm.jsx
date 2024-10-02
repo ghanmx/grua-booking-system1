@@ -13,8 +13,8 @@ const FloatingForm = ({
   isLoading,
   selectedTowTruck,
   totalCost,
-  vehicleBrands = [],
-  vehicleModels = {}
+  vehicleBrands,
+  vehicleModels
 }) => {
   const { register, handleSubmit, control, formState: { errors } } = useForm();
 

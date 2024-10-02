@@ -14,7 +14,7 @@ import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { v4 as uuidv4 } from 'uuid';
 import PaymentWindow from '../components/PaymentWindow';
 import axios from 'axios';
-import { vehicleSizes } from '../utils/vehicleData';
+import { vehicleBrands, vehicleModels, vehicleSizes } from '../utils/vehicleData';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -185,6 +185,8 @@ const BookingForm = () => {
         isLoading={createBookingMutation.isLoading}
         selectedTowTruck={selectedTowTruck}
         totalCost={totalCost}
+        vehicleBrands={vehicleBrands}
+        vehicleModels={vehicleModels}
       />
       {isPaymentWindowOpen && (
         <Elements stripe={stripePromise}>
