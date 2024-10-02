@@ -1,30 +1,13 @@
 export const vehicleBrands = [
-  'Toyota',
-  'Honda',
-  'Ford',
-  'Chevrolet',
-  'Nissan',
-  'Volkswagen',
-  'BMW',
-  'Mercedes-Benz',
-  'Audi',
-  'Hyundai',
-  'Mazda',
-  'Subaru',
-  'Kia',
-  'Lexus',
-  'Volvo',
-  'Tesla',
-  'Porsche',
-  'Jaguar',
-  'Land Rover',
-  'Acura',
+  'Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan', 'Volkswagen', 'BMW', 'Mercedes-Benz',
+  'Audi', 'Hyundai', 'Mazda', 'Subaru', 'Kia', 'Lexus', 'Volvo', 'Tesla', 'Porsche',
+  'Jaguar', 'Land Rover', 'Acura', 'RAM', 'GMC', 'Jeep', 'Dodge', 'Chrysler'
 ];
 
 export const vehicleModels = {
   Toyota: ['Corolla', 'Camry', 'RAV4', 'Highlander', 'Tacoma', 'Tundra', 'Sienna', 'Prius', 'Land Cruiser', 'C-HR', '4Runner', 'Avalon', 'Venza', 'Sequoia', 'Yaris'],
   Honda: ['Civic', 'Accord', 'CR-V', 'Pilot', 'Odyssey', 'HR-V', 'Fit', 'Ridgeline', 'Insight', 'Passport', 'Clarity', 'Element', 'S2000', 'Crosstour'],
-  Ford: ['F-150', 'Mustang', 'Explorer', 'Escape', 'Focus', 'Transit', 'Ranger', 'Edge', 'Expedition', 'Bronco', 'Fusion', 'EcoSport', 'Mach-E', 'Flex', 'GT'],
+  Ford: ['F-150', 'Mustang', 'Explorer', 'Escape', 'Focus', 'Transit', 'Ranger', 'Edge', 'Expedition', 'Bronco', 'Fusion', 'EcoSport', 'Mach-E', 'Flex', 'GT', 'F-250', 'F-350'],
   Chevrolet: ['Silverado', 'Malibu', 'Equinox', 'Traverse', 'Camaro', 'Corvette', 'Tahoe', 'Suburban', 'Bolt', 'Trax', 'Impala', 'Colorado', 'Blazer', 'Spark', 'Sonic'],
   Nissan: ['Altima', 'Rogue', 'Sentra', 'Maxima', 'Pathfinder', 'Murano', 'Kicks', 'Titan', 'Leaf', 'Versa', 'Armada', 'Frontier', 'GT-R', '370Z', 'Juke'],
   Volkswagen: ['Jetta', 'Passat', 'Tiguan', 'Atlas', 'Golf', 'ID.4', 'Arteon', 'Taos', 'GTI', 'Touareg', 'Beetle', 'CC', 'e-Golf', 'Eos'],
@@ -42,4 +25,16 @@ export const vehicleModels = {
   Jaguar: ['F-PACE', 'XF', 'E-PACE', 'I-PACE', 'XE', 'F-TYPE', 'XJ', 'XK', 'S-Type', 'X-Type'],
   'Land Rover': ['Range Rover', 'Discovery', 'Defender', 'Evoque', 'Velar', 'Freelander', 'LR2', 'LR3', 'LR4'],
   Acura: ['TLX', 'RDX', 'MDX', 'ILX', 'NSX', 'RLX', 'TSX', 'RSX', 'ZDX', 'Integra'],
+  RAM: ['1500', '2500', '3500', 'ProMaster', 'ProMaster City'],
+  GMC: ['Sierra', 'Yukon', 'Terrain', 'Acadia', 'Canyon', 'Savana'],
+  Jeep: ['Wrangler', 'Grand Cherokee', 'Cherokee', 'Compass', 'Renegade', 'Gladiator'],
+  Dodge: ['Charger', 'Challenger', 'Durango', 'Journey', 'Grand Caravan'],
+  Chrysler: ['300', 'Pacifica', 'Voyager']
+};
+
+export const vehicleSizes = {
+  A: ['Mustang', 'Camaro', 'Corvette', '911', 'M4', 'BRZ', 'GT-R', '370Z', 'TT', 'F-TYPE', 'Model 3', 'Civic', 'Corolla', 'Mazda3', 'Golf'],
+  B: ['RAV4', 'CR-V', 'Explorer', 'Equinox', 'Rogue', 'Tiguan', 'X3', 'GLC', 'Q5', 'Santa Fe', 'Outback', 'Forester'],
+  C: ['F-150', 'Silverado', 'RAM 1500', 'Tundra', 'Sierra', 'Tacoma', 'Ranger', 'Colorado', 'Titan', 'Frontier', 'Ridgeline'],
+  D: ['F-250', 'F-350', 'Silverado 2500HD', 'RAM 2500', 'RAM 3500', 'Sierra 2500HD', 'Tundra TRD Pro']
 };

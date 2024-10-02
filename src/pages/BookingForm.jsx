@@ -14,18 +14,9 @@ import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { v4 as uuidv4 } from 'uuid';
 import PaymentWindow from '../components/PaymentWindow';
 import axios from 'axios';
+import { vehicleSizes } from '../utils/vehicleData';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-
-// Mock data for vehicle brands and models
-const vehicleBrands = ['Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan'];
-const vehicleModels = {
-  Toyota: ['Camry', 'Corolla', 'RAV4', 'Highlander'],
-  Honda: ['Civic', 'Accord', 'CR-V', 'Pilot'],
-  Ford: ['F-150', 'Mustang', 'Explorer', 'Escape'],
-  Chevrolet: ['Silverado', 'Malibu', 'Equinox', 'Traverse'],
-  Nissan: ['Altima', 'Rogue', 'Sentra', 'Pathfinder']
-};
 
 const BookingForm = () => {
   const [formData, setFormData] = useState(() => {
@@ -57,9 +48,15 @@ const BookingForm = () => {
   const toast = useToast();
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    localStorage.setItem('bookingFormData', JSON.stringify(formData));
-  }, [formData]);
+
+  const getVehicleSize = (model) => {
+    for (const [size, models] of Object.entries(vehicleSizes)) {
+      if (models.includes(model)) {
+        return size;
+      }
+    }
+    return 'B'; // Default to B if not found
+  };
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -87,135 +84,7 @@ const BookingForm = () => {
     }
   }, [distance]);
 
-  const getVehicleSize = (model) => {
-    const coupeModels = ['Mustang', 'Camaro', 'Corvette', '911', 'M4', 'BRZ', 'GT-R', '370Z', 'TT', 'F-TYPE'];
-    const truckModels = ['F-150', 'Silverado', 'RAM 1500', 'Tundra', 'Sierra', 'Tacoma', 'Ranger', 'Colorado', 'Titan', 'Frontier'];
-    const vanModels = ['Sienna', 'Odyssey', 'Pacifica', 'Transit', 'Sprinter', 'Carnival', 'Sedona', 'Express', 'NV200', 'ProMaster'];
-    const suvModels = ['RAV4', 'CR-V', 'Explorer', 'Equinox', 'Rogue', 'Tiguan', 'X3', 'GLC', 'Q5', 'Santa Fe'];
-
-    if (coupeModels.includes(model)) return 'coupe';
-    if (truckModels.includes(model)) return 'truck';
-    if (vanModels.includes(model)) return 'van';
-    if (suvModels.includes(model)) return 'suv';
-    return 'sedan';
-  };
-
-  const updateTotalCost = (distance, towTruckType) => {
-    const newTotalCost = calculateTotalCost(distance, towTruckType);
-    setTotalCost(newTotalCost);
-  };
-
-  const handleDateTimeChange = useCallback((date) => {
-    setFormData(prevData => ({
-      ...prevData,
-      pickupDateTime: date
-    }));
-  }, []);
-
-  const setPickupAddress = useCallback((address) => {
-    setFormData(prevData => ({
-      ...prevData,
-      pickupAddress: address
-    }));
-  }, []);
-
-  const setDropOffAddress = useCallback((address) => {
-    setFormData(prevData => ({
-      ...prevData,
-      dropOffAddress: address
-    }));
-  }, []);
-
-  useEffect(() => {
-    if (distance > 0 && selectedTowTruck) {
-      updateTotalCost(distance, selectedTowTruck);
-    }
-  }, [distance, selectedTowTruck]);
-
-  const createBookingMutation = useMutation({
-    mutationFn: async (bookingData) => {
-      const response = await axios.post('/api/bookings', bookingData);
-      return response.data;
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries('bookings');
-      toast({
-        title: 'Booking Successful',
-        description: `Your tow service has been booked successfully. Service number: ${data.booking.id}`,
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
-      navigate('/confirmation', { state: { bookingData: data.booking } });
-    },
-    onError: (error) => {
-      toast({
-        title: 'Booking Failed',
-        description: error.message || 'An unexpected error occurred',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  });
-
-  const handleBookingProcess = async (e) => {
-    e.preventDefault();
-    if (!session) {
-      navigate('/login', { state: { from: '/booking' } });
-      return;
-    }
-
-    setIsPaymentWindowOpen(true);
-  };
-
-  const handlePaymentSubmit = async (paymentMethod) => {
-    try {
-      const dynamicKey = uuidv4();
-      const bookingData = {
-        user_id: session.user.id,
-        service_type: formData.serviceType,
-        vehicle_brand: formData.vehicleBrand,
-        vehicle_model: formData.vehicleModel,
-        vehicle_color: formData.vehicleColor,
-        license_plate: formData.licensePlate,
-        vehicle_size: formData.vehicleSize,
-        pickup_address: formData.pickupAddress,
-        dropoff_address: formData.dropOffAddress,
-        vehicle_issue: formData.vehicleIssue,
-        additional_details: formData.additionalDetails,
-        wheels_status: formData.wheelsStatus,
-        pickup_datetime: formData.pickupDateTime,
-        payment_method: formData.paymentMethod,
-        distance,
-        total_cost: totalCost,
-        tow_truck_type: selectedTowTruck,
-        status: 'pending',
-        dynamic_key: dynamicKey,
-      };
-
-      // Process payment using Stripe
-      const paymentResult = await processPayment(totalCost, paymentMethod.id);
-
-      if (paymentResult.success) {
-        await createBookingMutation.mutateAsync(bookingData);
-        await sendAdminNotification(formData, totalCost);
-      } else {
-        throw new Error('Payment failed');
-      }
-    } catch (error) {
-      console.error('Payment error:', error);
-      toast({
-        title: 'Payment Failed',
-        description: error.message || 'An unexpected error occurred during payment',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    } finally {
-      setIsPaymentWindowOpen(false);
-    }
-  };
+  // ... (keep the rest of the component code)
 
   return (
     <Box position="relative" height="100vh" width="100vw">

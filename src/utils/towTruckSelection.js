@@ -1,15 +1,15 @@
 export const getTowTruckType = (vehicleSize) => {
   switch (vehicleSize) {
-    case 'Small':
+    case 'A':
       return 'A';
-    case 'Medium':
+    case 'B':
       return 'B';
-    case 'Large':
+    case 'C':
       return 'C';
-    case 'Extra Large':
+    case 'D':
       return 'D';
     default:
-      return 'A';
+      return 'B';
   }
 };
 
@@ -20,7 +20,7 @@ export const getTowTruckPricing = (towTruckType) => {
     C: { perKm: 23.47, basePrice: 721.79 },
     D: { perKm: 32.35, basePrice: 885.84 },
   };
-  return pricing[towTruckType] || pricing.A;
+  return pricing[towTruckType] || pricing.B;
 };
 
 export const calculateTotalCost = (distance, towTruckType) => {
