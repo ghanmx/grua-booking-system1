@@ -1,31 +1,48 @@
-const { createAdminUser, getPaidServicesWaiting, updateServiceStatus } = require('../db');
+const supabase = require('../config/database');
 
-exports.createAdmin = async (req, res) => {
+exports.createAdmin = async (req, res, next) => {
   try {
-    const adminData = req.body;
-    const newAdmin = await createAdminUser(adminData);
-    res.status(201).json({ success: true, data: newAdmin });
+    const { data, error } = await supabase
+      .from('users')
+      .insert({ ...req.body, is_admin: true });
+
+    if (error) throw error;
+
+    res.status(201).json({ success: true, data: data[0] });
   } catch (error) {
-    res.status(400).json({ success: false, error: error.message });
+    next(error);
   }
 };
 
-exports.getPaidServices = async (req, res) => {
+exports.getPaidServices = async (req, res, next) => {
   try {
-    const services = await getPaidServicesWaiting();
-    res.status(200).json({ success: true, data: services });
+    const { data, error } = await supabase
+      .from('services_logs')
+      .select('*')
+      .eq('status', 'paid')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.status(200).json({ success: true, data });
   } catch (error) {
-    res.status(400).json({ success: false, error: error.message });
+    next(error);
   }
 };
 
-exports.updateService = async (req, res) => {
+exports.updateService = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    const updatedService = await updateServiceStatus(id, status);
-    res.status(200).json({ success: true, data: updatedService });
+    const { data, error } = await supabase
+      .from('services_logs')
+      .update({ status })
+      .eq('id', id);
+
+    if (error) throw error;
+
+    res.status(200).json({ success: true, data: data[0] });
   } catch (error) {
-    res.status(400).json({ success: false, error: error.message });
+    next(error);
   }
 };

@@ -1,11 +1,16 @@
-const { getSettings, updateSetting, deleteSetting } = require('../db');
+const supabase = require('../config/database');
 
 exports.getAllSettings = async (req, res, next) => {
   try {
-    const settings = await getSettings();
+    const { data, error } = await supabase
+      .from('settings')
+      .select('*');
+
+    if (error) throw error;
+
     res.status(200).json({
       success: true,
-      data: settings
+      data
     });
   } catch (error) {
     next(error);
@@ -15,10 +20,16 @@ exports.getAllSettings = async (req, res, next) => {
 exports.updateSetting = async (req, res, next) => {
   try {
     const { key, value } = req.body;
-    const updatedSetting = await updateSetting(key, value);
+    const { data, error } = await supabase
+      .from('settings')
+      .upsert({ key, value })
+      .select();
+
+    if (error) throw error;
+
     res.status(200).json({
       success: true,
-      data: updatedSetting
+      data: data[0]
     });
   } catch (error) {
     next(error);
@@ -28,7 +39,13 @@ exports.updateSetting = async (req, res, next) => {
 exports.deleteSetting = async (req, res, next) => {
   try {
     const { key } = req.params;
-    await deleteSetting(key);
+    const { error } = await supabase
+      .from('settings')
+      .delete()
+      .eq('key', key);
+
+    if (error) throw error;
+
     res.status(200).json({
       success: true,
       message: 'Setting deleted successfully'
