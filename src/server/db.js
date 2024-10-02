@@ -4,7 +4,7 @@ import { ROLES } from '../constants/roles';
 // User-related functions
 export const getUsers = async () => {
   const { data, error } = await supabase
-    .from('users')
+    .from('profiles')  // Changed from 'users' to 'profiles'
     .select('id, email, full_name, phone_number, role');
   if (error) throw error;
   return data;
@@ -12,7 +12,7 @@ export const getUsers = async () => {
 
 export const createUser = async (userData) => {
   const { data, error } = await supabase
-    .from('users')
+    .from('profiles')  // Changed from 'users' to 'profiles'
     .insert({
       email: userData.email,
       full_name: userData.fullName,
@@ -25,7 +25,7 @@ export const createUser = async (userData) => {
 
 export const updateUser = async (id, userData) => {
   const { data, error } = await supabase
-    .from('users')
+    .from('profiles')  // Changed from 'users' to 'profiles'
     .update(userData)
     .eq('id', id);
   if (error) throw error;
@@ -34,7 +34,7 @@ export const updateUser = async (id, userData) => {
 
 export const deleteUser = async (id) => {
   const { data, error } = await supabase
-    .from('users')
+    .from('profiles')  // Changed from 'users' to 'profiles'
     .delete()
     .eq('id', id);
   if (error) throw error;
@@ -78,7 +78,7 @@ export const deleteServiceLog = async (id) => {
 
 export const createAdminUser = async (userData) => {
   const { data, error } = await supabase
-    .from('users')
+    .from('profiles')  // Changed from 'users' to 'profiles'
     .insert({
       email: userData.email,
       full_name: userData.fullName,
@@ -91,8 +91,16 @@ export const createAdminUser = async (userData) => {
 
 export const createService = async (serviceData) => {
   const { data, error } = await supabase
-    .from('services_logs')
+    .from('services')  // Added new 'services' table
     .insert(serviceData);
+  if (error) throw error;
+  return data;
+};
+
+export const getServices = async () => {
+  const { data, error } = await supabase
+    .from('services')  // Added new 'services' table
+    .select('*');
   if (error) throw error;
   return data;
 };
@@ -176,4 +184,21 @@ export const deleteSetting = async (key) => {
     .eq('key', key);
   if (error) throw error;
   return data;
+};
+
+// Analytics function
+export const getAnalytics = async () => {
+  const [usersCount, bookingsCount, revenueData] = await Promise.all([
+    supabase.from('profiles').select('id', { count: 'exact' }),
+    supabase.from('services_logs').select('id', { count: 'exact' }),
+    supabase.from('services_logs').select('total_cost')
+  ]);
+
+  const totalRevenue = revenueData.data?.reduce((sum, booking) => sum + (booking.total_cost || 0), 0) || 0;
+
+  return {
+    usersCount: usersCount.count,
+    bookingsCount: bookingsCount.count,
+    totalRevenue
+  };
 };
