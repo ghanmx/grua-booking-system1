@@ -13,8 +13,8 @@ const FloatingForm = ({
   isLoading,
   selectedTowTruck,
   totalCost,
-  vehicleBrands,
-  vehicleModels
+  vehicleBrands = [],
+  vehicleModels = {}
 }) => {
   const { register, handleSubmit, control, formState: { errors } } = useForm();
 
@@ -110,9 +110,11 @@ const FloatingForm = ({
               disabled={!formData.vehicleBrand}
             >
               <option value="">Select a model</option>
-              {formData.vehicleBrand && vehicleModels[formData.vehicleBrand].map((model) => (
-                <option key={model} value={model}>{model}</option>
-              ))}
+              {formData.vehicleBrand && vehicleModels[formData.vehicleBrand] && 
+                vehicleModels[formData.vehicleBrand].map((model) => (
+                  <option key={model} value={model}>{model}</option>
+                ))
+              }
             </Select>
             <FormErrorMessage>{errors.vehicleModel && errors.vehicleModel.message}</FormErrorMessage>
           </FormControl>

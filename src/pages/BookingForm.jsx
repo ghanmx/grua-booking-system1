@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Box, useToast, Button, VStack } from "@chakra-ui/react";
+import { Box, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
@@ -16,6 +16,16 @@ import PaymentWindow from '../components/PaymentWindow';
 import axios from 'axios';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+// Mock data for vehicle brands and models
+const vehicleBrands = ['Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan'];
+const vehicleModels = {
+  Toyota: ['Camry', 'Corolla', 'RAV4', 'Highlander'],
+  Honda: ['Civic', 'Accord', 'CR-V', 'Pilot'],
+  Ford: ['F-150', 'Mustang', 'Explorer', 'Escape'],
+  Chevrolet: ['Silverado', 'Malibu', 'Equinox', 'Traverse'],
+  Nissan: ['Altima', 'Rogue', 'Sentra', 'Pathfinder']
+};
 
 const BookingForm = () => {
   const [formData, setFormData] = useState(() => {
@@ -122,23 +132,6 @@ const BookingForm = () => {
     }
   }, [distance, selectedTowTruck]);
 
-  const validateForm = () => {
-    const requiredFields = ['serviceType', 'userName', 'phoneNumber', 'vehicleBrand', 'vehicleModel', 'vehicleColor', 'licensePlate', 'vehicleSize', 'pickupAddress', 'dropOffAddress', 'wheelsStatus'];
-    for (let field of requiredFields) {
-      if (!formData[field]) {
-        toast({
-          title: "Form Incomplete",
-          description: `Please fill in the ${field.replace(/([A-Z])/g, ' $1').toLowerCase()} field.`,
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
-        return false;
-      }
-    }
-    return true;
-  };
-
   const createBookingMutation = useMutation({
     mutationFn: async (bookingData) => {
       const response = await axios.post('/api/bookings', bookingData);
@@ -168,25 +161,12 @@ const BookingForm = () => {
 
   const handleBookingProcess = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
-
-    try {
-      if (!session) {
-        navigate('/login', { state: { from: '/booking' } });
-        return;
-      }
-
-      setIsPaymentWindowOpen(true);
-    } catch (error) {
-      console.error('Booking error:', error);
-      toast({
-        title: 'Booking Failed',
-        description: error.message || 'An unexpected error occurred',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+    if (!session) {
+      navigate('/login', { state: { from: '/booking' } });
+      return;
     }
+
+    setIsPaymentWindowOpen(true);
   };
 
   const handlePaymentSubmit = async (paymentMethod) => {
@@ -255,6 +235,8 @@ const BookingForm = () => {
         isLoading={createBookingMutation.isLoading}
         selectedTowTruck={selectedTowTruck}
         totalCost={totalCost}
+        vehicleBrands={vehicleBrands}
+        vehicleModels={vehicleModels}
       />
       {isPaymentWindowOpen && (
         <Elements stripe={stripePromise}>
