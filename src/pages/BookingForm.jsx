@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Box, useToast, FormControl, FormLabel, Select, Input } from "@chakra-ui/react";
+import { Box, useToast, Button, VStack } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
@@ -12,9 +12,8 @@ import { processPayment } from '../utils/paymentProcessing';
 import { sendAdminNotification } from '../utils/adminNotification';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { v4 as uuidv4 } from 'uuid';
-import { vehicleBrands, vehicleModels } from '../utils/vehicleData';
-import { createBooking, createService } from '../server/db';
 import PaymentWindow from '../components/PaymentWindow';
+import axios from 'axios';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -39,7 +38,6 @@ const BookingForm = () => {
       paymentMethod: 'card',
     };
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [distance, setDistance] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   const [selectedTowTruck, setSelectedTowTruck] = useState('');
@@ -68,8 +66,7 @@ const BookingForm = () => {
     }
 
     if (name === 'vehicleModel') {
-      const vehicleType = getVehicleType(value);
-      const vehicleSize = getVehicleSize(vehicleType);
+      const vehicleSize = getVehicleSize(value);
       const towTruckType = getTowTruckType(vehicleSize);
       setFormData(prevData => ({
         ...prevData,
@@ -80,7 +77,7 @@ const BookingForm = () => {
     }
   }, [distance]);
 
-  const getVehicleType = (model) => {
+  const getVehicleSize = (model) => {
     const coupeModels = ['Mustang', 'Camaro', 'Corvette', '911', 'M4', 'BRZ', 'GT-R', '370Z', 'TT', 'F-TYPE'];
     const truckModels = ['F-150', 'Silverado', 'RAM 1500', 'Tundra', 'Sierra', 'Tacoma', 'Ranger', 'Colorado', 'Titan', 'Frontier'];
     const vanModels = ['Sienna', 'Odyssey', 'Pacifica', 'Transit', 'Sprinter', 'Carnival', 'Sedona', 'Express', 'NV200', 'ProMaster'];
@@ -91,19 +88,6 @@ const BookingForm = () => {
     if (vanModels.includes(model)) return 'van';
     if (suvModels.includes(model)) return 'suv';
     return 'sedan';
-  };
-
-  const getVehicleSize = (type) => {
-    switch (type) {
-      case 'coupe':
-        return 'Small';
-      case 'truck':
-      case 'van':
-      case 'suv':
-        return 'Large';
-      default:
-        return 'Medium';
-    }
   };
 
   const updateTotalCost = (distance, towTruckType) => {
@@ -157,18 +141,14 @@ const BookingForm = () => {
 
   const createBookingMutation = useMutation({
     mutationFn: async (bookingData) => {
-      const createdService = await createService(bookingData.serviceData);
-      const createdBooking = await createBooking({
-        ...bookingData.bookingData,
-        service_id: createdService[0].id
-      });
-      return { service: createdService[0], booking: createdBooking[0] };
+      const response = await axios.post('/api/bookings', bookingData);
+      return response.data;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries('bookings');
       toast({
         title: 'Booking Successful',
-        description: `Your tow service has been booked successfully. Service number: ${data.service.id}`,
+        description: `Your tow service has been booked successfully. Service number: ${data.booking.id}`,
         status: 'success',
         duration: 5000,
         isClosable: true,
@@ -190,7 +170,6 @@ const BookingForm = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    setIsLoading(true);
     try {
       if (!session) {
         navigate('/login', { state: { from: '/booking' } });
@@ -207,24 +186,15 @@ const BookingForm = () => {
         duration: 5000,
         isClosable: true,
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handlePaymentSubmit = async (paymentMethod) => {
-    setIsLoading(true);
     try {
       const dynamicKey = uuidv4();
-      const serviceData = {
-        user_id: session.user.id,
-        dynamic_key: dynamicKey,
-        status: 'pending',
-        service_type: formData.serviceType,
-      };
-
       const bookingData = {
         user_id: session.user.id,
+        service_type: formData.serviceType,
         vehicle_brand: formData.vehicleBrand,
         vehicle_model: formData.vehicleModel,
         vehicle_color: formData.vehicleColor,
@@ -248,7 +218,7 @@ const BookingForm = () => {
       const paymentResult = await processPayment(totalCost, paymentMethod.id);
 
       if (paymentResult.success) {
-        await createBookingMutation.mutateAsync({ serviceData, bookingData });
+        await createBookingMutation.mutateAsync(bookingData);
         await sendAdminNotification(formData, totalCost);
       } else {
         throw new Error('Payment failed');
@@ -263,14 +233,9 @@ const BookingForm = () => {
         isClosable: true,
       });
     } finally {
-      setIsLoading(false);
       setIsPaymentWindowOpen(false);
     }
   };
-
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
 
   return (
     <Box position="relative" height="100vh" width="100vw">
@@ -287,11 +252,9 @@ const BookingForm = () => {
         handleChange={handleChange}
         handleDateTimeChange={handleDateTimeChange}
         handleBookingProcess={handleBookingProcess}
-        isLoading={isLoading}
+        isLoading={createBookingMutation.isLoading}
         selectedTowTruck={selectedTowTruck}
         totalCost={totalCost}
-        vehicleBrands={vehicleBrands}
-        vehicleModels={vehicleModels}
       />
       {isPaymentWindowOpen && (
         <Elements stripe={stripePromise}>
