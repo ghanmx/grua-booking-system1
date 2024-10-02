@@ -12,17 +12,20 @@ const AdminPanel = () => {
   const { session } = useSupabaseAuth();
   const toast = useToast();
   const [userRole, setUserRole] = useState(ROLES.USER);
+  const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
 
   useEffect(() => {
     const checkAdminStatus = async () => {
-      if (session?.user?.id) {
+      if (testModeUser?.isAdmin) {
+        setUserRole(ROLES.ADMIN);
+      } else if (session?.user?.id) {
         const adminStatus = await isAdmin(session.user.id);
         const superAdminStatus = await isSuperAdmin(session.user.id);
         setUserRole(superAdminStatus ? ROLES.SUPER_ADMIN : (adminStatus ? ROLES.ADMIN : ROLES.USER));
       }
     };
     checkAdminStatus();
-  }, [session]);
+  }, [session, testModeUser]);
 
   if (userRole === ROLES.USER) {
     return <Box p={4}><Heading as="h2" size="lg">You do not have admin privileges.</Heading></Box>;
