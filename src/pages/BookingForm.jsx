@@ -43,11 +43,12 @@ const BookingForm = () => {
   const [totalCost, setTotalCost] = useState(0);
   const [selectedTowTruck, setSelectedTowTruck] = useState('');
   const [isPaymentWindowOpen, setIsPaymentWindowOpen] = useState(false);
+  const [pickupAddress, setPickupAddress] = useState('');
+  const [dropOffAddress, setDropOffAddress] = useState('');
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
-
 
   const getVehicleSize = (model) => {
     for (const [size, models] of Object.entries(vehicleSizes)) {
@@ -84,7 +85,87 @@ const BookingForm = () => {
     }
   }, [distance]);
 
-  // ... (keep the rest of the component code)
+  const handleDateTimeChange = useCallback((date) => {
+    setFormData(prevData => ({
+      ...prevData,
+      pickupDateTime: date
+    }));
+  }, []);
+
+  const updateTotalCost = useCallback((distance, towTruckType) => {
+    const cost = calculateTotalCost(distance, towTruckType);
+    setTotalCost(cost);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('bookingFormData', JSON.stringify(formData));
+  }, [formData]);
+
+  const createBookingMutation = useMutation({
+    mutationFn: (bookingData) => axios.post('/api/bookings', bookingData),
+    onSuccess: () => {
+      queryClient.invalidateQueries('bookings');
+      toast({
+        title: 'Booking created.',
+        description: "We've created your booking for you.",
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+      navigate('/confirmation');
+    },
+    onError: (error) => {
+      toast({
+        title: 'An error occurred.',
+        description: error.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    },
+  });
+
+  const handleBookingProcess = useCallback(async () => {
+    if (!session) {
+      toast({
+        title: 'Authentication required',
+        description: 'Please log in to create a booking.',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    setIsPaymentWindowOpen(true);
+  }, [session, toast]);
+
+  const handlePaymentSubmit = useCallback(async (paymentMethod) => {
+    setIsPaymentWindowOpen(false);
+
+    const paymentResult = await processPayment(totalCost, paymentMethod.id);
+
+    if (paymentResult.success) {
+      const bookingData = {
+        ...formData,
+        userId: session.user.id,
+        totalCost,
+        paymentIntentId: paymentResult.paymentIntent.id,
+        status: 'paid',
+      };
+
+      createBookingMutation.mutate(bookingData);
+      await sendAdminNotification(bookingData, totalCost);
+    } else {
+      toast({
+        title: 'Payment failed',
+        description: paymentResult.error,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  }, [formData, session, totalCost, createBookingMutation, toast]);
 
   return (
     <Box position="relative" height="100vh" width="100vw">
@@ -104,8 +185,6 @@ const BookingForm = () => {
         isLoading={createBookingMutation.isLoading}
         selectedTowTruck={selectedTowTruck}
         totalCost={totalCost}
-        vehicleBrands={vehicleBrands}
-        vehicleModels={vehicleModels}
       />
       {isPaymentWindowOpen && (
         <Elements stripe={stripePromise}>
