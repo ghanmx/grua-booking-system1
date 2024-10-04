@@ -1,5 +1,11 @@
-import supabase, { handleSupabaseError } from '../integrations/supabase/index.jsx';
+import supabase from '../config/supabase.config';
 import { ROLES } from '../constants/roles';
+
+// Helper function to handle Supabase errors
+const handleSupabaseError = (error) => {
+  console.error('Supabase error:', error);
+  throw new Error(error.message || 'An unexpected error occurred');
+};
 
 export const getUsers = async () => {
   const { data, error } = await supabase
@@ -110,3 +116,15 @@ export const setAdminStatus = async (userId, isAdmin) => {
   if (error) handleSupabaseError(error);
   return data;
 };
+
+export const getPaidBookings = async () => {
+  const { data, error } = await supabase
+    .from('services_logs')
+    .select('*, profiles(full_name), services(service_name)')
+    .eq('status', 'paid')
+    .order('created_at', { ascending: false });
+  if (error) handleSupabaseError(error);
+  return data;
+};
+
+// ... keep existing code (other exported functions)
