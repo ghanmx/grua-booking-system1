@@ -1,3 +1,4 @@
+-- Existing tables and policies
 -- Drop existing policies and tables
 DROP POLICY IF EXISTS "Users can view own data" ON public.users;
 DROP POLICY IF EXISTS "Users can update own data" ON public.users;
@@ -104,39 +105,87 @@ CREATE POLICY "Users can update own unpaid bookings" ON public.bookings
 CREATE POLICY "Users can view own payment transactions" ON public.payment_transactions
     FOR SELECT USING (auth.uid() = (SELECT user_id FROM public.bookings WHERE id = booking_id));
 
--- Insert sample data
-INSERT INTO public.users (username, email, password_hash)
-VALUES 
-    ('johndoe', 'john.doe@example.com', 'hashed_password_1'),
-    ('janesmith', 'jane.smith@example.com', 'hashed_password_2');
+-- New policies for bookings table
+CREATE POLICY "Users can update own bookings" ON public.bookings
+FOR UPDATE USING (auth.uid() = user_id);
 
-INSERT INTO public.profiles (user_id, full_name, phone_number, role)
-VALUES 
-    ((SELECT id FROM public.users WHERE email = 'john.doe@example.com'), 'John Doe', '123-456-7890', 'user'),
-    ((SELECT id FROM public.users WHERE email = 'jane.smith@example.com'), 'Jane Smith', '098-765-4321', 'admin');
+CREATE POLICY "Users can update own bookings before service" ON public.bookings
+FOR UPDATE USING (auth.uid() = user_id AND booking_date > (now() + interval '24 hours'));
 
-INSERT INTO public.services (service_name, description, base_price)
-VALUES 
-    ('Towing Service', 'Emergency towing service available 24/7', 50.00),
-    ('Roadside Assistance', 'Help with flat tires, dead batteries, etc.', 30.00);
+-- Trigger function to limit booking updates
+CREATE OR REPLACE FUNCTION limit_booking_update() 
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.payment_status IS DISTINCT FROM OLD.payment_status THEN
+        RAISE EXCEPTION 'No se puede modificar el estado de pago';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
--- Insert sample bookings and payment transactions
--- (You would typically do this through your application logic)
+-- Assign trigger to bookings table
+CREATE TRIGGER restrict_booking_updates
+BEFORE UPDATE ON public.bookings
+FOR EACH ROW
+EXECUTE FUNCTION limit_booking_update();
 
--- Example queries
--- Select all users with their profiles
-SELECT u.*, p.full_name, p.phone_number, p.role
-FROM public.users u
-JOIN public.profiles p ON u.id = p.user_id;
+-- Audit table for bookings
+CREATE TABLE public.bookings_audit (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    booking_id UUID NOT NULL,
+    changed_by UUID NOT NULL,
+    change_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    old_status TEXT,
+    new_status TEXT,
+    old_payment_status TEXT,
+    new_payment_status TEXT,
+    CONSTRAINT bookings_audit_booking_id_fkey FOREIGN KEY (booking_id) REFERENCES public.bookings(id) ON DELETE CASCADE
+);
 
--- Select all bookings with user and service information
-SELECT b.*, u.username, s.service_name
-FROM public.bookings b
-JOIN public.users u ON b.user_id = u.id
-JOIN public.services s ON b.service_id = s.id;
+-- Trigger function for logging booking updates
+CREATE OR REPLACE FUNCTION log_booking_update() 
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO bookings_audit (booking_id, changed_by, old_status, new_status, old_payment_status, new_payment_status)
+    VALUES (OLD.id, auth.uid(), OLD.status, NEW.status, OLD.payment_status, NEW.payment_status);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
--- Select all payment transactions with booking and user information
-SELECT pt.*, b.total_cost, u.username
-FROM public.payment_transactions pt
-JOIN public.bookings b ON pt.booking_id = b.id
-JOIN public.users u ON b.user_id = u.id;
+-- Assign audit trigger to bookings table
+CREATE TRIGGER audit_booking_changes
+AFTER UPDATE ON public.bookings
+FOR EACH ROW
+EXECUTE FUNCTION log_booking_update();
+
+-- Trigger function for notifications
+CREATE OR REPLACE FUNCTION notify_user_on_booking_update() 
+RETURNS TRIGGER AS $$
+BEGIN
+    PERFORM pg_notify('booking_updates', 'La reserva ' || NEW.id || ' ha sido actualizada.');
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Assign notification trigger to bookings table
+CREATE TRIGGER send_notification_on_update
+AFTER UPDATE ON public.bookings
+FOR EACH ROW
+EXECUTE FUNCTION notify_user_on_booking_update();
+
+-- Trigger function to prevent changes on paid bookings
+CREATE OR REPLACE FUNCTION prevent_changes_on_paid_bookings() 
+RETURNS TRIGGER AS $$
+BEGIN
+    IF OLD.payment_status = 'paid' THEN
+        RAISE EXCEPTION 'No se pueden realizar modificaciones en reservas pagadas';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Assign trigger to block changes on paid bookings
+CREATE TRIGGER block_changes_on_paid_bookings
+BEFORE UPDATE ON public.bookings
+FOR EACH ROW
+EXECUTE FUNCTION prevent_changes_on_paid_bookings();
