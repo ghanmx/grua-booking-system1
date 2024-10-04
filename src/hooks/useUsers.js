@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { getPaidBookings } from '../server/db';
+import { getUsers } from '../server/db';
 
-export const useBookings = () => {
+export const useUsers = () => {
   return useQuery({
-    queryKey: ['paidBookings'],
-    queryFn: getPaidBookings,
+    queryKey: ['users'],
+    queryFn: getUsers,
     retry: 3,
     refetchOnWindowFocus: false,
     onError: (error) => {
-      console.error('Failed to fetch paid bookings:', error);
+      console.error('Failed to fetch users:', error);
       // You might want to add a toast notification here
     },
   });

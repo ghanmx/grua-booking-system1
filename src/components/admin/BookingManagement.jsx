@@ -1,22 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast, Text } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getBookings, updateBooking, deleteBooking, getPaidBookings } from '../../server/db';
+import { getPaidBookings, updateBooking, deleteBooking } from '../../server/db';
+import { useBookings } from '../../hooks/useBookings';
 
 const BookingManagement = ({ showNotification }) => {
   const queryClient = useQueryClient();
-  const [bookings, setBookings] = useState([]);
-
-  const { data: paidBookingsData, isLoading, error } = useQuery({
-    queryKey: ['paidBookings'],
-    queryFn: getPaidBookings,
-  });
-
-  useEffect(() => {
-    if (paidBookingsData) {
-      setBookings(paidBookingsData);
-    }
-  }, [paidBookingsData]);
+  const { bookings, isLoading, error } = useBookings();
 
   const updateBookingMutation = useMutation({
     mutationFn: ({ id, status }) => updateBooking(id, { status }),
@@ -46,7 +36,7 @@ const BookingManagement = ({ showNotification }) => {
 
   if (isLoading) return <Box>Loading bookings...</Box>;
   if (error) return <Box>Error loading bookings: {error.message}</Box>;
-  if (!paidBookingsData || paidBookingsData.length === 0) return <Box>No paid bookings found.</Box>;
+  if (!bookings || bookings.length === 0) return <Box>No paid bookings found.</Box>;
 
   return (
     <Box>
