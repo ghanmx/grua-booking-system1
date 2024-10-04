@@ -37,6 +37,18 @@ export const getUsers = async () => {
   });
 };
 
+export const getPaidBookings = async () => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase
+      .from('services_logs')
+      .select('*, profiles(full_name), services(service_name)')
+      .eq('status', 'paid')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  });
+};
+
 export const createUser = async (userData) => {
   return handleSupabaseError(async () => {
     const { data, error } = await supabase
@@ -158,17 +170,3 @@ export const setAdminStatus = async (userId, isAdmin) => {
     return data;
   });
 };
-
-export const getPaidBookings = async () => {
-  return handleSupabaseError(async () => {
-    const { data, error } = await supabase
-      .from('services_logs')
-      .select('*, profiles(full_name), services(service_name)')
-      .eq('status', 'paid')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return data;
-  });
-};
-
-// ... keep existing code (other exported functions)
