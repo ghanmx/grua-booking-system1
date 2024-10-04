@@ -96,10 +96,6 @@ const BookingForm = () => {
     setTotalCost(cost);
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('bookingFormData', JSON.stringify(formData));
-  }, [formData]);
-
   const createBookingMutation = useMutation({
     mutationFn: (bookingData) => axios.post('/api/bookings', bookingData),
     onSuccess: () => {
@@ -157,7 +153,6 @@ const BookingForm = () => {
     setIsPaymentWindowOpen(false);
 
     try {
-      // Process payment on the server
       const response = await axios.post('/api/process-payment', {
         paymentMethodId: paymentMethod.id,
         amount: totalCost * 100, // Convert to cents
