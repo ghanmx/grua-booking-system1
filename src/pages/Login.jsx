@@ -24,7 +24,7 @@ const Login = () => {
 
     const handleTestModeLogin = () => {
         localStorage.setItem('testModeUser', JSON.stringify({ isTestMode: true, isAdmin: true }));
-        navigate('/booking');
+        navigate('/admin');
     };
 
     const handleLogin = async (e) => {

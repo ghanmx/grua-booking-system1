@@ -12,8 +12,8 @@ const AdminPanel = () => {
   const toast = useToast();
   const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
 
-  // Updated condition to allow access for test user
-  if (!session && !testModeUser) {
+  // Updated condition to allow access for test user with admin privileges
+  if (!session && (!testModeUser || !testModeUser.isAdmin)) {
     return <Box p={4}><Heading as="h2" size="lg">You do not have admin privileges.</Heading></Box>;
   }
 
