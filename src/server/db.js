@@ -138,19 +138,4 @@ export const setAdminStatus = async (userId, isAdmin) => {
   return data;
 };
 
-// Make sure to export all functions at the end of the file
-export {
-  getUsers,
-  createUser,
-  updateUser,
-  deleteUser,
-  getServices,
-  createService,
-  createBooking,
-  getBookings,
-  updateBooking,
-  deleteBooking,
-  getAnalytics,
-  setAdminStatus,
-  addSpecificAdmin,
-};
+// Remove the duplicate exports at the end of the file
