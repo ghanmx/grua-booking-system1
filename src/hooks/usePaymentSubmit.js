@@ -21,6 +21,11 @@ export const usePaymentSubmit = (formData, totalCost, createBookingMutation, set
           amount: totalCost * 100, // Convert to cents
         }),
       });
+
+      if (!response.ok) {
+        throw new Error('Payment processing failed');
+      }
+
       const result = await response.json();
 
       if (result.success) {
@@ -30,25 +35,37 @@ export const usePaymentSubmit = (formData, totalCost, createBookingMutation, set
           totalCost,
           paymentIntentId: result.paymentIntentId,
           status: 'paid',
-          payment_status: 'paid' // Update payment status
+          payment_status: 'paid'
         };
 
-        await createBookingMutation.mutateAsync(bookingData);
-        await sendAdminNotification(bookingData, totalCost);
+        try {
+          await createBookingMutation.mutateAsync(bookingData);
+          await sendAdminNotification(bookingData, totalCost);
 
-        toast({
-          title: 'Payment Successful',
-          description: 'Your payment has been processed successfully.',
-          status: 'success',
-          duration: 5000,
-          isClosable: true,
-        });
+          toast({
+            title: 'Payment Successful',
+            description: 'Your payment has been processed successfully.',
+            status: 'success',
+            duration: 5000,
+            isClosable: true,
+          });
 
-        queryClient.invalidateQueries('bookings');
+          queryClient.invalidateQueries('bookings');
+        } catch (bookingError) {
+          console.error('Error creating booking:', bookingError);
+          toast({
+            title: 'Booking Error',
+            description: 'Payment was successful, but there was an error creating your booking. Please contact support.',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+        }
       } else {
         throw new Error('Payment processing failed');
       }
     } catch (error) {
+      console.error('Payment Error:', error);
       toast({
         title: 'Payment Error',
         description: error.message || 'An unexpected error occurred during payment processing.',

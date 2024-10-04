@@ -9,8 +9,8 @@ exports.createBooking = async (req, res, next) => {
       service_id: req.body.serviceId,
       status: 'pending',
       total_cost: req.body.totalCost,
-      payment_status: 'pending', // Set initial payment status
-      user_id: req.user.id // Assuming you have user information in the request
+      payment_status: 'pending',
+      user_id: req.user.id
     };
 
     const { data: createdBooking, error: bookingError } = await supabase
@@ -20,7 +20,13 @@ exports.createBooking = async (req, res, next) => {
     if (bookingError) throw bookingError;
 
     logger.info(`New booking created: ${JSON.stringify(createdBooking)}`);
-    await sendAdminNotification(createdBooking[0], createdBooking[0].total_cost);
+    
+    try {
+      await sendAdminNotification(createdBooking[0], createdBooking[0].total_cost);
+    } catch (notificationError) {
+      logger.error(`Failed to send admin notification: ${notificationError.message}`);
+      // Continue execution even if notification fails
+    }
 
     res.status(201).json({
       success: true,
@@ -28,6 +34,7 @@ exports.createBooking = async (req, res, next) => {
       booking: createdBooking[0]
     });
   } catch (error) {
+    logger.error(`Error creating booking: ${error.message}`);
     next(error);
   }
 };
@@ -53,6 +60,7 @@ exports.getAllBookings = async (req, res, next) => {
       currentPage: page
     });
   } catch (error) {
+    logger.error(`Error fetching bookings: ${error.message}`);
     next(error);
   }
 };
@@ -75,6 +83,7 @@ exports.getBookingById = async (req, res, next) => {
       data
     });
   } catch (error) {
+    logger.error(`Error fetching booking by ID: ${error.message}`);
     next(error);
   }
 };
@@ -94,6 +103,7 @@ exports.updateBooking = async (req, res, next) => {
       data: data[0]
     });
   } catch (error) {
+    logger.error(`Error updating booking: ${error.message}`);
     next(error);
   }
 };
@@ -112,6 +122,7 @@ exports.deleteBooking = async (req, res, next) => {
       message: 'Booking deleted successfully'
     });
   } catch (error) {
+    logger.error(`Error deleting booking: ${error.message}`);
     next(error);
   }
 };
