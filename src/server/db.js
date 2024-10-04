@@ -4,7 +4,7 @@ import { ROLES } from '../constants/roles';
 export const getUsers = async () => {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, user_id, full_name, phone_number, role');
+    .select('id, user_id, full_name, email, role');
   if (error) handleSupabaseError(error);
   return data;
 };
@@ -15,7 +15,7 @@ export const createUser = async (userData) => {
     .insert({
       user_id: userData.userId,
       full_name: userData.fullName,
-      phone_number: userData.phoneNumber,
+      email: userData.email,
       role: userData.role || ROLES.USER
     });
   if (error) handleSupabaseError(error);
@@ -74,20 +74,6 @@ export const createBooking = async (bookingData) => {
   return data;
 };
 
-export const getPaidBookings = async () => {
-  const { data, error } = await supabase
-    .from('services_logs')
-    .select(`
-      *,
-      profiles:profile_id (full_name, email, phone_number),
-      services:service_id (name)
-    `)
-    .eq('status', 'paid')
-    .order('created_at', { ascending: false });
-  if (error) handleSupabaseError(error);
-  return data;
-};
-
 export const getBookings = async () => {
   const { data, error } = await supabase
     .from('services_logs')
@@ -113,31 +99,6 @@ export const deleteBooking = async (id) => {
     .eq('id', id);
   if (error) handleSupabaseError(error);
   return data;
-};
-
-export const getAnalytics = async () => {
-  try {
-    const [usersCount, bookingsCount, revenueData] = await Promise.all([
-      supabase.from('profiles').select('id', { count: 'exact' }),
-      supabase.from('services_logs').select('id', { count: 'exact' }),
-      supabase.from('services_logs').select('total_cost')
-    ]);
-
-    if (usersCount.error) handleSupabaseError(usersCount.error);
-    if (bookingsCount.error) handleSupabaseError(bookingsCount.error);
-    if (revenueData.error) handleSupabaseError(revenueData.error);
-
-    const totalRevenue = revenueData.data?.reduce((sum, booking) => sum + (booking.total_cost || 0), 0) || 0;
-
-    return {
-      usersCount: usersCount.count,
-      bookingsCount: bookingsCount.count,
-      totalRevenue
-    };
-  } catch (error) {
-    console.error('Error fetching analytics:', error);
-    throw new Error('Failed to fetch analytics data');
-  }
 };
 
 export const setAdminStatus = async (userId, isAdmin) => {
