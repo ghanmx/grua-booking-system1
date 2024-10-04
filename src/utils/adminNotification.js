@@ -25,7 +25,6 @@ export const sendAdminNotification = async (bookingData, totalCost) => {
     await supabase
       .from('admin_notifications')
       .on('INSERT', (payload) => {
-        // This callback will be triggered when a new notification is inserted
         console.log('New admin notification:', payload.new);
         // Here you can implement additional logic to notify admins in real-time
         // For example, you could use a websocket or push notification service

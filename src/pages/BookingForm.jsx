@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 import PaymentWindow from '../components/booking/PaymentWindow';
 import axios from 'axios';
 import { vehicleBrands, vehicleModels, vehicleSizes } from '../utils/vehicleData';
+import { testPayment } from '../utils/testPayment';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -146,8 +147,21 @@ const BookingForm = () => {
       return;
     }
 
+    // Test payment
+    const testResult = await testPayment(totalCost);
+    if (!testResult.success) {
+      toast({
+        title: 'Payment Test Failed',
+        description: testResult.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     setIsPaymentWindowOpen(true);
-  }, [session, toast, formData]);
+  }, [session, toast, formData, totalCost]);
 
   const handlePaymentSubmit = useCallback(async (paymentMethod) => {
     setIsPaymentWindowOpen(false);
@@ -167,7 +181,7 @@ const BookingForm = () => {
           status: 'paid',
         };
 
-        createBookingMutation.mutate(bookingData);
+        await createBookingMutation.mutateAsync(bookingData);
         await sendAdminNotification(bookingData, totalCost);
 
         toast({
@@ -177,6 +191,9 @@ const BookingForm = () => {
           duration: 5000,
           isClosable: true,
         });
+
+        // Invalidate and refetch bookings query to refresh the data
+        queryClient.invalidateQueries('bookings');
       } else {
         throw new Error('Payment processing failed');
       }
@@ -189,7 +206,7 @@ const BookingForm = () => {
         isClosable: true,
       });
     }
-  }, [formData, session, totalCost, createBookingMutation, toast]);
+  }, [formData, session, totalCost, createBookingMutation, toast, queryClient]);
 
   return (
     <Box position="relative" height="100vh" width="100vw">
