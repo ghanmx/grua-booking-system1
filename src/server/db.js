@@ -66,7 +66,6 @@ export const createService = async (serviceData) => {
   return data;
 };
 
-// Booking-related functions
 export const createBooking = async (bookingData) => {
   const { data, error } = await supabase
     .from('services_logs')
@@ -102,7 +101,6 @@ export const deleteBooking = async (id) => {
   return data;
 };
 
-// Analytics function
 export const getAnalytics = async () => {
   try {
     const [usersCount, bookingsCount, revenueData] = await Promise.all([
@@ -137,5 +135,3 @@ export const setAdminStatus = async (userId, isAdmin) => {
   if (error) handleSupabaseError(error);
   return data;
 };
-
-// Remove the duplicate exports at the end of the file
