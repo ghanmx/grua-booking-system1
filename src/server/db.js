@@ -30,8 +30,8 @@ const handleSupabaseError = async (operation) => {
 export const getUsers = async () => {
   return handleSupabaseError(async () => {
     const { data, error } = await supabase
-      .from('profiles')
-      .select('id, user_id, full_name, email, role');
+      .from('users')
+      .select('id, username, email, created_at');
     if (error) throw error;
     return data;
   });
@@ -40,8 +40,8 @@ export const getUsers = async () => {
 export const getPaidBookings = async () => {
   return handleSupabaseError(async () => {
     const { data, error } = await supabase
-      .from('services_logs')
-      .select('*, profiles(full_name), services(service_name)')
+      .from('bookings')
+      .select('*, users(username)')
       .eq('status', 'paid')
       .order('created_at', { ascending: false });
     if (error) throw error;
@@ -52,12 +52,11 @@ export const getPaidBookings = async () => {
 export const createUser = async (userData) => {
   return handleSupabaseError(async () => {
     const { data, error } = await supabase
-      .from('profiles')
+      .from('users')
       .insert({
-        user_id: userData.userId,
-        full_name: userData.fullName,
+        username: userData.username,
         email: userData.email,
-        role: userData.role || ROLES.USER
+        password_hash: userData.password_hash // Note: Ensure proper hashing is done before this step
       });
     if (error) throw error;
     return data;
@@ -67,7 +66,7 @@ export const createUser = async (userData) => {
 export const updateUser = async (id, userData) => {
   return handleSupabaseError(async () => {
     const { data, error } = await supabase
-      .from('profiles')
+      .from('users')
       .update(userData)
       .eq('id', id);
     if (error) throw error;
@@ -78,40 +77,9 @@ export const updateUser = async (id, userData) => {
 export const deleteUser = async (id) => {
   return handleSupabaseError(async () => {
     const { data, error } = await supabase
-      .from('profiles')
+      .from('users')
       .delete()
       .eq('id', id);
-    if (error) throw error;
-    return data;
-  });
-};
-
-export const addSpecificAdmin = async (email) => {
-  return handleSupabaseError(async () => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .update({ role: ROLES.ADMIN })
-      .eq('email', email);
-    if (error) throw error;
-    return data;
-  });
-};
-
-export const getServices = async () => {
-  return handleSupabaseError(async () => {
-    const { data, error } = await supabase
-      .from('services')
-      .select('*');
-    if (error) throw error;
-    return data;
-  });
-};
-
-export const createService = async (serviceData) => {
-  return handleSupabaseError(async () => {
-    const { data, error } = await supabase
-      .from('services')
-      .insert(serviceData);
     if (error) throw error;
     return data;
   });
@@ -120,7 +88,7 @@ export const createService = async (serviceData) => {
 export const createBooking = async (bookingData) => {
   return handleSupabaseError(async () => {
     const { data, error } = await supabase
-      .from('services_logs')
+      .from('bookings')
       .insert(bookingData);
     if (error) throw error;
     return data;
@@ -130,8 +98,8 @@ export const createBooking = async (bookingData) => {
 export const getBookings = async () => {
   return handleSupabaseError(async () => {
     const { data, error } = await supabase
-      .from('services_logs')
-      .select('*, profiles(full_name), services(name)')
+      .from('bookings')
+      .select('*, users(username)')
       .order('created_at', { ascending: false });
     if (error) throw error;
     return data;
@@ -141,7 +109,7 @@ export const getBookings = async () => {
 export const updateBooking = async (id, bookingData) => {
   return handleSupabaseError(async () => {
     const { data, error } = await supabase
-      .from('services_logs')
+      .from('bookings')
       .update(bookingData)
       .eq('id', id);
     if (error) throw error;
@@ -152,20 +120,9 @@ export const updateBooking = async (id, bookingData) => {
 export const deleteBooking = async (id) => {
   return handleSupabaseError(async () => {
     const { data, error } = await supabase
-      .from('services_logs')
+      .from('bookings')
       .delete()
       .eq('id', id);
-    if (error) throw error;
-    return data;
-  });
-};
-
-export const setAdminStatus = async (userId, isAdmin) => {
-  return handleSupabaseError(async () => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .update({ role: isAdmin ? ROLES.ADMIN : ROLES.USER })
-      .eq('user_id', userId);
     if (error) throw error;
     return data;
   });
