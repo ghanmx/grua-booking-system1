@@ -44,7 +44,6 @@ CREATE POLICY "Users can update own data" ON public.users
     USING (auth.uid() = id);
 
 -- Allow authenticated users to insert their own data when they have a paid booking
-DROP POLICY IF EXISTS "Users can insert own data" ON public.users;
 CREATE POLICY "Users can insert own data when authenticated and paid" ON public.users
 FOR INSERT
 WITH CHECK (
