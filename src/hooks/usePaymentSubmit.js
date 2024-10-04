@@ -43,8 +43,8 @@ export const usePaymentSubmit = (formData, totalCost, createBookingMutation, set
           await sendAdminNotification(bookingData, totalCost);
 
           toast({
-            title: 'Payment Successful',
-            description: 'Your payment has been processed successfully.',
+            title: 'Booking Confirmed',
+            description: 'Your booking has been successfully created and payment processed.',
             status: 'success',
             duration: 5000,
             isClosable: true,
@@ -55,9 +55,9 @@ export const usePaymentSubmit = (formData, totalCost, createBookingMutation, set
           console.error('Error creating booking:', bookingError);
           toast({
             title: 'Booking Error',
-            description: 'Payment was successful, but there was an error creating your booking. Please contact support.',
-            status: 'error',
-            duration: 5000,
+            description: 'Your payment was successful, but there was an issue creating your booking. Our team has been notified and will contact you shortly.',
+            status: 'warning',
+            duration: 7000,
             isClosable: true,
           });
         }
@@ -68,9 +68,9 @@ export const usePaymentSubmit = (formData, totalCost, createBookingMutation, set
       console.error('Payment Error:', error);
       toast({
         title: 'Payment Error',
-        description: error.message || 'An unexpected error occurred during payment processing.',
+        description: 'We encountered an issue processing your payment. Please try again or contact our support team.',
         status: 'error',
-        duration: 5000,
+        duration: 7000,
         isClosable: true,
       });
     }

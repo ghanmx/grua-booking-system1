@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -11,23 +11,26 @@ import {
   VStack,
   Text,
   Box,
-  useToast,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
 } from '@chakra-ui/react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
   const stripe = useStripe();
   const elements = useElements();
-  const [error, setError] = React.useState('');
-  const [isProcessing, setIsProcessing] = React.useState(false);
-  const toast = useToast();
+  const [error, setError] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsProcessing(true);
+    setError('');
 
     if (!stripe || !elements) {
-      setError('Stripe has not loaded. Please try again later.');
+      setError('Payment system is not available. Please try again later.');
       setIsProcessing(false);
       return;
     }
@@ -41,21 +44,14 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
       });
 
       if (error) {
-        setError(error.message);
-        setIsProcessing(false);
-        return;
+        throw error;
       }
 
-      onPaymentSubmit(paymentMethod);
+      await onPaymentSubmit(paymentMethod);
+      onClose();
     } catch (err) {
-      setError(err.message || 'An unexpected error occurred');
-      toast({
-        title: 'Payment Error',
-        description: err.message || 'An unexpected error occurred during payment processing.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+      console.error('Payment Error:', err);
+      setError(err.message || 'An unexpected error occurred during payment processing. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -88,7 +84,13 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
               />
             </Box>
             <Text fontWeight="bold">Total Cost: ${totalCost.toFixed(2)}</Text>
-            {error && <Text color="red.500">{error}</Text>}
+            {error && (
+              <Alert status="error">
+                <AlertIcon />
+                <AlertTitle mr={2}>Payment Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
           </VStack>
         </ModalBody>
         <ModalFooter>
