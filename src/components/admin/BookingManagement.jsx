@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useDisclosure } from "@chakra-ui/react";
+import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getBookings, updateBooking, deleteBooking } from '../../server/db';
+import { getBookings, updateBooking, deleteBooking, getPaidBookings } from '../../server/db';
 
 const BookingManagement = ({ showNotification }) => {
   const queryClient = useQueryClient();
   const [bookings, setBookings] = useState([]);
 
-  const { data: bookingsData, isLoading, error } = useQuery({
-    queryKey: ['bookings'],
-    queryFn: getBookings,
+  const { data: paidBookingsData, isLoading, error } = useQuery({
+    queryKey: ['paidBookings'],
+    queryFn: getPaidBookings,
   });
 
   useEffect(() => {
-    if (bookingsData) {
-      setBookings(bookingsData);
+    if (paidBookingsData) {
+      setBookings(paidBookingsData);
     }
-  }, [bookingsData]);
+  }, [paidBookingsData]);
 
   const updateBookingMutation = useMutation({
     mutationFn: ({ id, status }) => updateBooking(id, { status }),
     onSuccess: () => {
-      queryClient.invalidateQueries('bookings');
+      queryClient.invalidateQueries('paidBookings');
       showNotification('Booking Updated', 'The booking status has been updated successfully.', 'success');
     },
   });
@@ -29,7 +29,7 @@ const BookingManagement = ({ showNotification }) => {
   const deleteBookingMutation = useMutation({
     mutationFn: deleteBooking,
     onSuccess: () => {
-      queryClient.invalidateQueries('bookings');
+      queryClient.invalidateQueries('paidBookings');
       showNotification('Booking Deleted', 'The booking has been deleted successfully.', 'success');
     },
   });

@@ -74,6 +74,16 @@ export const createBooking = async (bookingData) => {
   return data;
 };
 
+export const getPaidBookings = async () => {
+  const { data, error } = await supabase
+    .from('services_logs')
+    .select('*, profiles(full_name), services(name)')
+    .eq('status', 'paid')
+    .order('created_at', { ascending: false });
+  if (error) handleSupabaseError(error);
+  return data;
+};
+
 export const getBookings = async () => {
   const { data, error } = await supabase
     .from('services_logs')
