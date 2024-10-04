@@ -16,7 +16,7 @@ import BookingForm from "./pages/BookingForm";
 import Confirmation from "./pages/Confirmation";
 import Login from "./pages/Login";
 import AdminPanel from "./components/admin/AdminPanel";
-import ProtectedRoute from "./components/common/ProtectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute"; // Updated import path
 import theme from "./theme";
 import ErrorBoundary from "./components/common/ErrorBoundary";
 
