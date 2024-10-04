@@ -18,15 +18,12 @@ export const useBookings = () => {
   }, [data]);
 
   useEffect(() => {
-    const subscription = supabase
-      .from('services_logs')
-      .on('INSERT', (payload) => {
+    const channel = supabase
+      .channel('services_logs_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'services_logs' }, (payload) => {
         if (payload.new.status === 'paid') {
           setBookings((prevBookings) => [...prevBookings, payload.new]);
-        }
-      })
-      .on('UPDATE', (payload) => {
-        if (payload.new.status === 'paid') {
+        } else if (payload.eventType === 'UPDATE' && payload.old.status !== 'paid' && payload.new.status === 'paid') {
           setBookings((prevBookings) =>
             prevBookings.map((booking) =>
               booking.id === payload.new.id ? payload.new : booking
@@ -37,7 +34,7 @@ export const useBookings = () => {
       .subscribe();
 
     return () => {
-      supabase.removeSubscription(subscription);
+      supabase.removeChannel(channel);
     };
   }, []);
 
