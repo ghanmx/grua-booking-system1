@@ -3,17 +3,15 @@ import { Box, useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import MapRoute from '../components/booking/MapRoute';
 import FloatingForm from '../components/booking/FloatingForm';
-import LoadingSpinner from '../components/common/LoadingSpinner';
-import { getTowTruckType, getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
+import PaymentWindow from '../components/booking/PaymentWindow';
 import { sendAdminNotification } from '../utils/adminNotification';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { v4 as uuidv4 } from 'uuid';
-import PaymentWindow from '../components/booking/PaymentWindow';
-import axios from 'axios';
+import { createBooking, getBookings } from '../server/db';
 import { vehicleBrands, vehicleModels, vehicleSizes } from '../utils/vehicleData';
+import { getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
 import { testPayment } from '../utils/testPayment';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -38,26 +36,47 @@ const BookingForm = () => {
       pickupDateTime: new Date(),
       paymentMethod: 'card',
     };
+    };
   });
   const [distance, setDistance] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   const [selectedTowTruck, setSelectedTowTruck] = useState('');
   const [isPaymentWindowOpen, setIsPaymentWindowOpen] = useState(false);
-  const [pickupAddress, setPickupAddress] = useState('');
-  const [dropOffAddress, setDropOffAddress] = useState('');
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
 
-  const getVehicleSize = (model) => {
-    for (const [size, models] of Object.entries(vehicleSizes)) {
-      if (models.includes(model)) {
-        return size;
-      }
-    }
-    return 'B'; // Default to B if not found
-  };
+  // Query to fetch bookings
+  const { data: bookings } = useQuery({
+    queryKey: ['bookings'],
+    queryFn: getBookings,
+  });
+
+  // Mutation to create a booking
+  const createBookingMutation = useMutation({
+    mutationFn: createBooking,
+    onSuccess: () => {
+      queryClient.invalidateQueries('bookings');
+      toast({
+        title: 'Booking created.',
+        description: "We've created your booking for you.",
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+      navigate('/confirmation');
+    },
+    onError: (error) => {
+      toast({
+        title: 'An error occurred.',
+        description: error.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    },
+  });
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -97,33 +116,7 @@ const BookingForm = () => {
     setTotalCost(cost);
   }, []);
 
-  const createBookingMutation = useMutation({
-    mutationFn: (bookingData) => axios.post('/api/bookings', bookingData),
-    onSuccess: () => {
-      queryClient.invalidateQueries('bookings');
-      toast({
-        title: 'Booking created.',
-        description: "We've created your booking for you.",
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      });
-      navigate('/confirmation');
-    },
-    onError: (error) => {
-      toast({
-        title: 'An error occurred.',
-        description: error.message,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-    },
-  });
-
   const handleBookingProcess = useCallback(async () => {
-    const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
-    
     if (!session && !testModeUser) {
       toast({
         title: 'Authentication required',
@@ -167,17 +160,22 @@ const BookingForm = () => {
     setIsPaymentWindowOpen(false);
 
     try {
-      const response = await axios.post('/api/process-payment', {
-        paymentMethodId: paymentMethod.id,
-        amount: totalCost * 100, // Convert to cents
+      const response = await fetch('/api/process-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentMethodId: paymentMethod.id,
+          amount: totalCost * 100, // Convert to cents
+        }),
       });
+      const result = await response.json();
 
-      if (response.data.success) {
+      if (result.success) {
         const bookingData = {
           ...formData,
           userId: session?.user?.id || 'test_user_id',
           totalCost,
-          paymentIntentId: response.data.paymentIntentId,
+          paymentIntentId: result.paymentIntentId,
           status: 'paid',
         };
 
@@ -192,7 +190,7 @@ const BookingForm = () => {
           isClosable: true,
         });
 
-        // Invalidate and refetch bookings query to refresh the data
+        // Auto-refresh bookings data
         queryClient.invalidateQueries('bookings');
       } else {
         throw new Error('Payment processing failed');
@@ -208,11 +206,15 @@ const BookingForm = () => {
     }
   }, [formData, session, totalCost, createBookingMutation, toast, queryClient]);
 
+  useEffect(() => {
+    localStorage.setItem('bookingFormData', JSON.stringify(formData));
+  }, [formData]);
+
   return (
     <Box position="relative" height="100vh" width="100vw">
       <MapRoute
-        setPickupAddress={setPickupAddress}
-        setDropOffAddress={setDropOffAddress}
+        setPickupAddress={(address) => setFormData(prev => ({ ...prev, pickupAddress: address }))}
+        setDropOffAddress={(address) => setFormData(prev => ({ ...prev, dropOffAddress: address }))}
         setDistance={setDistance}
         setTotalCost={setTotalCost}
         vehicleSize={formData.vehicleSize}
