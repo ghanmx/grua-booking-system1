@@ -36,7 +36,6 @@ const BookingForm = () => {
       pickupDateTime: new Date(),
       paymentMethod: 'card',
     };
-    };
   });
   const [distance, setDistance] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
