@@ -29,6 +29,36 @@ CREATE TABLE services_logs (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Enable Row Level Security (RLS) on the users table
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+
+-- Create policies for the users table
+-- Allow users to see their own data
+CREATE POLICY "Users can view own data" ON public.users
+    FOR SELECT
+    USING (auth.uid() = id);
+
+-- Allow users to update their own data
+CREATE POLICY "Users can update own data" ON public.users
+    FOR UPDATE
+    USING (auth.uid() = id);
+
+-- Allow authenticated users to insert their own data
+CREATE POLICY "Users can insert own data" ON public.users
+    FOR INSERT
+    WITH CHECK (auth.uid() = id);
+
+-- Allow administrators to view all user data
+CREATE POLICY "Admins can view all user data" ON public.users
+    FOR SELECT
+    USING (auth.role() = 'admin');
+
+-- Allow administrators to update all user data
+CREATE POLICY "Admins can update all user data" ON public.users
+    FOR UPDATE
+    USING (auth.role() = 'admin');
+
+
 -- Enable Row Level Security (RLS) on all tables
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE services ENABLE ROW LEVEL SECURITY;
