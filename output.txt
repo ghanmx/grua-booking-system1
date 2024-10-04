@@ -43,6 +43,7 @@
     "express": "^4.21.0",
     "express-validator": "^7.2.0",
     "framer-motion": "^11.9.0",
+    "fs": "^0.0.1-security",
     "leaflet": "^1.9.4",
     "react": "^18.3.1",
     "react-datepicker": "^7.4.0",
@@ -62,7 +63,7 @@
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\package.json
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\package.json
 {
   "name": "vite-project",
   "private": true,
@@ -105,6 +106,7 @@
     "express": "^4.21.0",
     "express-validator": "^7.2.0",
     "framer-motion": "^11.9.0",
+    "fs": "^0.0.1-security",
     "leaflet": "^1.9.4",
     "react": "^18.3.1",
     "react-datepicker": "^7.4.0",
@@ -124,7 +126,7 @@
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\vite.config.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\vite.config.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -146,7 +148,7 @@ export default defineConfig({
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\.gpt_engineer_internals\report-url-change.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\.gpt_engineer_internals\report-url-change.js
 const main = () => {
   /**
    * Function to send a message to parent windows
@@ -208,7 +210,7 @@ main();
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\.vscode\launch.json
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\.vscode\launch.json
 {
     // Use IntelliSense para saber los atributos posibles.
     // Mantenga el puntero para ver las descripciones de los existentes atributos.
@@ -226,7 +228,7 @@ main();
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\scripts\update-package-json.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\scripts\update-package-json.js
 const fs = require('fs');
 const path = require('path');
 
@@ -258,7 +260,15 @@ try {
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\theme.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\setupSampleData.js
+import { insertSampleData } from './utils/insertSampleData';
+
+insertSampleData()
+  .then(() => console.log('Sample data setup complete'))
+  .catch(error => console.error('Error setting up sample data:', error));
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\theme.js
 // theme.js
 import { extendTheme } from "@chakra-ui/react";
 
@@ -277,7 +287,7 @@ export default theme;
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\authentication\authentication.domain.facade.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\authentication\authentication.domain.facade.ts
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -305,7 +315,7 @@ export class AuthenticationDomainFacade {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\authentication\authentication.domain.module.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\authentication\authentication.domain.module.ts
 import { Module } from '@nestjs/common';
 import { AuthenticationDomainFacade } from './authentication.domain.facade';
 
@@ -316,7 +326,7 @@ import { AuthenticationDomainFacade } from './authentication.domain.facade';
 export class AuthenticationDomainModule {}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\config\stripe.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\config\stripe.js
 import { loadStripe } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -324,7 +334,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 export default stripePromise;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\config\supabase.config.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\config\supabase.config.ts
 import { createClient } from '@supabase/supabase-js';
 
 export const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
@@ -335,7 +345,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export default supabase;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\constants\roles.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\constants\roles.js
 export const ROLES = {
   USER: 'user',
   ADMIN: 'admin',
@@ -343,7 +353,7 @@ export const ROLES = {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\event\event.service.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\event\event.service.ts
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -361,189 +371,447 @@ export class EventService {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\integrations\supabase\openapi.json
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\hooks\useBookingForm.js
+import { useState, useCallback, useEffect } from 'react';
+import { useToast } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { createBooking } from '../server/db';
+import { testPayment } from '../utils/testPayment';
+import { getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
+
+export const useBookingForm = () => {
+  const [formData, setFormData] = useState(() => {
+    const savedData = localStorage.getItem('bookingFormData');
+    return savedData ? JSON.parse(savedData) : {
+      serviceType: '',
+      userName: '',
+      phoneNumber: '',
+      vehicleBrand: '',
+      vehicleModel: '',
+      vehicleColor: '',
+      licensePlate: '',
+      vehicleSize: '',
+      pickupAddress: '',
+      dropOffAddress: '',
+      vehicleIssue: '',
+      additionalDetails: '',
+      wheelsStatus: '',
+      pickupDateTime: new Date(),
+      paymentMethod: 'card',
+    };
+  });
+
+  const [distance, setDistance] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
+  const [selectedTowTruck, setSelectedTowTruck] = useState('');
+  const [isPaymentWindowOpen, setIsPaymentWindowOpen] = useState(false);
+
+  const navigate = useNavigate();
+  const { session } = useSupabaseAuth();
+  const toast = useToast();
+  const queryClient = useQueryClient();
+  const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
+
+  const createBookingMutation = useMutation({
+    mutationFn: createBooking,
+    onSuccess: () => {
+      queryClient.invalidateQueries('bookings');
+      toast({
+        title: 'Booking created.',
+        description: "We've created your booking for you.",
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      });
+      navigate('/confirmation');
+    },
+    onError: (error) => {
+      toast({
+        title: 'An error occurred.',
+        description: error.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    },
+  });
+
+  const handleChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setFormData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
+
+    if (name === 'vehicleBrand') {
+      setFormData(prevData => ({
+        ...prevData,
+        vehicleModel: ''
+      }));
+    }
+
+    if (name === 'vehicleModel') {
+      const vehicleSize = getVehicleSize(value);
+      const towTruckType = getTowTruckType(vehicleSize);
+      setFormData(prevData => ({
+        ...prevData,
+        vehicleSize: vehicleSize
+      }));
+      setSelectedTowTruck(towTruckType);
+      updateTotalCost(distance, towTruckType);
+    }
+  }, [distance]);
+
+  const handleDateTimeChange = useCallback((date) => {
+    setFormData(prevData => ({
+      ...prevData,
+      pickupDateTime: date
+    }));
+  }, []);
+
+  const updateTotalCost = useCallback((distance, towTruckType) => {
+    const cost = calculateTotalCost(distance, towTruckType);
+    setTotalCost(cost);
+  }, []);
+
+  const handleBookingProcess = useCallback(async () => {
+    if (!session && !testModeUser) {
+      toast({
+        title: 'Authentication required',
+        description: 'Please log in to create a booking.',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (!formData.serviceType || !formData.userName || !formData.phoneNumber || !formData.vehicleBrand || !formData.vehicleModel) {
+      toast({
+        title: 'Incomplete Form',
+        description: 'Please fill in all required fields.',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const testResult = await testPayment(totalCost);
+    if (!testResult.success) {
+      toast({
+        title: 'Payment Test Failed',
+        description: testResult.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    setIsPaymentWindowOpen(true);
+  }, [session, testModeUser, toast, formData, totalCost]);
+
+  useEffect(() => {
+    localStorage.setItem('bookingFormData', JSON.stringify(formData));
+  }, [formData]);
+
+  return {
+    formData,
+    setFormData,
+    distance,
+    setDistance,
+    totalCost,
+    setTotalCost,
+    selectedTowTruck,
+    isPaymentWindowOpen,
+    setIsPaymentWindowOpen,
+    handleChange,
+    handleDateTimeChange,
+    handleBookingProcess,
+    createBookingMutation,
+  };
+};
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\hooks\useBookings.js
+import { useQuery } from '@tanstack/react-query';
+import { getBookings } from '../server/db';
+import { useToast } from '@chakra-ui/react';
+
+export const useBookings = () => {
+  const toast = useToast();
+
+  return useQuery({
+    queryKey: ['bookings'],
+    queryFn: getBookings,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnWindowFocus: false,
+    onError: (error) => {
+      console.error('Failed to fetch bookings:', error);
+      toast({
+        title: 'Error fetching bookings',
+        description: 'Please try again later or contact support if the problem persists.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    },
+  });
+};
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\hooks\usePaymentSubmit.js
+import { useCallback } from 'react';
+import { useToast } from "@chakra-ui/react";
+import { useQueryClient } from '@tanstack/react-query';
+import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { sendAdminNotification } from '../utils/adminNotification';
+
+export const usePaymentSubmit = (formData, totalCost, createBookingMutation, setIsPaymentWindowOpen) => {
+  const { session } = useSupabaseAuth();
+  const toast = useToast();
+  const queryClient = useQueryClient();
+
+  const handlePaymentSubmit = useCallback(async (paymentMethod) => {
+    setIsPaymentWindowOpen(false);
+
+    try {
+      const response = await fetch('/api/process-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentMethodId: paymentMethod.id,
+          amount: totalCost * 100, // Convert to cents
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Payment processing failed');
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        const bookingData = {
+          ...formData,
+          userId: session?.user?.id || 'test_user_id',
+          totalCost,
+          paymentIntentId: result.paymentIntentId,
+          status: 'paid',
+          payment_status: 'paid'
+        };
+
+        try {
+          await createBookingMutation.mutateAsync(bookingData);
+          await sendAdminNotification(bookingData, totalCost);
+
+          toast({
+            title: 'Booking Confirmed',
+            description: 'Your booking has been successfully created and payment processed.',
+            status: 'success',
+            duration: 5000,
+            isClosable: true,
+          });
+
+          queryClient.invalidateQueries('bookings');
+        } catch (bookingError) {
+          console.error('Error creating booking:', bookingError);
+          toast({
+            title: 'Booking Error',
+            description: 'Your payment was successful, but there was an issue creating your booking. Our team has been notified and will contact you shortly.',
+            status: 'warning',
+            duration: 7000,
+            isClosable: true,
+          });
+        }
+      } else {
+        throw new Error('Payment processing failed');
+      }
+    } catch (error) {
+      console.error('Payment Error:', error);
+      toast({
+        title: 'Payment Error',
+        description: 'We encountered an issue processing your payment. Please try again or contact our support team.',
+        status: 'error',
+        duration: 7000,
+        isClosable: true,
+      });
+    }
+  }, [formData, session, totalCost, createBookingMutation, toast, queryClient, setIsPaymentWindowOpen]);
+
+  return handlePaymentSubmit;
+};
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\hooks\useUsers.js
+import { useQuery } from '@tanstack/react-query';
+import { getUsers } from '../server/db';
+import { useToast } from '@chakra-ui/react';
+
+export const useUsers = () => {
+  const toast = useToast();
+
+  return useQuery({
+    queryKey: ['users'],
+    queryFn: getUsers,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnWindowFocus: false,
+    onError: (error) => {
+      console.error('Failed to fetch users:', error);
+      toast({
+        title: 'Error fetching users',
+        description: 'Please try again later or contact support if the problem persists.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    },
+  });
+};
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\integrations\supabase\openapi.json
 {"swagger":"2.0","info":{"description":"","title":"standard public schema","version":"12.1 (8cbcf98)"},"host":"gjwhxrajesykwmomorhw.supabase.co:443","basePath":"/","schemes":["https"],"consumes":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json","text/csv"],"produces":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json","text/csv"],"paths":{"/":{"get":{"produces":["application/openapi+json","application/json"],"responses":{"200":{"description":"OK"}},"summary":"OpenAPI description (this document)","tags":["Introspection"]}},"/TOW":{"get":{"parameters":[{"$ref":"#/parameters/rowFilter.TOW.id"},{"$ref":"#/parameters/rowFilter.TOW.created_at"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/order"},{"$ref":"#/parameters/range"},{"$ref":"#/parameters/rangeUnit"},{"$ref":"#/parameters/offset"},{"$ref":"#/parameters/limit"},{"$ref":"#/parameters/preferCount"}],"responses":{"200":{"description":"OK","schema":{"items":{"$ref":"#/definitions/TOW"},"type":"array"}},"206":{"description":"Partial Content"}},"summary":"TOW","tags":["TOW"]},"post":{"parameters":[{"$ref":"#/parameters/body.TOW"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/preferPost"}],"responses":{"201":{"description":"Created"}},"summary":"TOW","tags":["TOW"]},"delete":{"parameters":[{"$ref":"#/parameters/rowFilter.TOW.id"},{"$ref":"#/parameters/rowFilter.TOW.created_at"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"summary":"TOW","tags":["TOW"]},"patch":{"parameters":[{"$ref":"#/parameters/rowFilter.TOW.id"},{"$ref":"#/parameters/rowFilter.TOW.created_at"},{"$ref":"#/parameters/body.TOW"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"summary":"TOW","tags":["TOW"]}}},"definitions":{"TOW":{"description":"TOW","required":["id","created_at"],"properties":{"id":{"description":"Note:\nThis is a Primary Key.<pk/>","format":"bigint","type":"integer"},"created_at":{"default":"now()","format":"timestamp with time zone","type":"string"}},"type":"object"}},"parameters":{"preferParams":{"name":"Prefer","description":"Preference","required":false,"enum":["params=single-object"],"in":"header","type":"string"},"preferReturn":{"name":"Prefer","description":"Preference","required":false,"enum":["return=representation","return=minimal","return=none"],"in":"header","type":"string"},"preferCount":{"name":"Prefer","description":"Preference","required":false,"enum":["count=none"],"in":"header","type":"string"},"preferPost":{"name":"Prefer","description":"Preference","required":false,"enum":["return=representation","return=minimal","return=none","resolution=ignore-duplicates","resolution=merge-duplicates"],"in":"header","type":"string"},"select":{"name":"select","description":"Filtering Columns","required":false,"in":"query","type":"string"},"on_conflict":{"name":"on_conflict","description":"On Conflict","required":false,"in":"query","type":"string"},"order":{"name":"order","description":"Ordering","required":false,"in":"query","type":"string"},"range":{"name":"Range","description":"Limiting and Pagination","required":false,"in":"header","type":"string"},"rangeUnit":{"name":"Range-Unit","description":"Limiting and Pagination","required":false,"default":"items","in":"header","type":"string"},"offset":{"name":"offset","description":"Limiting and Pagination","required":false,"in":"query","type":"string"},"limit":{"name":"limit","description":"Limiting and Pagination","required":false,"in":"query","type":"string"},"body.TOW":{"name":"TOW","description":"TOW","required":false,"in":"body","schema":{"$ref":"#/definitions/TOW"}},"rowFilter.TOW.id":{"name":"id","required":false,"format":"bigint","in":"query","type":"string"},"rowFilter.TOW.created_at":{"name":"created_at","required":false,"format":"timestamp with time zone","in":"query","type":"string"}},"externalDocs":{"description":"PostgREST Documentation","url":"https://postgrest.org/en/v12.1/api.html"}}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\db.js
-import supabase from '../config/supabase.config';
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\server\db.js
+import { createClient } from '@supabase/supabase-js';
 import { ROLES } from '../constants/roles';
 
-// Helper function to handle Supabase errors
-const handleSupabaseError = (error) => {
-  console.error('Supabase error:', error);
-  throw new Error(error.message || 'An unexpected error occurred');
-};
+const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_API_KEY;
 
-// User-related functions
-export const getUsers = async () => {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('id, email, full_name, phone_number, role');
-  if (error) handleSupabaseError(error);
-  return data;
-};
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-export const createUser = async (userData) => {
-  const { data, error } = await supabase
-    .from('profiles')
-    .insert({
-      email: userData.email,
-      full_name: userData.fullName,
-      phone_number: userData.phoneNumber,
-      role: userData.role || ROLES.USER
-    });
-  if (error) handleSupabaseError(error);
-  return data;
-};
+// Helper function to handle Supabase errors with retry logic
+const handleSupabaseError = async (operation) => {
+  const maxRetries = 3;
+  let retries = 0;
 
-export const updateUser = async (id, userData) => {
-  const { data, error } = await supabase
-    .from('profiles')
-    .update(userData)
-    .eq('id', id);
-  if (error) handleSupabaseError(error);
-  return data;
-};
-
-export const deleteUser = async (id) => {
-  const { data, error } = await supabase
-    .from('profiles')
-    .delete()
-    .eq('id', id);
-  if (error) handleSupabaseError(error);
-  return data;
-};
-
-// Services registry log functions
-export const getServicesLogs = async () => {
-  const { data, error } = await supabase
-    .from('services_logs')
-    .select('*, profiles(full_name), services(service_name)');
-  if (error) handleSupabaseError(error);
-  return data;
-};
-
-export const createServiceLog = async (serviceData) => {
-  const { data, error } = await supabase
-    .from('services_logs')
-    .insert(serviceData);
-  if (error) handleSupabaseError(error);
-  return data;
-};
-
-export const updateServiceLog = async (id, serviceData) => {
-  const { data, error } = await supabase
-    .from('services_logs')
-    .update(serviceData)
-    .eq('id', id);
-  if (error) handleSupabaseError(error);
-  return data;
-};
-
-export const deleteServiceLog = async (id) => {
-  const { data, error } = await supabase
-    .from('services_logs')
-    .delete()
-    .eq('id', id);
-  if (error) handleSupabaseError(error);
-  return data;
-};
-
-export const createAdminUser = async (userData) => {
-  const { data, error } = await supabase
-    .from('profiles')
-    .insert({
-      email: userData.email,
-      full_name: userData.fullName,
-      phone_number: userData.phoneNumber,
-      role: ROLES.ADMIN
-    });
-  if (error) handleSupabaseError(error);
-  return data;
-};
-
-// Service-related functions
-export const createService = async (serviceData) => {
-  const { data, error } = await supabase
-    .from('services')
-    .insert(serviceData);
-  if (error) handleSupabaseError(error);
-  return data;
-};
-
-export const getServices = async () => {
-  const { data, error } = await supabase
-    .from('services')
-    .select('*');
-  if (error) handleSupabaseError(error);
-  return data;
-};
-
-// Booking-related functions
-export const createBooking = async (bookingData) => {
-  const { data, error } = await supabase
-    .from('services_logs')
-    .insert(bookingData);
-  if (error) handleSupabaseError(error);
-  return data;
-};
-
-export const getBookings = async () => {
-  const { data, error } = await supabase
-    .from('services_logs')
-    .select('*, profiles(full_name), services(service_name)')
-    .order('created_at', { ascending: false });
-  if (error) handleSupabaseError(error);
-  return data;
-};
-
-export const updateBooking = async (id, bookingData) => {
-  const { data, error } = await supabase
-    .from('services_logs')
-    .update(bookingData)
-    .eq('id', id);
-  if (error) handleSupabaseError(error);
-  return data;
-};
-
-export const deleteBooking = async (id) => {
-  const { data, error } = await supabase
-    .from('services_logs')
-    .delete()
-    .eq('id', id);
-  if (error) handleSupabaseError(error);
-  return data;
-};
-
-// Analytics function
-export const getAnalytics = async () => {
-  try {
-    const [usersCount, bookingsCount, revenueData] = await Promise.all([
-      supabase.from('profiles').select('id', { count: 'exact' }),
-      supabase.from('services_logs').select('id', { count: 'exact' }),
-      supabase.from('services_logs').select('total_cost')
-    ]);
-
-    if (usersCount.error) handleSupabaseError(usersCount.error);
-    if (bookingsCount.error) handleSupabaseError(bookingsCount.error);
-    if (revenueData.error) handleSupabaseError(revenueData.error);
-
-    const totalRevenue = revenueData.data?.reduce((sum, booking) => sum + (booking.total_cost || 0), 0) || 0;
-
-    return {
-      usersCount: usersCount.count,
-      bookingsCount: bookingsCount.count,
-      totalRevenue
-    };
-  } catch (error) {
-    console.error('Error fetching analytics:', error);
-    throw new Error('Failed to fetch analytics data');
+  while (retries < maxRetries) {
+    try {
+      const result = await operation();
+      return result;
+    } catch (error) {
+      console.error('Supabase error:', error);
+      retries++;
+      if (retries === maxRetries) {
+        throw new Error(error.message || 'An unexpected error occurred');
+      }
+      // Wait for a short time before retrying
+      await new Promise(resolve => setTimeout(resolve, 1000 * retries));
+    }
   }
 };
 
+export const getUsers = async () => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, username, email, created_at');
+    if (error) throw error;
+    return data;
+  });
+};
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\server.js
+export const getBookings = async () => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('*, users(username)')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const getPaidBookings = async () => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('*, users(username)')
+      .eq('payment_status', 'paid')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const createUser = async (userData) => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase
+      .from('users')
+      .insert({
+        username: userData.username,
+        email: userData.email,
+        password_hash: userData.password_hash // Note: Ensure proper hashing is done before this step
+      });
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const updateUser = async (id, userData) => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase
+      .from('users')
+      .update(userData)
+      .eq('id', id);
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const deleteUser = async (id) => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase
+      .from('users')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const createBooking = async (bookingData) => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase
+      .from('bookings')
+      .insert(bookingData);
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const updateBooking = async (id, bookingData) => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase
+      .from('bookings')
+      .update(bookingData)
+      .eq('id', id);
+    if (error) throw error;
+    return data;
+  });
+};
+
+export const deleteBooking = async (id) => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase
+      .from('bookings')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+    return data;
+  });
+};
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\server\server.js
 const express = require('express');
 const cors = require('cors');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
@@ -585,7 +853,7 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\config\config.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\server\config\config.js
 require('dotenv').config();
 
 module.exports = {
@@ -596,16 +864,18 @@ module.exports = {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\config\database.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\server\config\database.js
 const { createClient } = require('@supabase/supabase-js');
-const config = require('./config');
 
-const supabase = createClient(config.supabaseUrl, config.supabaseKey);
+const supabaseUrl = process.env.VITE_SUPABASE_PROJECT_URL;
+const supabaseKey = process.env.VITE_SUPABASE_API_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 module.exports = supabase;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\controllers\adminController.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\server\controllers\adminController.js
 const supabase = require('../config/database');
 
 exports.createAdmin = async (req, res, next) => {
@@ -656,7 +926,7 @@ exports.updateService = async (req, res, next) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\controllers\bookingController.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\server\controllers\bookingController.js
 const supabase = require('../config/database');
 const { sendAdminNotification } = require('../../utils/adminNotification');
 const { logger } = require('../middleware/errorHandler');
@@ -667,17 +937,25 @@ exports.createBooking = async (req, res, next) => {
       profile_id: req.body.userId,
       service_id: req.body.serviceId,
       status: 'pending',
-      total_cost: req.body.totalCost
+      total_cost: req.body.totalCost,
+      payment_status: 'pending',
+      user_id: req.user.id
     };
 
     const { data: createdBooking, error: bookingError } = await supabase
-      .from('services_logs')
+      .from('bookings')
       .insert(bookingData);
     
     if (bookingError) throw bookingError;
 
     logger.info(`New booking created: ${JSON.stringify(createdBooking)}`);
-    await sendAdminNotification(createdBooking[0], createdBooking[0].total_cost);
+    
+    try {
+      await sendAdminNotification(createdBooking[0], createdBooking[0].total_cost);
+    } catch (notificationError) {
+      logger.error(`Failed to send admin notification: ${notificationError.message}`);
+      // Continue execution even if notification fails
+    }
 
     res.status(201).json({
       success: true,
@@ -685,6 +963,7 @@ exports.createBooking = async (req, res, next) => {
       booking: createdBooking[0]
     });
   } catch (error) {
+    logger.error(`Error creating booking: ${error.message}`);
     next(error);
   }
 };
@@ -710,6 +989,7 @@ exports.getAllBookings = async (req, res, next) => {
       currentPage: page
     });
   } catch (error) {
+    logger.error(`Error fetching bookings: ${error.message}`);
     next(error);
   }
 };
@@ -732,6 +1012,7 @@ exports.getBookingById = async (req, res, next) => {
       data
     });
   } catch (error) {
+    logger.error(`Error fetching booking by ID: ${error.message}`);
     next(error);
   }
 };
@@ -751,6 +1032,7 @@ exports.updateBooking = async (req, res, next) => {
       data: data[0]
     });
   } catch (error) {
+    logger.error(`Error updating booking: ${error.message}`);
     next(error);
   }
 };
@@ -769,12 +1051,13 @@ exports.deleteBooking = async (req, res, next) => {
       message: 'Booking deleted successfully'
     });
   } catch (error) {
+    logger.error(`Error deleting booking: ${error.message}`);
     next(error);
   }
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\controllers\settingsController.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\server\controllers\settingsController.js
 const supabase = require('../config/database');
 
 exports.getAllSettings = async (req, res, next) => {
@@ -833,7 +1116,7 @@ exports.deleteSetting = async (req, res, next) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\middleware\errorHandler.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\server\middleware\errorHandler.js
 const winston = require('winston');
 
 const logger = winston.createLogger({
@@ -859,7 +1142,7 @@ const errorHandler = (err, req, res, next) => {
 module.exports = { errorHandler, logger };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\middleware\inputValidation.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\server\middleware\inputValidation.js
 const { body, validationResult } = require('express-validator');
 
 const validateBookingInput = [
@@ -880,7 +1163,7 @@ const validateBookingInput = [
 module.exports = { validateBookingInput };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\routes\adminRoutes.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\server\routes\adminRoutes.js
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
@@ -892,7 +1175,7 @@ router.put('/services/:id', adminController.updateService);
 module.exports = router;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\routes\bookingRoutes.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\server\routes\bookingRoutes.js
 const express = require('express');
 const router = express.Router();
 const bookingController = require('../controllers/bookingController');
@@ -907,7 +1190,7 @@ router.delete('/:id', bookingController.deleteBooking);
 module.exports = router;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\routes\settingsRoutes.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\server\routes\settingsRoutes.js
 const express = require('express');
 const router = express.Router();
 const settingsController = require('../controllers/settingsController');
@@ -919,7 +1202,7 @@ router.delete('/:key', settingsController.deleteSetting);
 module.exports = router;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\towingRequest\towingRequest.domain.facade.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\towingRequest\towingRequest.domain.facade.ts
 import { Injectable } from '@nestjs/common';
 import { TowingRequest } from './towingRequest.entity';
 
@@ -965,7 +1248,7 @@ export class TowingRequestDomainFacade {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\towingRequest\towingRequest.domain.module.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\towingRequest\towingRequest.domain.module.ts
 import { Module } from '@nestjs/common';
 import { TowingRequestDomainFacade } from './towingRequest.domain.facade';
 
@@ -976,7 +1259,7 @@ import { TowingRequestDomainFacade } from './towingRequest.domain.facade';
 export class TowingRequestDomainModule {}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\towingRequest\towingRequest.entity.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\towingRequest\towingRequest.entity.ts
 export class TowingRequest {
   id: string;
   userId: string;
@@ -986,7 +1269,7 @@ export class TowingRequest {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\towingRequest\application\towingRequest.application.event.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\towingRequest\application\towingRequest.application.event.ts
 export namespace TowingRequestApplicationEvent {
   export class TowingRequestCreated {
     static readonly key = 'towingRequest.created';
@@ -995,7 +1278,7 @@ export namespace TowingRequestApplicationEvent {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\towingRequest\application\towingRequest.application.module.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\towingRequest\application\towingRequest.application.module.ts
 import { Module } from '@nestjs/common';
 import { AuthenticationDomainModule } from '../authentication/authentication.domain.module';
 import { TowingRequestDomainModule } from '../towing-request/towingRequest.domain.module';
@@ -1026,7 +1309,7 @@ import { NewService } from '../new/new.service';
 export class TowingRequestApplicationModule {}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\towingRequest\application\towingRequest.controller.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\towingRequest\application\towingRequest.controller.ts
 import { Controller, Get, Post, Patch, Delete, Body, Param } from '@nestjs/common';
 import { EventService } from '../event/event.service';
 import { TowingRequestDomainFacade } from '../towingRequest/towingRequest.domain.facade';
@@ -1088,7 +1371,7 @@ export class TowingRequestController {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\towingRequest\application\towingRequest.dto.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\towingRequest\application\towingRequest.dto.ts
 import { IsString, IsNotEmpty, IsOptional, Matches } from 'class-validator';
 
 export class TowingRequestCreateDto {
@@ -1132,7 +1415,7 @@ export class TowingRequestUpdateDto {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\towingRequest\application\towingRequestByUser.controller.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\towingRequest\application\towingRequestByUser.controller.ts
 import { Controller, Get, Param } from '@nestjs/common';
 import { TowingRequestDomainFacade } from '../towingRequest/towingRequest.domain.facade';
 
@@ -1147,14 +1430,14 @@ export class TowingRequestByUserController {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\user\user.domain.module.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\user\user.domain.module.ts
 import { Module } from '@nestjs/common';
 
 @Module({})
 export class UserDomainModule {}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\utils\adminNotification.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\utils\adminNotification.js
 import { supabase } from '../integrations/supabase/index.jsx';
 
 export const sendAdminNotification = async (bookingData, totalCost) => {
@@ -1182,7 +1465,6 @@ export const sendAdminNotification = async (bookingData, totalCost) => {
     await supabase
       .from('admin_notifications')
       .on('INSERT', (payload) => {
-        // This callback will be triggered when a new notification is inserted
         console.log('New admin notification:', payload.new);
         // Here you can implement additional logic to notify admins in real-time
         // For example, you could use a websocket or push notification service
@@ -1197,7 +1479,7 @@ export const sendAdminNotification = async (bookingData, totalCost) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\utils\adminUtils.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\utils\adminUtils.js
 import supabase from '../config/supabase.config';
 
 export const ROLES = {
@@ -1265,7 +1547,28 @@ export const setUserRole = async (userId, role) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\utils\paymentProcessing.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\utils\insertSampleData.js
+import { supabase } from '../config/supabase.config';
+import fs from 'fs';
+import path from 'path';
+
+export const insertSampleData = async () => {
+  try {
+    const sqlFilePath = path.join(__dirname, '../database/sample_data.sql');
+    const sqlContent = fs.readFileSync(sqlFilePath, 'utf8');
+    
+    const { data, error } = await supabase.rpc('exec_sql', { sql: sqlContent });
+    
+    if (error) throw error;
+    
+    console.log('Sample data inserted successfully:', data);
+  } catch (error) {
+    console.error('Error inserting sample data:', error);
+  }
+};
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\utils\paymentProcessing.js
 import axios from 'axios';
 
 export const processPayment = async (amount, paymentMethodId) => {
@@ -1287,7 +1590,29 @@ export const processPayment = async (amount, paymentMethodId) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\utils\towTruckSelection.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\utils\testPayment.js
+export const testPayment = async (amount) => {
+  // Simulate payment processing delay
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  // Simulate a successful payment most of the time
+  const isSuccessful = Math.random() < 0.9;
+
+  if (isSuccessful) {
+    return {
+      success: true,
+      message: 'Payment test successful'
+    };
+  } else {
+    return {
+      success: false,
+      message: 'Payment test failed. Please try again.'
+    };
+  }
+};
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\utils\towTruckSelection.js
 export const getTowTruckType = (vehicleSize) => {
   switch (vehicleSize) {
     case 'A':
@@ -1320,7 +1645,7 @@ export const calculateTotalCost = (distance, towTruckType) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\utils\vehicleData.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-44\src\utils\vehicleData.js
 export const vehicleBrands = [
   'Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan', 'Volkswagen', 'BMW', 'Mercedes-Benz',
   'Audi', 'Hyundai', 'Mazda', 'Subaru', 'Kia', 'Lexus', 'Volvo', 'Tesla', 'Porsche',

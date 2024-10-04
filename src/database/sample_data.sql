@@ -34,7 +34,7 @@ VALUES
 
 -- Update services_logs entries with more detailed booking information
 UPDATE services_logs
-SET 
+SET
   pickup_address = '123 Main St',
   dropoff_address = '456 Elm St',
   vehicle_brand = 'Honda',
@@ -43,7 +43,7 @@ SET
 WHERE profile_id = (SELECT id FROM profiles WHERE full_name = 'John Doe');
 
 UPDATE services_logs
-SET 
+SET
   pickup_address = '789 Oak St',
   dropoff_address = '101 Pine St',
   vehicle_brand = 'Toyota',
