@@ -1,7 +1,6 @@
 import supabase, { handleSupabaseError } from '../integrations/supabase/index.jsx';
 import { ROLES } from '../constants/roles';
 
-// User-related functions
 export const getUsers = async () => {
   const { data, error } = await supabase
     .from('profiles')
@@ -41,7 +40,16 @@ export const deleteUser = async (id) => {
   return data;
 };
 
-// Services-related functions
+export const addSpecificAdmin = async (email) => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ role: ROLES.ADMIN })
+    .eq('email', email);
+  
+  if (error) handleSupabaseError(error);
+  return data;
+};
+
 export const getServices = async () => {
   const { data, error } = await supabase
     .from('services')
@@ -128,4 +136,21 @@ export const setAdminStatus = async (userId, isAdmin) => {
   
   if (error) handleSupabaseError(error);
   return data;
+};
+
+// Make sure to export all functions at the end of the file
+export {
+  getUsers,
+  createUser,
+  updateUser,
+  deleteUser,
+  getServices,
+  createService,
+  createBooking,
+  getBookings,
+  updateBooking,
+  deleteBooking,
+  getAnalytics,
+  setAdminStatus,
+  addSpecificAdmin, // Add this line to export the new function
 };
