@@ -7,18 +7,18 @@ import { SupabaseProvider } from './integrations/supabase/index.jsx';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import { Elements } from "@stripe/react-stripe-js";
 import stripePromise from './config/stripe';
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import BookingForm from "./pages/BookingForm";
 import Confirmation from "./pages/Confirmation";
 import Login from "./pages/Login";
-import AdminPanel from "./pages/AdminPanel";
-import ProtectedRoute from "./components/ProtectedRoute";
+import AdminPanel from "./components/admin/AdminPanel";
+import ProtectedRoute from "./components/common/ProtectedRoute";
 import theme from "./theme";
-import ErrorBoundary from "./components/ErrorBoundary";
+import ErrorBoundary from "./components/common/ErrorBoundary";
 
 const queryClient = new QueryClient({
   defaultOptions: {

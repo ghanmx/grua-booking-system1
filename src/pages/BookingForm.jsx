@@ -4,14 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import MapRoute from '../components/MapRoute';
-import FloatingForm from '../components/FloatingForm';
-import LoadingSpinner from '../components/LoadingSpinner';
+import MapRoute from '../components/booking/MapRoute';
+import FloatingForm from '../components/booking/FloatingForm';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 import { getTowTruckType, getTowTruckPricing, calculateTotalCost } from '../utils/towTruckSelection';
 import { sendAdminNotification } from '../utils/adminNotification';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { v4 as uuidv4 } from 'uuid';
-import PaymentWindow from '../components/PaymentWindow';
+import PaymentWindow from '../components/booking/PaymentWindow';
 import axios from 'axios';
 import { vehicleBrands, vehicleModels, vehicleSizes } from '../utils/vehicleData';
 
