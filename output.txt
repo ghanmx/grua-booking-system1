@@ -24,6 +24,7 @@
     "vite": "^5.4.8"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
@@ -35,15 +36,24 @@
     "@supabase/supabase-js": "^2.45.4",
     "@tanstack/react-query": "^5.56.2",
     "@tanstack/react-query-devtools": "^5.0.0",
+    "axios": "^1.7.7",
+    "axios-retry": "^4.5.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.21.0",
+    "express-validator": "^7.2.0",
     "framer-motion": "^11.9.0",
+    "leaflet": "^1.9.4",
     "react": "^18.3.1",
     "react-datepicker": "^7.4.0",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.0",
     "react-icons": "^5.3.0",
+    "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.26.2",
-    "uuid": "^10.0.0"
+    "stripe": "^17.0.0",
+    "uuid": "^10.0.0",
+    "winston": "^3.14.2"
   },
   "prettier": {
     "printWidth": 100
@@ -52,7 +62,7 @@
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\package.json
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\package.json
 {
   "name": "vite-project",
   "private": true,
@@ -76,6 +86,7 @@
     "vite": "^5.4.8"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
@@ -87,15 +98,24 @@
     "@supabase/supabase-js": "^2.45.4",
     "@tanstack/react-query": "^5.56.2",
     "@tanstack/react-query-devtools": "^5.0.0",
+    "axios": "^1.7.7",
+    "axios-retry": "^4.5.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.21.0",
+    "express-validator": "^7.2.0",
     "framer-motion": "^11.9.0",
+    "leaflet": "^1.9.4",
     "react": "^18.3.1",
     "react-datepicker": "^7.4.0",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.0",
     "react-icons": "^5.3.0",
+    "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.26.2",
-    "uuid": "^10.0.0"
+    "stripe": "^17.0.0",
+    "uuid": "^10.0.0",
+    "winston": "^3.14.2"
   },
   "prettier": {
     "printWidth": 100
@@ -104,7 +124,7 @@
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\vite.config.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\vite.config.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -126,7 +146,7 @@ export default defineConfig({
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\.gpt_engineer_internals\report-url-change.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\.gpt_engineer_internals\report-url-change.js
 const main = () => {
   /**
    * Function to send a message to parent windows
@@ -188,7 +208,7 @@ main();
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\.vscode\launch.json
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\.vscode\launch.json
 {
     // Use IntelliSense para saber los atributos posibles.
     // Mantenga el puntero para ver las descripciones de los existentes atributos.
@@ -206,7 +226,7 @@ main();
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\scripts\update-package-json.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\scripts\update-package-json.js
 const fs = require('fs');
 const path = require('path');
 
@@ -238,7 +258,7 @@ try {
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\theme.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\theme.js
 // theme.js
 import { extendTheme } from "@chakra-ui/react";
 
@@ -257,7 +277,7 @@ export default theme;
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\authentication\authentication.domain.facade.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\authentication\authentication.domain.facade.ts
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -285,7 +305,7 @@ export class AuthenticationDomainFacade {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\authentication\authentication.domain.module.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\authentication\authentication.domain.module.ts
 import { Module } from '@nestjs/common';
 import { AuthenticationDomainFacade } from './authentication.domain.facade';
 
@@ -296,7 +316,7 @@ import { AuthenticationDomainFacade } from './authentication.domain.facade';
 export class AuthenticationDomainModule {}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\config\stripe.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\config\stripe.js
 import { loadStripe } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -304,18 +324,26 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 export default stripePromise;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\config\supabase.config.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\config\supabase.config.ts
 import { createClient } from '@supabase/supabase-js';
 
-export const supabaseUrl = 'https://gjwhxrajesykwmomorhw.supabase.co';
-export const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdqd2h4cmFqZXN5a3dtb21vcmh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg4NTYzOTIsImV4cCI6MjAzNDQzMjM5Mn0.fDk88E2zfp64VhiEYL7KCh7KSEF1mNioaII7IaRwRgQ';
+export const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
+export const supabaseKey = import.meta.env.VITE_SUPABASE_API_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default supabase;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\event\event.service.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\constants\roles.js
+export const ROLES = {
+  USER: 'user',
+  ADMIN: 'admin',
+  SUPER_ADMIN: 'super_admin'
+};
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\event\event.service.ts
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -333,199 +361,389 @@ export class EventService {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\integrations\supabase\index.js
-import { createClient } from '@supabase/supabase-js';
-import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_API_KEY;
-export const supabase = createClient(supabaseUrl, supabaseKey);
-
-import React from "react";
-export const queryClient = new QueryClient();
-export function SupabaseProvider({ children }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children);
-}
-
-const fromSupabase = async (query) => {
-    const { data, error } = await query;
-    if (error) throw new Error(error.message);
-    return data;
-};
-
-export const useTOW = () => useQuery({
-    queryKey: ['TOW'],
-    queryFn: () => fromSupabase(supabase.from('TOW').select('*')),
-});
-
-export const useAddTOW = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (newTOW) => fromSupabase(supabase.from('TOW').insert([newTOW])),
-        onSuccess: () => {
-            queryClient.invalidateQueries('TOW');
-        },
-    });
-};
-
-export const useUpdateTOW = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (updatedTOW) => fromSupabase(supabase.from('TOW').update(updatedTOW).eq('id', updatedTOW.id)),
-        onSuccess: () => {
-            queryClient.invalidateQueries('TOW');
-        },
-    });
-};
-
-export const useDeleteTOW = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (id) => fromSupabase(supabase.from('TOW').delete().eq('id', id)),
-        onSuccess: () => {
-            queryClient.invalidateQueries('TOW');
-        },
-    });
-};
-
-
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\integrations\supabase\openapi.json
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\integrations\supabase\openapi.json
 {"swagger":"2.0","info":{"description":"","title":"standard public schema","version":"12.1 (8cbcf98)"},"host":"gjwhxrajesykwmomorhw.supabase.co:443","basePath":"/","schemes":["https"],"consumes":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json","text/csv"],"produces":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json","text/csv"],"paths":{"/":{"get":{"produces":["application/openapi+json","application/json"],"responses":{"200":{"description":"OK"}},"summary":"OpenAPI description (this document)","tags":["Introspection"]}},"/TOW":{"get":{"parameters":[{"$ref":"#/parameters/rowFilter.TOW.id"},{"$ref":"#/parameters/rowFilter.TOW.created_at"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/order"},{"$ref":"#/parameters/range"},{"$ref":"#/parameters/rangeUnit"},{"$ref":"#/parameters/offset"},{"$ref":"#/parameters/limit"},{"$ref":"#/parameters/preferCount"}],"responses":{"200":{"description":"OK","schema":{"items":{"$ref":"#/definitions/TOW"},"type":"array"}},"206":{"description":"Partial Content"}},"summary":"TOW","tags":["TOW"]},"post":{"parameters":[{"$ref":"#/parameters/body.TOW"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/preferPost"}],"responses":{"201":{"description":"Created"}},"summary":"TOW","tags":["TOW"]},"delete":{"parameters":[{"$ref":"#/parameters/rowFilter.TOW.id"},{"$ref":"#/parameters/rowFilter.TOW.created_at"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"summary":"TOW","tags":["TOW"]},"patch":{"parameters":[{"$ref":"#/parameters/rowFilter.TOW.id"},{"$ref":"#/parameters/rowFilter.TOW.created_at"},{"$ref":"#/parameters/body.TOW"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"summary":"TOW","tags":["TOW"]}}},"definitions":{"TOW":{"description":"TOW","required":["id","created_at"],"properties":{"id":{"description":"Note:\nThis is a Primary Key.<pk/>","format":"bigint","type":"integer"},"created_at":{"default":"now()","format":"timestamp with time zone","type":"string"}},"type":"object"}},"parameters":{"preferParams":{"name":"Prefer","description":"Preference","required":false,"enum":["params=single-object"],"in":"header","type":"string"},"preferReturn":{"name":"Prefer","description":"Preference","required":false,"enum":["return=representation","return=minimal","return=none"],"in":"header","type":"string"},"preferCount":{"name":"Prefer","description":"Preference","required":false,"enum":["count=none"],"in":"header","type":"string"},"preferPost":{"name":"Prefer","description":"Preference","required":false,"enum":["return=representation","return=minimal","return=none","resolution=ignore-duplicates","resolution=merge-duplicates"],"in":"header","type":"string"},"select":{"name":"select","description":"Filtering Columns","required":false,"in":"query","type":"string"},"on_conflict":{"name":"on_conflict","description":"On Conflict","required":false,"in":"query","type":"string"},"order":{"name":"order","description":"Ordering","required":false,"in":"query","type":"string"},"range":{"name":"Range","description":"Limiting and Pagination","required":false,"in":"header","type":"string"},"rangeUnit":{"name":"Range-Unit","description":"Limiting and Pagination","required":false,"default":"items","in":"header","type":"string"},"offset":{"name":"offset","description":"Limiting and Pagination","required":false,"in":"query","type":"string"},"limit":{"name":"limit","description":"Limiting and Pagination","required":false,"in":"query","type":"string"},"body.TOW":{"name":"TOW","description":"TOW","required":false,"in":"body","schema":{"$ref":"#/definitions/TOW"}},"rowFilter.TOW.id":{"name":"id","required":false,"format":"bigint","in":"query","type":"string"},"rowFilter.TOW.created_at":{"name":"created_at","required":false,"format":"timestamp with time zone","in":"query","type":"string"}},"externalDocs":{"description":"PostgREST Documentation","url":"https://postgrest.org/en/v12.1/api.html"}}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\server\db.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\db.js
 import supabase from '../config/supabase.config';
+import { ROLES } from '../constants/roles';
 
-// Fetch all users from the Supabase database
+// Helper function to handle Supabase errors
+const handleSupabaseError = (error) => {
+  console.error('Supabase error:', error);
+  throw new Error(error.message || 'An unexpected error occurred');
+};
+
+// User-related functions
 export const getUsers = async () => {
-  const { data, error } = await supabase.from('users').select('*');
-  if (error) throw error;
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, email, full_name, phone_number, role');
+  if (error) handleSupabaseError(error);
   return data;
 };
 
-// Create a new user in the Supabase database
 export const createUser = async (userData) => {
-  const { data, error } = await supabase.from('users').insert(userData);
-  if (error) throw error;
+  const { data, error } = await supabase
+    .from('profiles')
+    .insert({
+      email: userData.email,
+      full_name: userData.fullName,
+      phone_number: userData.phoneNumber,
+      role: userData.role || ROLES.USER
+    });
+  if (error) handleSupabaseError(error);
   return data;
 };
 
-// Update an existing user in the Supabase database
 export const updateUser = async (id, userData) => {
-  const { data, error } = await supabase.from('users').update(userData).eq('id', id);
-  if (error) throw error;
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(userData)
+    .eq('id', id);
+  if (error) handleSupabaseError(error);
   return data;
 };
 
-// Delete a user from the Supabase database
 export const deleteUser = async (id) => {
-  const { data, error } = await supabase.from('users').delete().eq('id', id);
-  if (error) throw error;
+  const { data, error } = await supabase
+    .from('profiles')
+    .delete()
+    .eq('id', id);
+  if (error) handleSupabaseError(error);
   return data;
 };
 
+// Services registry log functions
+export const getServicesLogs = async () => {
+  const { data, error } = await supabase
+    .from('services_logs')
+    .select('*, profiles(full_name), services(service_name)');
+  if (error) handleSupabaseError(error);
+  return data;
+};
+
+export const createServiceLog = async (serviceData) => {
+  const { data, error } = await supabase
+    .from('services_logs')
+    .insert(serviceData);
+  if (error) handleSupabaseError(error);
+  return data;
+};
+
+export const updateServiceLog = async (id, serviceData) => {
+  const { data, error } = await supabase
+    .from('services_logs')
+    .update(serviceData)
+    .eq('id', id);
+  if (error) handleSupabaseError(error);
+  return data;
+};
+
+export const deleteServiceLog = async (id) => {
+  const { data, error } = await supabase
+    .from('services_logs')
+    .delete()
+    .eq('id', id);
+  if (error) handleSupabaseError(error);
+  return data;
+};
+
+export const createAdminUser = async (userData) => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .insert({
+      email: userData.email,
+      full_name: userData.fullName,
+      phone_number: userData.phoneNumber,
+      role: ROLES.ADMIN
+    });
+  if (error) handleSupabaseError(error);
+  return data;
+};
+
+// Service-related functions
+export const createService = async (serviceData) => {
+  const { data, error } = await supabase
+    .from('services')
+    .insert(serviceData);
+  if (error) handleSupabaseError(error);
+  return data;
+};
+
+export const getServices = async () => {
+  const { data, error } = await supabase
+    .from('services')
+    .select('*');
+  if (error) handleSupabaseError(error);
+  return data;
+};
+
+// Booking-related functions
+export const createBooking = async (bookingData) => {
+  const { data, error } = await supabase
+    .from('services_logs')
+    .insert(bookingData);
+  if (error) handleSupabaseError(error);
+  return data;
+};
+
+export const getBookings = async () => {
+  const { data, error } = await supabase
+    .from('services_logs')
+    .select('*, profiles(full_name), services(service_name)')
+    .order('created_at', { ascending: false });
+  if (error) handleSupabaseError(error);
+  return data;
+};
+
+export const updateBooking = async (id, bookingData) => {
+  const { data, error } = await supabase
+    .from('services_logs')
+    .update(bookingData)
+    .eq('id', id);
+  if (error) handleSupabaseError(error);
+  return data;
+};
+
+export const deleteBooking = async (id) => {
+  const { data, error } = await supabase
+    .from('services_logs')
+    .delete()
+    .eq('id', id);
+  if (error) handleSupabaseError(error);
+  return data;
+};
+
+// Analytics function
+export const getAnalytics = async () => {
+  try {
+    const [usersCount, bookingsCount, revenueData] = await Promise.all([
+      supabase.from('profiles').select('id', { count: 'exact' }),
+      supabase.from('services_logs').select('id', { count: 'exact' }),
+      supabase.from('services_logs').select('total_cost')
+    ]);
+
+    if (usersCount.error) handleSupabaseError(usersCount.error);
+    if (bookingsCount.error) handleSupabaseError(bookingsCount.error);
+    if (revenueData.error) handleSupabaseError(revenueData.error);
+
+    const totalRevenue = revenueData.data?.reduce((sum, booking) => sum + (booking.total_cost || 0), 0) || 0;
+
+    return {
+      usersCount: usersCount.count,
+      bookingsCount: bookingsCount.count,
+      totalRevenue
+    };
+  } catch (error) {
+    console.error('Error fetching analytics:', error);
+    throw new Error('Failed to fetch analytics data');
+  }
+};
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\server\server.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\server.js
 const express = require('express');
 const cors = require('cors');
-const bookingRoutes = require('./routes/bookingRoutes');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const { createBooking } = require('./controllers/bookingController');
+const { createAdminUser, getPaidServices, updateService } = require('./controllers/adminController');
+const { getSettings, updateSetting } = require('./controllers/settingsController');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/bookings', bookingRoutes);
+app.post('/api/bookings', createBooking);
+app.post('/api/admin/create', createAdminUser);
+app.get('/api/admin/paid-services', getPaidServices);
+app.put('/api/admin/services/:id', updateService);
+app.get('/api/settings', getSettings);
+app.put('/api/settings/:key', updateSetting);
+
+app.post('/api/process-payment', async (req, res) => {
+  const { paymentMethodId, amount } = req.body;
+
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency: 'usd',
+      payment_method: paymentMethodId,
+      confirm: true,
+    });
+
+    res.json({ success: true, paymentIntentId: paymentIntent.id });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\server\controllers\bookingController.js
-const supabase = require('../db');
-const { sendAdminNotification } = require('../../utils/adminNotification');
 
-exports.createBooking = async (req, res) => {
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\config\config.js
+require('dotenv').config();
+
+module.exports = {
+  port: process.env.PORT || 5000,
+  supabaseUrl: process.env.VITE_SUPABASE_PROJECT_URL,
+  supabaseKey: process.env.VITE_SUPABASE_API_KEY,
+  stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+};
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\config\database.js
+const { createClient } = require('@supabase/supabase-js');
+const config = require('./config');
+
+const supabase = createClient(config.supabaseUrl, config.supabaseKey);
+
+module.exports = supabase;
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\controllers\adminController.js
+const supabase = require('../config/database');
+
+exports.createAdmin = async (req, res, next) => {
   try {
     const { data, error } = await supabase
-      .from('bookings')
-      .insert(req.body);
-    
+      .from('users')
+      .insert({ ...req.body, is_admin: true });
+
     if (error) throw error;
 
-    console.log(`New booking created: ${JSON.stringify(data)}`);
-    await sendAdminNotification(data[0], 'New booking created');
+    res.status(201).json({ success: true, data: data[0] });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getPaidServices = async (req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('services_logs')
+      .select('*')
+      .eq('status', 'paid')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateService = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const { data, error } = await supabase
+      .from('services_logs')
+      .update({ status })
+      .eq('id', id);
+
+    if (error) throw error;
+
+    res.status(200).json({ success: true, data: data[0] });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\controllers\bookingController.js
+const supabase = require('../config/database');
+const { sendAdminNotification } = require('../../utils/adminNotification');
+const { logger } = require('../middleware/errorHandler');
+
+exports.createBooking = async (req, res, next) => {
+  try {
+    const bookingData = {
+      profile_id: req.body.userId,
+      service_id: req.body.serviceId,
+      status: 'pending',
+      total_cost: req.body.totalCost
+    };
+
+    const { data: createdBooking, error: bookingError } = await supabase
+      .from('services_logs')
+      .insert(bookingData);
+    
+    if (bookingError) throw bookingError;
+
+    logger.info(`New booking created: ${JSON.stringify(createdBooking)}`);
+    await sendAdminNotification(createdBooking[0], createdBooking[0].total_cost);
 
     res.status(201).json({
       success: true,
       message: 'Booking created successfully',
-      data: data[0]
+      booking: createdBooking[0]
     });
   } catch (error) {
-    console.error('Error creating booking:', error);
-    res.status(500).json({ success: false, error: error.message });
+    next(error);
   }
 };
 
-exports.getAllBookings = async (req, res) => {
+exports.getAllBookings = async (req, res, next) => {
   try {
-    const { data, error } = await supabase
-      .from('bookings')
-      .select('*');
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const startIndex = (page - 1) * limit;
+
+    const { data, error, count } = await supabase
+      .from('services_logs')
+      .select('*, profiles(full_name), services(service_name)', { count: 'exact' })
+      .range(startIndex, startIndex + limit - 1);
     
     if (error) throw error;
 
-    console.log(`Retrieved ${data.length} bookings`);
-
     res.status(200).json({
       success: true,
-      count: data.length,
-      data: data
+      count,
+      data,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page
     });
   } catch (error) {
-    console.error('Error fetching bookings:', error);
-    res.status(500).json({ success: false, error: error.message });
+    next(error);
   }
 };
 
-exports.getBookingById = async (req, res) => {
+exports.getBookingById = async (req, res, next) => {
   try {
     const { data, error } = await supabase
-      .from('bookings')
-      .select('*')
+      .from('services_logs')
+      .select('*, profiles(full_name), services(service_name)')
       .eq('id', req.params.id)
       .single();
     
     if (error) throw error;
     if (!data) {
-      console.log(`Booking not found: ${req.params.id}`);
       return res.status(404).json({ success: false, message: 'Booking not found' });
     }
 
-    console.log(`Retrieved booking: ${JSON.stringify(data)}`);
-
     res.status(200).json({
       success: true,
-      data: data
+      data
     });
   } catch (error) {
-    console.error(`Error fetching booking ${req.params.id}:`, error);
-    res.status(500).json({ success: false, error: error.message });
+    next(error);
   }
 };
 
-exports.updateBooking = async (req, res) => {
+exports.updateBooking = async (req, res, next) => {
   try {
     const { data, error } = await supabase
-      .from('bookings')
+      .from('services_logs')
       .update(req.body)
       .eq('id', req.params.id);
     
     if (error) throw error;
-
-    console.log(`Updated booking ${req.params.id}: ${JSON.stringify(data)}`);
-    await sendAdminNotification(data[0], 'Booking updated');
 
     res.status(200).json({
       success: true,
@@ -533,49 +751,175 @@ exports.updateBooking = async (req, res) => {
       data: data[0]
     });
   } catch (error) {
-    console.error(`Error updating booking ${req.params.id}:`, error);
-    res.status(500).json({ success: false, error: error.message });
+    next(error);
   }
 };
 
-exports.deleteBooking = async (req, res) => {
+exports.deleteBooking = async (req, res, next) => {
   try {
-    const { data, error } = await supabase
-      .from('bookings')
+    const { error } = await supabase
+      .from('services_logs')
       .delete()
       .eq('id', req.params.id);
     
     if (error) throw error;
-
-    console.log(`Deleted booking: ${req.params.id}`);
-    await sendAdminNotification({ id: req.params.id }, 'Booking deleted');
 
     res.status(200).json({
       success: true,
       message: 'Booking deleted successfully'
     });
   } catch (error) {
-    console.error(`Error deleting booking ${req.params.id}:`, error);
-    res.status(500).json({ success: false, error: error.message });
+    next(error);
   }
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\server\routes\bookingRoutes.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\controllers\settingsController.js
+const supabase = require('../config/database');
+
+exports.getAllSettings = async (req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('settings')
+      .select('*');
+
+    if (error) throw error;
+
+    res.status(200).json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateSetting = async (req, res, next) => {
+  try {
+    const { key, value } = req.body;
+    const { data, error } = await supabase
+      .from('settings')
+      .upsert({ key, value })
+      .select();
+
+    if (error) throw error;
+
+    res.status(200).json({
+      success: true,
+      data: data[0]
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteSetting = async (req, res, next) => {
+  try {
+    const { key } = req.params;
+    const { error } = await supabase
+      .from('settings')
+      .delete()
+      .eq('key', key);
+
+    if (error) throw error;
+
+    res.status(200).json({
+      success: true,
+      message: 'Setting deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\middleware\errorHandler.js
+const winston = require('winston');
+
+const logger = winston.createLogger({
+  level: 'error',
+  format: winston.format.json(),
+  defaultMeta: { service: 'user-service' },
+  transports: [
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.Console({ format: winston.format.simple() })
+  ]
+});
+
+const errorHandler = (err, req, res, next) => {
+  logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+
+  res.status(err.status || 500).json({
+    error: {
+      message: err.message || 'Internal Server Error',
+    },
+  });
+};
+
+module.exports = { errorHandler, logger };
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\middleware\inputValidation.js
+const { body, validationResult } = require('express-validator');
+
+const validateBookingInput = [
+  body('userName').notEmpty().withMessage('User name is required'),
+  body('phoneNumber').notEmpty().withMessage('Phone number is required'),
+  body('serviceType').notEmpty().withMessage('Service type is required'),
+  body('pickupAddress').notEmpty().withMessage('Pickup address is required'),
+  body('dropOffAddress').notEmpty().withMessage('Drop off address is required'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
+
+module.exports = { validateBookingInput };
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\routes\adminRoutes.js
+const express = require('express');
+const router = express.Router();
+const adminController = require('../controllers/adminController');
+
+router.post('/create', adminController.createAdmin);
+router.get('/services', adminController.getPaidServices);
+router.put('/services/:id', adminController.updateService);
+
+module.exports = router;
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\routes\bookingRoutes.js
 const express = require('express');
 const router = express.Router();
 const bookingController = require('../controllers/bookingController');
+const { validateBookingInput } = require('../middleware/inputValidation');
 
-router.post('/create', bookingController.createBooking);
-router.get('/all', bookingController.getAllBookings);
+router.post('/', validateBookingInput, bookingController.createBooking);
+router.get('/', bookingController.getAllBookings);
 router.get('/:id', bookingController.getBookingById);
-router.put('/:id', bookingController.updateBooking);
+router.put('/:id', validateBookingInput, bookingController.updateBooking);
 router.delete('/:id', bookingController.deleteBooking);
 
 module.exports = router;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\towingRequest\towingRequest.domain.facade.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\server\routes\settingsRoutes.js
+const express = require('express');
+const router = express.Router();
+const settingsController = require('../controllers/settingsController');
+
+router.get('/', settingsController.getAllSettings);
+router.post('/', settingsController.updateSetting);
+router.delete('/:key', settingsController.deleteSetting);
+
+module.exports = router;
+
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\towingRequest\towingRequest.domain.facade.ts
 import { Injectable } from '@nestjs/common';
 import { TowingRequest } from './towingRequest.entity';
 
@@ -621,7 +965,7 @@ export class TowingRequestDomainFacade {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\towingRequest\towingRequest.domain.module.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\towingRequest\towingRequest.domain.module.ts
 import { Module } from '@nestjs/common';
 import { TowingRequestDomainFacade } from './towingRequest.domain.facade';
 
@@ -632,7 +976,7 @@ import { TowingRequestDomainFacade } from './towingRequest.domain.facade';
 export class TowingRequestDomainModule {}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\towingRequest\towingRequest.entity.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\towingRequest\towingRequest.entity.ts
 export class TowingRequest {
   id: string;
   userId: string;
@@ -642,7 +986,7 @@ export class TowingRequest {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\towingRequest\application\towingRequest.application.event.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\towingRequest\application\towingRequest.application.event.ts
 export namespace TowingRequestApplicationEvent {
   export class TowingRequestCreated {
     static readonly key = 'towingRequest.created';
@@ -651,7 +995,7 @@ export namespace TowingRequestApplicationEvent {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\towingRequest\application\towingRequest.application.module.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\towingRequest\application\towingRequest.application.module.ts
 import { Module } from '@nestjs/common';
 import { AuthenticationDomainModule } from '../authentication/authentication.domain.module';
 import { TowingRequestDomainModule } from '../towing-request/towingRequest.domain.module';
@@ -682,7 +1026,7 @@ import { NewService } from '../new/new.service';
 export class TowingRequestApplicationModule {}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\towingRequest\application\towingRequest.controller.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\towingRequest\application\towingRequest.controller.ts
 import { Controller, Get, Post, Patch, Delete, Body, Param } from '@nestjs/common';
 import { EventService } from '../event/event.service';
 import { TowingRequestDomainFacade } from '../towingRequest/towingRequest.domain.facade';
@@ -744,16 +1088,22 @@ export class TowingRequestController {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\towingRequest\application\towingRequest.dto.ts
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\towingRequest\application\towingRequest.dto.ts
+import { IsString, IsNotEmpty, IsOptional, Matches } from 'class-validator';
 
 export class TowingRequestCreateDto {
   @IsString()
   @IsNotEmpty()
+  @Matches(/^[a-zA-Z0-9\s,'-]*$/, {
+    message: 'Pickup location must be a valid address',
+  })
   pickupLocation: string;
 
   @IsString()
   @IsNotEmpty()
+  @Matches(/^[a-zA-Z0-9\s,'-]*$/, {
+    message: 'Destination location must be a valid address',
+  })
   destinationLocation: string;
 
   @IsString()
@@ -764,10 +1114,16 @@ export class TowingRequestCreateDto {
 export class TowingRequestUpdateDto {
   @IsString()
   @IsOptional()
+  @Matches(/^[a-zA-Z0-9\s,'-]*$/, {
+    message: 'Pickup location must be a valid address',
+  })
   pickupLocation?: string;
 
   @IsString()
   @IsOptional()
+  @Matches(/^[a-zA-Z0-9\s,'-]*$/, {
+    message: 'Destination location must be a valid address',
+  })
   destinationLocation?: string;
 
   @IsString()
@@ -776,7 +1132,7 @@ export class TowingRequestUpdateDto {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\towingRequest\application\towingRequestByUser.controller.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\towingRequest\application\towingRequestByUser.controller.ts
 import { Controller, Get, Param } from '@nestjs/common';
 import { TowingRequestDomainFacade } from '../towingRequest/towingRequest.domain.facade';
 
@@ -791,15 +1147,15 @@ export class TowingRequestByUserController {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\user\user.domain.module.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\user\user.domain.module.ts
 import { Module } from '@nestjs/common';
 
 @Module({})
 export class UserDomainModule {}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\utils\adminNotification.js
-import { supabase } from '../integrations/supabase';
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\utils\adminNotification.js
+import { supabase } from '../integrations/supabase/index.jsx';
 
 export const sendAdminNotification = async (bookingData, totalCost) => {
   try {
@@ -821,6 +1177,18 @@ export const sendAdminNotification = async (bookingData, totalCost) => {
 
     if (error) throw error;
     console.log('Admin notification sent successfully:', data);
+
+    // Send a real-time notification to admin users
+    await supabase
+      .from('admin_notifications')
+      .on('INSERT', (payload) => {
+        // This callback will be triggered when a new notification is inserted
+        console.log('New admin notification:', payload.new);
+        // Here you can implement additional logic to notify admins in real-time
+        // For example, you could use a websocket or push notification service
+      })
+      .subscribe();
+
     return data;
   } catch (error) {
     console.error('Error sending admin notification:', error);
@@ -829,13 +1197,19 @@ export const sendAdminNotification = async (bookingData, totalCost) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\utils\adminUtils.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\utils\adminUtils.js
 import supabase from '../config/supabase.config';
+
+export const ROLES = {
+  USER: 'user',
+  ADMIN: 'admin',
+  SUPER_ADMIN: 'super_admin'
+};
 
 export const isAdmin = async (userId) => {
   const { data, error } = await supabase
     .from('users')
-    .select('is_admin')
+    .select('role')
     .eq('id', userId)
     .single();
 
@@ -844,14 +1218,29 @@ export const isAdmin = async (userId) => {
     return false;
   }
 
-  return data?.is_admin || false;
+  return data?.role === ROLES.ADMIN || data?.role === ROLES.SUPER_ADMIN;
+};
+
+export const isSuperAdmin = async (userId) => {
+  const { data, error } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', userId)
+    .single();
+
+  if (error) {
+    console.error('Error checking super admin status:', error);
+    return false;
+  }
+
+  return data?.role === ROLES.SUPER_ADMIN;
 };
 
 export const getAdminUsers = async () => {
   const { data, error } = await supabase
     .from('users')
     .select('*')
-    .eq('is_admin', true);
+    .in('role', [ROLES.ADMIN, ROLES.SUPER_ADMIN]);
 
   if (error) {
     console.error('Error fetching admin users:', error);
@@ -861,14 +1250,14 @@ export const getAdminUsers = async () => {
   return data || [];
 };
 
-export const setAdminStatus = async (userId, isAdmin) => {
+export const setUserRole = async (userId, role) => {
   const { data, error } = await supabase
     .from('users')
-    .update({ is_admin: isAdmin })
+    .update({ role })
     .eq('id', userId);
 
   if (error) {
-    console.error('Error updating admin status:', error);
+    console.error('Error updating user role:', error);
     return false;
   }
 
@@ -876,97 +1265,20 @@ export const setAdminStatus = async (userId, isAdmin) => {
 };
 
 
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\utils\paymentProcessing.js
+import axios from 'axios';
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\utils\paymentProcessing.js
-import { loadStripe } from '@stripe/stripe-js';
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-
-export const processPayment = async (amount, isTestMode = false, paymentData) => {
-  if (isTestMode) {
-    console.log('Test mode: Simulating payment processing');
-    return { success: true, testMode: true };
-  }
-
+export const processPayment = async (amount, paymentMethodId) => {
   try {
-    const stripe = await stripePromise;
+    const response = await axios.post('/api/process-payment', {
+      amount: Math.round(amount * 100), // Convert to cents
+      payment_method_id: paymentMethodId,
+    });
 
-    if (!stripe) {
-      throw new Error('Stripe initialization failed.');
-    }
-
-    // Enhanced error handling
-    if (paymentData.cardNumber.length !== 16) {
-      return { success: false, error: 'Payment Failed: El número de tarjeta está incompleto.' };
-    }
-
-    const expiryYear = parseInt(`20${paymentData.expiryDate.split('/')[1]}`);
-    const currentYear = new Date().getFullYear();
-    if (expiryYear < currentYear) {
-      return { success: false, error: 'La fecha de expiración de la tarjeta ha pasado.' };
-    }
-
-    // Multiple payment methods
-    const paymentMethods = {
-      card: {
-        type: 'card',
-        card: {
-          number: paymentData.cardNumber,
-          exp_month: paymentData.expiryDate.split('/')[0],
-          exp_year: `20${paymentData.expiryDate.split('/')[1]}`,
-          cvc: paymentData.cvv,
-        },
-      },
-      // Add other payment methods here
-    };
-
-    const selectedMethod = paymentMethods[paymentData.method] || paymentMethods.card;
-
-    // Retry mechanism
-    let retryCount = 0;
-    let paymentIntent;
-
-    while (retryCount < 3) {
-      try {
-        // 3D Secure
-        paymentIntent = await stripe.paymentIntents.create({
-          amount: amount * 100, // Stripe works with cents
-          currency: 'mxn',
-          payment_method: selectedMethod,
-          payment_method_types: ['card'],
-          payment_method_options: {
-            card: {
-              request_three_d_secure: 'any',
-            },
-          },
-          confirm: true,
-        });
-
-        // Enhanced logging
-        console.log(`Processing payment for amount: ${amount}. Status: ${paymentIntent.status}`);
-
-        if (paymentIntent.status === 'succeeded') {
-          return { success: true, paymentIntent };
-        } else if (paymentIntent.status === 'requires_action') {
-          // Handle 3D Secure authentication
-          const { error, paymentIntent: confirmedIntent } = await stripe.confirmCardPayment(paymentIntent.client_secret);
-          if (error) {
-            console.error('3D Secure authentication failed:', error);
-            throw error;
-          } else {
-            console.log('3D Secure authentication successful');
-            return { success: true, paymentIntent: confirmedIntent };
-          }
-        } else {
-          throw new Error(`Payment failed: ${paymentIntent.status}`);
-        }
-      } catch (error) {
-        console.error(`Payment attempt ${retryCount + 1} failed:`, error);
-        retryCount++;
-        if (retryCount === 3) {
-          return { success: false, error: error.message };
-        }
-      }
+    if (response.data.success) {
+      return { success: true, paymentIntent: response.data.paymentIntent };
+    } else {
+      throw new Error(response.data.error || 'Payment processing failed');
     }
   } catch (error) {
     console.error('Error processing payment:', error);
@@ -975,20 +1287,19 @@ export const processPayment = async (amount, isTestMode = false, paymentData) =>
 };
 
 
-
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\utils\towTruckSelection.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\utils\towTruckSelection.js
 export const getTowTruckType = (vehicleSize) => {
   switch (vehicleSize) {
-    case 'Small':
+    case 'A':
       return 'A';
-    case 'Medium':
+    case 'B':
       return 'B';
-    case 'Large':
+    case 'C':
       return 'C';
-    case 'Extra Large':
+    case 'D':
       return 'D';
     default:
-      return 'A';
+      return 'B';
   }
 };
 
@@ -999,39 +1310,54 @@ export const getTowTruckPricing = (towTruckType) => {
     C: { perKm: 23.47, basePrice: 721.79 },
     D: { perKm: 32.35, basePrice: 885.84 },
   };
-  return pricing[towTruckType] || pricing.A;
+  return pricing[towTruckType] || pricing.B;
 };
 
 export const calculateTotalCost = (distance, towTruckType) => {
   const { perKm, basePrice } = getTowTruckPricing(towTruckType);
-  const totalCost = basePrice + (distance * perKm * 2);
+  const totalCost = basePrice + (distance * perKm);
   return Number(totalCost.toFixed(2)); // Round to 2 decimal places
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system-26\src\utils\vehicleData.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system-43\src\utils\vehicleData.js
 export const vehicleBrands = [
-  'Toyota',
-  'Honda',
-  'Ford',
-  'Chevrolet',
-  'Nissan',
-  'Volkswagen',
-  'BMW',
-  'Mercedes-Benz',
-  'Audi',
-  'Hyundai',
+  'Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan', 'Volkswagen', 'BMW', 'Mercedes-Benz',
+  'Audi', 'Hyundai', 'Mazda', 'Subaru', 'Kia', 'Lexus', 'Volvo', 'Tesla', 'Porsche',
+  'Jaguar', 'Land Rover', 'Acura', 'RAM', 'GMC', 'Jeep', 'Dodge', 'Chrysler'
 ];
 
 export const vehicleModels = {
-  Toyota: ['Corolla', 'Camry', 'RAV4', 'Highlander', 'Tacoma'],
-  Honda: ['Civic', 'Accord', 'CR-V', 'Pilot', 'Odyssey'],
-  Ford: ['F-150', 'Mustang', 'Explorer', 'Escape', 'Focus'],
-  Chevrolet: ['Silverado', 'Malibu', 'Equinox', 'Traverse', 'Camaro'],
-  Nissan: ['Altima', 'Rogue', 'Sentra', 'Maxima', 'Pathfinder'],
-  Volkswagen: ['Jetta', 'Passat', 'Tiguan', 'Atlas', 'Golf'],
-  BMW: ['3 Series', '5 Series', 'X3', 'X5', '7 Series'],
-  'Mercedes-Benz': ['C-Class', 'E-Class', 'GLC', 'GLE', 'S-Class'],
-  Audi: ['A4', 'A6', 'Q5', 'Q7', 'e-tron'],
-  Hyundai: ['Elantra', 'Sonata', 'Tucson', 'Santa Fe', 'Kona'],
+  Toyota: ['Corolla', 'Camry', 'RAV4', 'Highlander', 'Tacoma', 'Tundra', 'Sienna', 'Prius', 'Land Cruiser', 'C-HR', '4Runner', 'Avalon', 'Venza', 'Sequoia', 'Yaris'],
+  Honda: ['Civic', 'Accord', 'CR-V', 'Pilot', 'Odyssey', 'HR-V', 'Fit', 'Ridgeline', 'Insight', 'Passport', 'Clarity', 'Element', 'S2000', 'Crosstour'],
+  Ford: ['F-150', 'Mustang', 'Explorer', 'Escape', 'Focus', 'Transit', 'Ranger', 'Edge', 'Expedition', 'Bronco', 'Fusion', 'EcoSport', 'Mach-E', 'Flex', 'GT', 'F-250', 'F-350'],
+  Chevrolet: ['Silverado', 'Malibu', 'Equinox', 'Traverse', 'Camaro', 'Corvette', 'Tahoe', 'Suburban', 'Bolt', 'Trax', 'Impala', 'Colorado', 'Blazer', 'Spark', 'Sonic'],
+  Nissan: ['Altima', 'Rogue', 'Sentra', 'Maxima', 'Pathfinder', 'Murano', 'Kicks', 'Titan', 'Leaf', 'Versa', 'Armada', 'Frontier', 'GT-R', '370Z', 'Juke'],
+  Volkswagen: ['Jetta', 'Passat', 'Tiguan', 'Atlas', 'Golf', 'ID.4', 'Arteon', 'Taos', 'GTI', 'Touareg', 'Beetle', 'CC', 'e-Golf', 'Eos'],
+  BMW: ['3 Series', '5 Series', 'X3', 'X5', '7 Series', 'M4', 'X1', 'X7', 'i3', 'Z4', '4 Series', '6 Series', 'X6', 'i8', 'M3'],
+  'Mercedes-Benz': ['C-Class', 'E-Class', 'GLC', 'GLE', 'S-Class', 'Sprinter', 'A-Class', 'GLA', 'CLA', 'G-Class', 'GLS', 'CLS', 'SL', 'AMG GT', 'Maybach'],
+  Audi: ['A4', 'A6', 'Q5', 'Q7', 'e-tron', 'A3', 'Q3', 'TT', 'R8', 'S4', 'A5', 'Q8', 'RS6', 'A8', 'SQ5'],
+  Hyundai: ['Elantra', 'Sonata', 'Tucson', 'Santa Fe', 'Kona', 'Palisade', 'Venue', 'Ioniq', 'Veloster', 'Accent', 'Nexo', 'Azera', 'Genesis', 'Equus'],
+  Mazda: ['Mazda3', 'Mazda6', 'CX-5', 'CX-9', 'MX-5 Miata', 'CX-30', 'CX-3', 'CX-50', 'CX-8', 'RX-8', 'CX-7', 'Tribute', '5', '2'],
+  Subaru: ['Outback', 'Forester', 'Impreza', 'Crosstrek', 'Legacy', 'Ascent', 'WRX', 'BRZ', 'XV', 'Tribeca', 'Baja', 'SVX'],
+  Kia: ['Forte', 'Optima', 'Sportage', 'Sorento', 'Telluride', 'Soul', 'Stinger', 'Seltos', 'Niro', 'Carnival', 'K5', 'Cadenza', 'Rio', 'Sedona'],
+  Lexus: ['RX', 'ES', 'NX', 'IS', 'GX', 'UX', 'LS', 'LC', 'RC', 'LX', 'CT', 'GS', 'SC', 'HS'],
+  Volvo: ['XC90', 'XC60', 'S60', 'V60', 'XC40', 'S90', 'V90', 'C40', 'S40', 'C30', 'V40', 'S80'],
+  Tesla: ['Model 3', 'Model S', 'Model X', 'Model Y', 'Cybertruck', 'Roadster'],
+  Porsche: ['911', 'Cayenne', 'Panamera', 'Macan', 'Taycan', 'Boxster', 'Cayman', '718', '944', '928'],
+  Jaguar: ['F-PACE', 'XF', 'E-PACE', 'I-PACE', 'XE', 'F-TYPE', 'XJ', 'XK', 'S-Type', 'X-Type'],
+  'Land Rover': ['Range Rover', 'Discovery', 'Defender', 'Evoque', 'Velar', 'Freelander', 'LR2', 'LR3', 'LR4'],
+  Acura: ['TLX', 'RDX', 'MDX', 'ILX', 'NSX', 'RLX', 'TSX', 'RSX', 'ZDX', 'Integra'],
+  RAM: ['1500', '2500', '3500', 'ProMaster', 'ProMaster City'],
+  GMC: ['Sierra', 'Yukon', 'Terrain', 'Acadia', 'Canyon', 'Savana'],
+  Jeep: ['Wrangler', 'Grand Cherokee', 'Cherokee', 'Compass', 'Renegade', 'Gladiator'],
+  Dodge: ['Charger', 'Challenger', 'Durango', 'Journey', 'Grand Caravan'],
+  Chrysler: ['300', 'Pacifica', 'Voyager']
+};
+
+export const vehicleSizes = {
+  A: ['Mustang', 'Camaro', 'Corvette', '911', 'M4', 'BRZ', 'GT-R', '370Z', 'TT', 'F-TYPE', 'Model 3', 'Civic', 'Corolla', 'Mazda3', 'Golf'],
+  B: ['RAV4', 'CR-V', 'Explorer', 'Equinox', 'Rogue', 'Tiguan', 'X3', 'GLC', 'Q5', 'Santa Fe', 'Outback', 'Forester'],
+  C: ['F-150', 'Silverado', 'RAM 1500', 'Tundra', 'Sierra', 'Tacoma', 'Ranger', 'Colorado', 'Titan', 'Frontier', 'Ridgeline'],
+  D: ['F-250', 'F-350', 'Silverado 2500HD', 'RAM 2500', 'RAM 3500', 'Sierra 2500HD', 'Tundra TRD Pro']
 };
