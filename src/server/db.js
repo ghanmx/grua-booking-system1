@@ -51,7 +51,7 @@ export const deleteUser = async (id) => {
 export const getServicesLogs = async () => {
   const { data, error } = await supabase
     .from('services_logs')
-    .select('*, profiles(full_name), services(service_name)');
+    .select('*, profiles(full_name), services(name)');
   if (error) handleSupabaseError(error);
   return data;
 };
@@ -124,7 +124,7 @@ export const createBooking = async (bookingData) => {
 export const getBookings = async () => {
   const { data, error } = await supabase
     .from('services_logs')
-    .select('*, profiles(full_name), services(service_name)')
+    .select('*, profiles(full_name), services(name)')
     .order('created_at', { ascending: false });
   if (error) handleSupabaseError(error);
   return data;
