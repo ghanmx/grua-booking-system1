@@ -32,10 +32,7 @@ VALUES
     30.00
   );
 
--- Note: We don't have separate tables for tow trucks or admin notifications in our current schema.
--- If these are needed, we would need to create new tables for them.
-
--- To add more detailed booking information, we can update the services_logs entries:
+-- Update services_logs entries with more detailed booking information
 UPDATE services_logs
 SET 
   pickup_address = '123 Main St',
