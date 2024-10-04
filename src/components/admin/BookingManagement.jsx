@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast } from "@chakra-ui/react";
+import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast, Text } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getBookings, updateBooking, deleteBooking, getPaidBookings } from '../../server/db';
 
@@ -46,6 +46,7 @@ const BookingManagement = ({ showNotification }) => {
 
   if (isLoading) return <Box>Loading bookings...</Box>;
   if (error) return <Box>Error loading bookings: {error.message}</Box>;
+  if (!paidBookingsData || paidBookingsData.length === 0) return <Box>No paid bookings found.</Box>;
 
   return (
     <Box>
@@ -64,7 +65,7 @@ const BookingManagement = ({ showNotification }) => {
           {bookings.map((booking) => (
             <Tr key={booking.id}>
               <Td>{booking.id}</Td>
-              <Td>{booking.users?.full_name}</Td>
+              <Td>{booking.profiles?.full_name}</Td>
               <Td>{booking.services?.name}</Td>
               <Td>
                 <Select
