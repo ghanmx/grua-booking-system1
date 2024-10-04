@@ -106,11 +106,69 @@ CREATE POLICY "Users can view own payment transactions" ON public.payment_transa
     FOR SELECT USING (auth.uid() = (SELECT user_id FROM public.bookings WHERE id = booking_id));
 
 -- New policies for bookings table
-CREATE POLICY "Users can update own bookings" ON public.bookings
-FOR UPDATE USING (auth.uid() = user_id);
 
+-- Modify the "Users can update own bookings before service" policy to include a time restriction
+DROP POLICY IF EXISTS "Users can update own bookings before service" ON public.bookings;
 CREATE POLICY "Users can update own bookings before service" ON public.bookings
-FOR UPDATE USING (auth.uid() = user_id AND booking_date > (now() + interval '24 hours'));
+FOR UPDATE USING (
+    auth.uid() = user_id 
+    AND booking_date > (now() + interval '24 hours')
+    AND payment_status != 'paid'
+);
+
+-- Add a new policy to allow admin users to view and update all bookings
+CREATE POLICY "Admins can view all bookings" ON public.bookings
+FOR SELECT USING (auth.role() = 'admin');
+
+CREATE POLICY "Admins can update all bookings" ON public.bookings
+FOR UPDATE USING (auth.role() = 'admin');
+
+-- Modify the audit logging function to include more details
+CREATE OR REPLACE FUNCTION log_booking_update() 
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO bookings_audit (
+        booking_id, 
+        changed_by, 
+        old_status, 
+        new_status, 
+        old_payment_status, 
+        new_payment_status,
+        old_pickup_address,
+        new_pickup_address,
+        old_dropoff_address,
+        new_dropoff_address
+    )
+    VALUES (
+        OLD.id, 
+        auth.uid(), 
+        OLD.status, 
+        NEW.status, 
+        OLD.payment_status, 
+        NEW.payment_status,
+        OLD.pickup_address,
+        NEW.pickup_address,
+        OLD.dropoff_address,
+        NEW.dropoff_address
+    );
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Modify the bookings_audit table to include additional fields
+ALTER TABLE public.bookings_audit
+ADD COLUMN old_pickup_address TEXT,
+ADD COLUMN new_pickup_address TEXT,
+ADD COLUMN old_dropoff_address TEXT,
+ADD COLUMN new_dropoff_address TEXT;
+
+-- Add an index to improve query performance on the bookings table
+CREATE INDEX idx_bookings_user_id ON public.bookings(user_id);
+CREATE INDEX idx_bookings_booking_date ON public.bookings(booking_date);
+
+-- Add a check constraint to ensure the total_cost is always positive
+ALTER TABLE public.bookings
+ADD CONSTRAINT check_positive_total_cost CHECK (total_cost > 0);
 
 -- Trigger function to limit booking updates
 CREATE OR REPLACE FUNCTION limit_booking_update() 
