@@ -1,6 +1,7 @@
 import supabase from '../config/supabase.config';
 import { ROLES } from '../constants/roles';
 
+// Helper function to handle Supabase errors
 const handleSupabaseError = (error) => {
   console.error('Supabase error:', error);
   throw new Error(error.message || 'An unexpected error occurred');
@@ -173,6 +174,20 @@ export const getAnalytics = async () => {
   }
 };
 
+export const addSpecificAdmin = async (email) => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .upsert({ 
+      email, 
+      role: ROLES.ADMIN 
+    }, { 
+      onConflict: 'email' 
+    });
+
+  if (error) handleSupabaseError(error);
+  return data;
+};
+
 export const setAdminStatus = async (userId, isAdmin) => {
   const { data, error } = await supabase
     .from('profiles')
@@ -182,5 +197,3 @@ export const setAdminStatus = async (userId, isAdmin) => {
   if (error) handleSupabaseError(error);
   return data;
 };
-
-// ... keep existing code
