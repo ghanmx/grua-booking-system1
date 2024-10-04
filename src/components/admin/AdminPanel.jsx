@@ -2,14 +2,16 @@ import React from 'react';
 import { Box, VStack, Heading, Tabs, TabList, TabPanels, Tab, TabPanel, useToast } from "@chakra-ui/react";
 import { useSupabaseAuth } from '../../integrations/supabase/auth';
 import UserManagement from './UserManagement';
-import ServiceManagement from './ServiceManagement';
 import BookingManagement from './BookingManagement';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import { ROLES } from '../../constants/roles';
+import { useBookings } from '../../hooks/useBookings';
 
 const AdminPanel = () => {
   const { session } = useSupabaseAuth();
   const toast = useToast();
+  const { bookings, isLoading, error } = useBookings();
+
   const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
 
   // Updated condition to allow access for test user with admin privileges
@@ -25,7 +27,6 @@ const AdminPanel = () => {
           <TabList mb="1em">
             <Tab>Analytics Dashboard</Tab>
             <Tab>Booking Management</Tab>
-            <Tab>Service Management</Tab>
             <Tab>User Management</Tab>
           </TabList>
           <TabPanels>
@@ -34,12 +35,9 @@ const AdminPanel = () => {
             </TabPanel>
             <TabPanel>
               <BookingManagement
-                showNotification={(title, description, status) => 
-                  toast({ title, description, status, duration: 3000, isClosable: true })}
-              />
-            </TabPanel>
-            <TabPanel>
-              <ServiceManagement
+                bookings={bookings}
+                isLoading={isLoading}
+                error={error}
                 showNotification={(title, description, status) => 
                   toast({ title, description, status, duration: 3000, isClosable: true })}
               />
