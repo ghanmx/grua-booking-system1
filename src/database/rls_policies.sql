@@ -4,7 +4,7 @@ DROP POLICY IF EXISTS "Users can update own data" ON public.users;
 DROP POLICY IF EXISTS "Users can insert own data when authenticated and paid" ON public.users;
 DROP POLICY IF EXISTS "Users can view own bookings" ON public.bookings;
 DROP POLICY IF EXISTS "Users can insert own bookings" ON public.bookings;
-DROP POLICY IF EXISTS "Users can update own bookings" ON public.bookings;
+DROP POLICY IF EXISTS "Users can update own unpaid bookings" ON public.bookings;
 
 -- Create policies for the users table
 CREATE POLICY "Users can view own data" ON public.users
