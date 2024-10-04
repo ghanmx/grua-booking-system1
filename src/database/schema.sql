@@ -1,32 +1,27 @@
 -- Drop existing tables if they exist
-DROP TABLE IF EXISTS services_logs;
-DROP TABLE IF EXISTS services;
-DROP TABLE IF EXISTS profiles;
+DROP TABLE IF EXISTS public.bookings;
+DROP TABLE IF EXISTS public.users;
 
--- Create profiles table
-CREATE TABLE profiles (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES auth.users(id),
-    full_name TEXT,
-    email TEXT UNIQUE,
-    role TEXT CHECK (role IN ('user', 'admin')) DEFAULT 'user'
+-- Create users table with UUID as primary key
+CREATE TABLE public.users (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    username TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create services table
-CREATE TABLE services (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name TEXT NOT NULL,
-    description TEXT,
-    price NUMERIC(10, 2) NOT NULL
-);
-
--- Create services_logs table
-CREATE TABLE services_logs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    profile_id UUID REFERENCES profiles(id),
-    service_id UUID REFERENCES services(id),
-    status TEXT CHECK (status IN ('pending', 'completed', 'cancelled')) DEFAULT 'pending',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+-- Create bookings table
+CREATE TABLE public.bookings (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID NOT NULL,
+    booking_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    status TEXT NOT NULL,
+    payment_status TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT bookings_user_id_fkey FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 -- Enable Row Level Security (RLS) on the users table
@@ -35,45 +30,35 @@ ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 -- Create policies for the users table
 -- Allow users to see their own data
 CREATE POLICY "Users can view own data" ON public.users
-    FOR SELECT
-    USING (auth.uid() = id);
+    FOR SELECT USING (auth.uid() = id);
 
 -- Allow users to update their own data
 CREATE POLICY "Users can update own data" ON public.users
-    FOR UPDATE
-    USING (auth.uid() = id);
+    FOR UPDATE USING (auth.uid() = id);
 
 -- Allow authenticated users to insert their own data when they have a paid booking
 CREATE POLICY "Users can insert own data when authenticated and paid" ON public.users
-FOR INSERT
-WITH CHECK (
-  auth.role() = 'authenticated' AND
-  EXISTS (
-    SELECT 1
-    FROM public.bookings
-    WHERE bookings.user_id = auth.uid() AND bookings.payment_status = 'paid'
-  )
-);
+    FOR INSERT WITH CHECK (
+        auth.role() = 'authenticated' AND
+        EXISTS (
+            SELECT 1
+            FROM public.bookings
+            WHERE bookings.user_id = auth.uid() AND bookings.payment_status = 'paid'
+        )
+    );
 
--- Enable Row Level Security (RLS) on all tables
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE services ENABLE ROW LEVEL SECURITY;
-ALTER TABLE services_logs ENABLE ROW LEVEL SECURITY;
+-- Enable Row Level Security (RLS) on the bookings table
+ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
 
--- Create policies for each table
-CREATE POLICY "Allow public read-only access" ON profiles FOR SELECT USING (true);
-CREATE POLICY "Allow users to update own profile" ON profiles FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Allow authenticated insert" ON profiles FOR INSERT WITH CHECK (auth.uid() = user_id);
+-- Create policies for the bookings table
+-- Allow users to see their own bookings
+CREATE POLICY "Users can view own bookings" ON public.bookings
+    FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY "Allow public read-only access" ON services FOR SELECT USING (true);
-CREATE POLICY "Allow admin to manage services" ON services USING (auth.role() = 'admin');
+-- Allow users to insert their own bookings
+CREATE POLICY "Users can insert own bookings" ON public.bookings
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Allow authenticated read access" ON services_logs FOR SELECT USING (
-    auth.uid() = (SELECT user_id FROM profiles WHERE id = services_logs.profile_id) OR auth.role() = 'admin'
-);
-CREATE POLICY "Allow authenticated insert" ON services_logs FOR INSERT WITH CHECK (
-    auth.uid() = (SELECT user_id FROM profiles WHERE id = services_logs.profile_id)
-);
-CREATE POLICY "Allow users to update own logs" ON services_logs FOR UPDATE USING (
-    auth.uid() = (SELECT user_id FROM profiles WHERE id = services_logs.profile_id) OR auth.role() = 'admin'
-);
+-- Allow users to update their own bookings
+CREATE POLICY "Users can update own bookings" ON public.bookings
+    FOR UPDATE USING (auth.uid() = user_id);
