@@ -30,5 +30,5 @@ CREATE POLICY "Users can view own bookings" ON public.bookings
 CREATE POLICY "Users can insert own bookings" ON public.bookings
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can update own bookings" ON public.bookings
-    FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can update own unpaid bookings" ON public.bookings
+    FOR UPDATE USING (auth.uid() = user_id AND payment_status != 'paid');
