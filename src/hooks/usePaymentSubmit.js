@@ -30,6 +30,7 @@ export const usePaymentSubmit = (formData, totalCost, createBookingMutation, set
           totalCost,
           paymentIntentId: result.paymentIntentId,
           status: 'paid',
+          payment_status: 'paid' // Update payment status
         };
 
         await createBookingMutation.mutateAsync(bookingData);

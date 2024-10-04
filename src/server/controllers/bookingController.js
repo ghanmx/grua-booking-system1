@@ -8,11 +8,13 @@ exports.createBooking = async (req, res, next) => {
       profile_id: req.body.userId,
       service_id: req.body.serviceId,
       status: 'pending',
-      total_cost: req.body.totalCost
+      total_cost: req.body.totalCost,
+      payment_status: 'pending', // Set initial payment status
+      user_id: req.user.id // Assuming you have user information in the request
     };
 
     const { data: createdBooking, error: bookingError } = await supabase
-      .from('services_logs')
+      .from('bookings')
       .insert(bookingData);
     
     if (bookingError) throw bookingError;

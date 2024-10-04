@@ -43,21 +43,18 @@ CREATE POLICY "Users can update own data" ON public.users
     FOR UPDATE
     USING (auth.uid() = id);
 
--- Allow authenticated users to insert their own data
-CREATE POLICY "Users can insert own data" ON public.users
-    FOR INSERT
-    WITH CHECK (auth.uid() = id);
-
--- Allow administrators to view all user data
-CREATE POLICY "Admins can view all user data" ON public.users
-    FOR SELECT
-    USING (auth.role() = 'admin');
-
--- Allow administrators to update all user data
-CREATE POLICY "Admins can update all user data" ON public.users
-    FOR UPDATE
-    USING (auth.role() = 'admin');
-
+-- Allow authenticated users to insert their own data when they have a paid booking
+DROP POLICY IF EXISTS "Users can insert own data" ON public.users;
+CREATE POLICY "Users can insert own data when authenticated and paid" ON public.users
+FOR INSERT
+WITH CHECK (
+  auth.role() = 'authenticated' AND
+  EXISTS (
+    SELECT 1
+    FROM public.bookings
+    WHERE bookings.user_id = auth.uid() AND bookings.payment_status = 'paid'
+  )
+);
 
 -- Enable Row Level Security (RLS) on all tables
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
