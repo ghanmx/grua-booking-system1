@@ -38,6 +38,7 @@ export const useBookingForm = () => {
   const { session } = useSupabaseAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
 
   const createBookingMutation = useMutation({
     mutationFn: createBooking,
@@ -102,7 +103,7 @@ export const useBookingForm = () => {
   }, []);
 
   const handleBookingProcess = useCallback(async () => {
-    if (!session) {
+    if (!session && !testModeUser) {
       toast({
         title: 'Authentication required',
         description: 'Please log in to create a booking.',
@@ -137,7 +138,7 @@ export const useBookingForm = () => {
     }
 
     setIsPaymentWindowOpen(true);
-  }, [session, toast, formData, totalCost]);
+  }, [session, testModeUser, toast, formData, totalCost]);
 
   useEffect(() => {
     localStorage.setItem('bookingFormData', JSON.stringify(formData));
