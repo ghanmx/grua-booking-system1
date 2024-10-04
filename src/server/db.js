@@ -152,5 +152,5 @@ export {
   deleteBooking,
   getAnalytics,
   setAdminStatus,
-  addSpecificAdmin, // Add this line to export the new function
+  addSpecificAdmin,
 };
