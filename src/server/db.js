@@ -1,11 +1,5 @@
-import supabase from '../config/supabase.config';
+import supabase, { handleSupabaseError } from '../integrations/supabase/index.jsx';
 import { ROLES } from '../constants/roles';
-
-// Helper function to handle Supabase errors
-const handleSupabaseError = (error) => {
-  console.error('Supabase error:', error);
-  throw new Error(error.message || 'An unexpected error occurred');
-};
 
 // User-related functions
 export const getUsers = async () => {
@@ -112,7 +106,7 @@ export const getServices = async () => {
   return data;
 };
 
-// Booking-related functions
+// Update the createBooking function to include error handling and query invalidation
 export const createBooking = async (bookingData) => {
   const { data, error } = await supabase
     .from('services_logs')

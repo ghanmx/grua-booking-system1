@@ -12,6 +12,12 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   }
 });
 
+// Add error handling for Supabase operations
+export const handleSupabaseError = (error) => {
+  console.error('Supabase error:', error);
+  // You can add more error handling logic here, such as showing a toast notification
+};
+
 const SupabaseContext = createContext();
 
 export const SupabaseProvider = ({ children }) => {
