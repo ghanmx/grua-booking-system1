@@ -37,12 +37,11 @@ export const getUsers = async () => {
   });
 };
 
-export const getPaidBookings = async () => {
+export const getBookings = async () => {
   return handleSupabaseError(async () => {
     const { data, error } = await supabase
       .from('bookings')
       .select('*, users(username)')
-      .eq('status', 'paid')
       .order('created_at', { ascending: false });
     if (error) throw error;
     return data;
@@ -90,17 +89,6 @@ export const createBooking = async (bookingData) => {
     const { data, error } = await supabase
       .from('bookings')
       .insert(bookingData);
-    if (error) throw error;
-    return data;
-  });
-};
-
-export const getBookings = async () => {
-  return handleSupabaseError(async () => {
-    const { data, error } = await supabase
-      .from('bookings')
-      .select('*, users(username)')
-      .order('created_at', { ascending: false });
     if (error) throw error;
     return data;
   });
