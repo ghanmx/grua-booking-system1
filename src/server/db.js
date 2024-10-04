@@ -48,6 +48,18 @@ export const getBookings = async () => {
   });
 };
 
+export const getPaidBookings = async () => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('*, users(username)')
+      .eq('payment_status', 'paid')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  });
+};
+
 export const createUser = async (userData) => {
   return handleSupabaseError(async () => {
     const { data, error } = await supabase
