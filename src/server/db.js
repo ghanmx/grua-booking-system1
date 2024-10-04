@@ -1,7 +1,6 @@
 import supabase from '../config/supabase.config';
 import { ROLES } from '../constants/roles';
 
-// Helper function to handle Supabase errors
 const handleSupabaseError = (error) => {
   console.error('Supabase error:', error);
   throw new Error(error.message || 'An unexpected error occurred');
@@ -173,3 +172,15 @@ export const getAnalytics = async () => {
     throw new Error('Failed to fetch analytics data');
   }
 };
+
+export const setAdminStatus = async (userId, isAdmin) => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ role: isAdmin ? ROLES.ADMIN : ROLES.USER })
+    .eq('id', userId);
+  
+  if (error) handleSupabaseError(error);
+  return data;
+};
+
+// ... keep existing code
