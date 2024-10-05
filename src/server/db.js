@@ -5,8 +5,7 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_API_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Helper function to handle Supabase errors with retry logic
-const handleSupabaseError = async (operation) => {
+const handleSupabaseError = async (operation, entityName) => {
   const maxRetries = 3;
   let retries = 0;
 
@@ -15,7 +14,7 @@ const handleSupabaseError = async (operation) => {
       const result = await operation();
       return result;
     } catch (error) {
-      console.error('Supabase error:', error);
+      console.error(`Supabase error (${entityName}):`, error);
       retries++;
       if (retries === maxRetries) {
         throw new Error(`Failed after ${maxRetries} attempts: ${error.message}`);
@@ -34,17 +33,11 @@ export const getUsers = async (page = 1, limit = 10) => {
       .order('created_at', { ascending: false })
       .range(startIndex, startIndex + limit - 1);
     
-    if (error) {
-      console.error('Supabase error details:', error);
-      throw new Error(`Failed to fetch users: ${error.message}`);
-    }
-    
-    if (!data) {
-      throw new Error('No data returned from Supabase');
-    }
+    if (error) throw new Error(`Failed to fetch users: ${error.message}`);
+    if (!data) throw new Error('No user data returned from Supabase');
     
     return { data, count, totalPages: Math.ceil(count / limit) };
-  });
+  }, 'users');
 };
 
 export const getBookings = async (page = 1, limit = 10) => {
@@ -56,17 +49,25 @@ export const getBookings = async (page = 1, limit = 10) => {
       .order('created_at', { ascending: false })
       .range(startIndex, startIndex + limit - 1);
     
-    if (error) {
-      console.error('Supabase error details:', error);
-      throw new Error(`Failed to fetch bookings: ${error.message}`);
-    }
-    
-    if (!data) {
-      throw new Error('No data returned from Supabase');
-    }
+    if (error) throw new Error(`Failed to fetch bookings: ${error.message}`);
+    if (!data) throw new Error('No booking data returned from Supabase');
     
     return { data, count, totalPages: Math.ceil(count / limit) };
-  });
+  }, 'bookings');
+};
+
+export const getServices = async () => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase
+      .from('services')
+      .select('*')
+      .order('name', { ascending: true });
+    
+    if (error) throw new Error(`Failed to fetch services: ${error.message}`);
+    if (!data) throw new Error('No service data returned from Supabase');
+    
+    return data;
+  }, 'services');
 };
 
 export const getPaidBookings = async (page = 1, limit = 10) => {
