@@ -1,5 +1,15 @@
 import supabase from '../config/supabase.config';
-import { logger } from './middleware/errorHandler';
+import winston from 'winston';
+
+// Create a logger
+const logger = winston.createLogger({
+  level: 'error',
+  format: winston.format.json(),
+  defaultMeta: { service: 'user-service' },
+  transports: [
+    new winston.transports.Console({ format: winston.format.simple() })
+  ]
+});
 
 const handleSupabaseError = async (operation, entityName) => {
   const maxRetries = 3;
