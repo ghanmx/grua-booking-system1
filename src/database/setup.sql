@@ -83,7 +83,6 @@ CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON public.bookings(user_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_service_id ON public.bookings(service_id);
 CREATE INDEX IF NOT EXISTS idx_payments_booking_id ON public.payments(booking_id);
 
--- Triggers
 CREATE OR REPLACE FUNCTION update_updated_at() RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = NOW();
@@ -165,3 +164,4 @@ SELECT
   id, total_cost, 'PayPal', NULL, 'pending'
 FROM public.bookings 
 WHERE status = 'pending';
+

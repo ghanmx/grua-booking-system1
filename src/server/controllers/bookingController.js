@@ -29,7 +29,8 @@ exports.createBooking = async (req, res, next) => {
 
     const { data: createdBooking, error: bookingError } = await supabase
       .from('bookings')
-      .insert(bookingData);
+      .insert(bookingData)
+      .select();
     
     if (bookingError) throw bookingError;
 
