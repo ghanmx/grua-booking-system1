@@ -4,181 +4,168 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Controller } from "react-hook-form";
 
+const FormField = ({ label, children, error }) => (
+  <FormControl isInvalid={error}>
+    <FormLabel>{label}</FormLabel>
+    {children}
+    <FormErrorMessage>{error && error.message}</FormErrorMessage>
+  </FormControl>
+);
+
 export const ServiceTypeField = ({ register, errors, formData, handleChange }) => (
-  <FormControl isInvalid={errors.serviceType}>
-    <FormLabel>Tow Service Type</FormLabel>
+  <FormField label="Tipo de Servicio de Grúa" error={errors.serviceType}>
     <Select
-      {...register("serviceType", { required: "Service type is required" })}
+      {...register("serviceType", { required: "El tipo de servicio es requerido" })}
       value={formData.serviceType}
       onChange={handleChange}
       name="serviceType"
     >
-      <option value="">Select a tow service</option>
-      <option value="Standard Tow">Standard Tow</option>
-      <option value="Flatbed Tow">Flatbed Tow</option>
-      <option value="Long Distance Tow">Long Distance Tow</option>
-      <option value="Heavy Duty Tow">Heavy Duty Tow</option>
+      <option value="">Seleccione un servicio de grúa</option>
+      <option value="Standard Tow">Remolque Estándar</option>
+      <option value="Flatbed Tow">Remolque de Plataforma</option>
+      <option value="Long Distance Tow">Remolque de Larga Distancia</option>
+      <option value="Heavy Duty Tow">Remolque de Carga Pesada</option>
     </Select>
-    <FormErrorMessage>{errors.serviceType && errors.serviceType.message}</FormErrorMessage>
-  </FormControl>
+  </FormField>
 );
 
 export const UserInfoFields = ({ register, errors, formData, handleChange }) => (
   <>
-    <FormControl isInvalid={errors.userName}>
-      <FormLabel>Name</FormLabel>
+    <FormField label="Nombre" error={errors.userName}>
       <Input
-        {...register("userName", { required: "Name is required" })}
+        {...register("userName", { required: "El nombre es requerido" })}
         value={formData.userName}
         onChange={handleChange}
         name="userName"
       />
-      <FormErrorMessage>{errors.userName && errors.userName.message}</FormErrorMessage>
-    </FormControl>
+    </FormField>
     
-    <FormControl isInvalid={errors.phoneNumber}>
-      <FormLabel>Phone Number</FormLabel>
+    <FormField label="Número de Teléfono" error={errors.phoneNumber}>
       <Input
         {...register("phoneNumber", { 
-          required: "Phone number is required",
+          required: "El número de teléfono es requerido",
           pattern: {
             value: /^\d{10}$/,
-            message: "Invalid phone number, should be 10 digits"
+            message: "Número de teléfono inválido, debe tener 10 dígitos"
           }
         })}
         value={formData.phoneNumber}
         onChange={handleChange}
         name="phoneNumber"
       />
-      <FormErrorMessage>{errors.phoneNumber && errors.phoneNumber.message}</FormErrorMessage>
-    </FormControl>
+    </FormField>
   </>
 );
 
 export const VehicleInfoFields = ({ register, errors, formData, handleChange, vehicleBrands, vehicleModels }) => (
   <>
-    <FormControl isInvalid={errors.vehicleBrand}>
-      <FormLabel>Vehicle Brand</FormLabel>
+    <FormField label="Marca del Vehículo" error={errors.vehicleBrand}>
       <Select
-        {...register("vehicleBrand", { required: "Vehicle brand is required" })}
+        {...register("vehicleBrand", { required: "La marca del vehículo es requerida" })}
         value={formData.vehicleBrand}
         onChange={handleChange}
         name="vehicleBrand"
       >
-        <option value="">Select a brand</option>
+        <option value="">Seleccione una marca</option>
         {vehicleBrands.map((brand) => (
           <option key={brand} value={brand}>{brand}</option>
         ))}
       </Select>
-      <FormErrorMessage>{errors.vehicleBrand && errors.vehicleBrand.message}</FormErrorMessage>
-    </FormControl>
+    </FormField>
 
-    <FormControl isInvalid={errors.vehicleModel}>
-      <FormLabel>Vehicle Model</FormLabel>
+    <FormField label="Modelo del Vehículo" error={errors.vehicleModel}>
       <Select
-        {...register("vehicleModel", { required: "Vehicle model is required" })}
+        {...register("vehicleModel", { required: "El modelo del vehículo es requerido" })}
         value={formData.vehicleModel}
         onChange={handleChange}
         name="vehicleModel"
         disabled={!formData.vehicleBrand}
       >
-        <option value="">Select a model</option>
+        <option value="">Seleccione un modelo</option>
         {formData.vehicleBrand && vehicleModels[formData.vehicleBrand] && 
           vehicleModels[formData.vehicleBrand].map((model) => (
             <option key={model} value={model}>{model}</option>
           ))
         }
       </Select>
-      <FormErrorMessage>{errors.vehicleModel && errors.vehicleModel.message}</FormErrorMessage>
-    </FormControl>
+    </FormField>
 
-    <FormControl isInvalid={errors.vehicleColor}>
-      <FormLabel>Vehicle Color</FormLabel>
+    <FormField label="Color del Vehículo" error={errors.vehicleColor}>
       <Input
-        {...register("vehicleColor", { required: "Vehicle color is required" })}
+        {...register("vehicleColor", { required: "El color del vehículo es requerido" })}
         value={formData.vehicleColor}
         onChange={handleChange}
         name="vehicleColor"
       />
-      <FormErrorMessage>{errors.vehicleColor && errors.vehicleColor.message}</FormErrorMessage>
-    </FormControl>
+    </FormField>
 
-    <FormControl isInvalid={errors.licensePlate}>
-      <FormLabel>License Plate</FormLabel>
+    <FormField label="Placa del Vehículo" error={errors.licensePlate}>
       <Input
-        {...register("licensePlate", { required: "License plate is required" })}
+        {...register("licensePlate", { required: "La placa del vehículo es requerida" })}
         value={formData.licensePlate}
         onChange={handleChange}
         name="licensePlate"
       />
-      <FormErrorMessage>{errors.licensePlate && errors.licensePlate.message}</FormErrorMessage>
-    </FormControl>
+    </FormField>
   </>
 );
 
 export const VehicleConditionFields = ({ control, errors }) => (
   <>
-    <FormControl isInvalid={errors.vehicleCondition}>
-      <FormLabel>Vehicle Condition</FormLabel>
+    <FormField label="Condición del Vehículo" error={errors.vehicleCondition}>
       <Controller
         name="vehicleCondition"
         control={control}
-        rules={{ required: "Vehicle condition is required" }}
+        rules={{ required: "La condición del vehículo es requerida" }}
         render={({ field }) => (
           <RadioGroup {...field}>
             <Stack direction="column">
-              <Radio value="driveable">Driveable</Radio>
-              <Radio value="notDriveable">Not Driveable</Radio>
-              <Radio value="accident">Accident/Collision</Radio>
+              <Radio value="driveable">Conducible</Radio>
+              <Radio value="notDriveable">No Conducible</Radio>
+              <Radio value="accident">Accidente/Colisión</Radio>
             </Stack>
           </RadioGroup>
         )}
       />
-      <FormErrorMessage>{errors.vehicleCondition && errors.vehicleCondition.message}</FormErrorMessage>
-    </FormControl>
+    </FormField>
 
-    <FormControl isInvalid={errors.vehiclePosition}>
-      <FormLabel>Vehicle Position</FormLabel>
+    <FormField label="Posición del Vehículo" error={errors.vehiclePosition}>
       <Controller
         name="vehiclePosition"
         control={control}
-        rules={{ required: "Vehicle position is required" }}
+        rules={{ required: "La posición del vehículo es requerida" }}
         render={({ field }) => (
           <RadioGroup {...field}>
             <Stack direction="column">
-              <Radio value="upright">Upright</Radio>
-              <Radio value="onSide">On its side</Radio>
-              <Radio value="upsideDown">Upside down</Radio>
+              <Radio value="upright">De pie</Radio>
+              <Radio value="onSide">De lado</Radio>
+              <Radio value="upsideDown">Volcado</Radio>
             </Stack>
           </RadioGroup>
         )}
       />
-      <FormErrorMessage>{errors.vehiclePosition && errors.vehiclePosition.message}</FormErrorMessage>
-    </FormControl>
+    </FormField>
   </>
 );
 
 export const AdditionalDetailsField = ({ register, errors, formData, handleChange }) => (
-  <FormControl isInvalid={errors.additionalDetails}>
-    <FormLabel>Additional Details</FormLabel>
+  <FormField label="Detalles Adicionales" error={errors.additionalDetails}>
     <Textarea
       {...register("additionalDetails")}
-      placeholder="Any other information about the vehicle or situation"
+      placeholder="Cualquier otra información sobre el vehículo o la situación"
       value={formData.additionalDetails}
       onChange={handleChange}
       name="additionalDetails"
     />
-    <FormErrorMessage>{errors.additionalDetails && errors.additionalDetails.message}</FormErrorMessage>
-  </FormControl>
+  </FormField>
 );
 
 export const PickupDateTimeField = ({ control, errors, handleDateTimeChange }) => (
-  <FormControl isInvalid={errors.pickupDateTime}>
-    <FormLabel>Pickup Date and Time</FormLabel>
+  <FormField label="Fecha y Hora de Recogida" error={errors.pickupDateTime}>
     <Controller
       control={control}
       name="pickupDateTime"
-      rules={{ required: "Pickup date and time is required" }}
+      rules={{ required: "La fecha y hora de recogida son requeridas" }}
       render={({ field }) => (
         <DatePicker
           selected={field.value}
@@ -192,23 +179,20 @@ export const PickupDateTimeField = ({ control, errors, handleDateTimeChange }) =
         />
       )}
     />
-    <FormErrorMessage>{errors.pickupDateTime && errors.pickupDateTime.message}</FormErrorMessage>
-  </FormControl>
+  </FormField>
 );
 
 export const PaymentMethodField = ({ register, errors, formData, handleChange }) => (
-  <FormControl isInvalid={errors.paymentMethod}>
-    <FormLabel>Payment Method</FormLabel>
+  <FormField label="Método de Pago" error={errors.paymentMethod}>
     <Select
-      {...register("paymentMethod", { required: "Payment method is required" })}
+      {...register("paymentMethod", { required: "El método de pago es requerido" })}
       value={formData.paymentMethod}
       onChange={handleChange}
       name="paymentMethod"
     >
-      <option value="">Select a payment method</option>
-      <option value="card">Credit/Debit Card</option>
+      <option value="">Seleccione un método de pago</option>
+      <option value="card">Tarjeta de Crédito/Débito</option>
       <option value="paypal">PayPal</option>
     </Select>
-    <FormErrorMessage>{errors.paymentMethod && errors.paymentMethod.message}</FormErrorMessage>
-  </FormControl>
+  </FormField>
 );
