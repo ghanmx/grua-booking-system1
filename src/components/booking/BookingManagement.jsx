@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast, Text } from "@chakra-ui/react";
+import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast, Text, Alert, AlertIcon } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getPaidBookings, updateBooking, deleteBooking } from '../../server/db';
 
@@ -7,7 +7,7 @@ const BookingManagement = () => {
   const queryClient = useQueryClient();
   const toast = useToast();
 
-  const { data: bookingsData, isLoading, error } = useQuery({
+  const { data: bookingsData, isLoading, error, refetch } = useQuery({
     queryKey: ['paidBookings'],
     queryFn: getPaidBookings,
     retry: 3,
@@ -53,8 +53,30 @@ const BookingManagement = () => {
   };
 
   if (isLoading) return <Box>Loading bookings...</Box>;
-  if (error) return <Box>Error loading bookings: {error.message}. Please try again later.</Box>;
-  if (!bookingsData || bookingsData.data.length === 0) return <Box>No paid bookings found.</Box>;
+  
+  if (error) {
+    return (
+      <Box>
+        <Alert status="error" mb={4}>
+          <AlertIcon />
+          Error loading bookings: {error.message}
+        </Alert>
+        <Button onClick={() => refetch()}>Try Again</Button>
+      </Box>
+    );
+  }
+
+  if (!bookingsData || bookingsData.data.length === 0) {
+    return (
+      <Box>
+        <Alert status="info" mb={4}>
+          <AlertIcon />
+          No paid bookings found.
+        </Alert>
+        <Button onClick={() => refetch()}>Refresh</Button>
+      </Box>
+    );
+  }
 
   return (
     <Box>
