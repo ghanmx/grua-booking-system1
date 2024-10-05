@@ -97,6 +97,7 @@ CREATE TRIGGER update_services_timestamp BEFORE UPDATE ON public.services FOR EA
 CREATE TRIGGER update_bookings_timestamp BEFORE UPDATE ON public.bookings FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER update_payments_timestamp BEFORE UPDATE ON public.payments FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+
 -- Row-level security (RLS) and policies
 ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -104,15 +105,10 @@ ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.payments ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY user_crud_own ON auth.users USING (auth.uid() = id);
-CREATE POLICY profile_crud_own ON public.profiles USING (auth.uid() = user_id);
-CREATE POLICY booking_crud_own ON public.bookings USING (auth.uid() = user_id);
-CREATE POLICY payment_crud_own ON public.payments USING (
-  auth.uid() = (SELECT user_id FROM public.bookings WHERE id = booking_id)
-);
 
--- Comprehensive policy for authenticated users
-CREATE POLICY "Authenticated users can update their own profile" ON public.profiles
-FOR UPDATE TO authenticated
+-- Updated policy for profiles
+CREATE POLICY "Users can manage their own profile" ON public.profiles
+FOR ALL TO authenticated
 USING (auth.uid() = user_id)
 WITH CHECK (
     auth.uid() = user_id
@@ -122,13 +118,22 @@ WITH CHECK (
     )
 );
 
--- Policy for admin users
-CREATE POLICY "Admin users can update all profiles" ON public.profiles
-FOR UPDATE TO authenticated
-USING (auth.jwt()->>'role' = 'admin')
-WITH CHECK (auth.jwt()->>'role' = 'admin');
+-- Updated policy for admin users on profiles
+CREATE POLICY "Admin users can manage all profiles" ON public.profiles
+FOR ALL TO authenticated
+USING ((SELECT auth.jwt()->>'role') IN ('admin', 'super_admin'))
+WITH CHECK ((SELECT auth.jwt()->>'role') IN ('admin', 'super_admin'));
 
--- Sample data
+-- Combined policy for bookings
+CREATE POLICY "Users can manage their own bookings" ON public.bookings
+FOR ALL TO authenticated
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY payment_crud_own ON public.payments USING (
+  auth.uid() = (SELECT user_id FROM public.bookings WHERE id = booking_id)
+);
+
 INSERT INTO auth.users (email, password_hash, role) VALUES
   ('john.doe@example.com', crypt('password123', gen_salt('bf')), 'user'),
   ('jane.smith@example.com', crypt('adminpass456', gen_salt('bf')), 'admin');
