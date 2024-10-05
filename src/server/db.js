@@ -1,4 +1,5 @@
 import supabase from '../config/supabase.config';
+import { logger } from './middleware/errorHandler';
 
 const handleSupabaseError = async (operation, entityName) => {
   const maxRetries = 3;
@@ -9,7 +10,7 @@ const handleSupabaseError = async (operation, entityName) => {
       const result = await operation();
       return result;
     } catch (error) {
-      console.error(`Supabase error (${entityName}):`, error);
+      logger.error(`Supabase error (${entityName}):`, error);
       retries++;
       if (retries === maxRetries) {
         throw new Error(`Failed after ${maxRetries} attempts: ${error.message}`);
@@ -34,21 +35,23 @@ export const getUsers = async (page = 1, limit = 10) => {
 };
 
 export const getBookings = async (page = 1, limit = 10) => {
-  const startIndex = (page - 1) * limit;
-  const { data, error, count } = await supabase
-    .from('bookings')
-    .select(`
-      *,
-      users (id, email),
-      services (id, name, tow_truck_type)
-    `, { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(startIndex, startIndex + limit - 1);
-  
-  if (error) throw new Error(`Failed to fetch bookings: ${error.message}`);
-  if (!data) throw new Error('No booking data returned from Supabase');
-  
-  return { data, count, totalPages: Math.ceil(count / limit) };
+  return handleSupabaseError(async () => {
+    const startIndex = (page - 1) * limit;
+    const { data, error, count } = await supabase
+      .from('bookings')
+      .select(`
+        *,
+        users (id, email),
+        services (id, name, tow_truck_type)
+      `, { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(startIndex, startIndex + limit - 1);
+    
+    if (error) throw new Error(`Failed to fetch bookings: ${error.message}`);
+    if (!data) throw new Error('No booking data returned from Supabase');
+    
+    return { data, count, totalPages: Math.ceil(count / limit) };
+  }, 'bookings');
 };
 
 export const getPaidBookings = async (page = 1, limit = 10) => {
