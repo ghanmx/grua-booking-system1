@@ -3,7 +3,7 @@ const cors = require('cors');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { createBooking } = require('./controllers/bookingController');
 const { createAdminUser, getPaidServices, updateService } = require('./controllers/adminController');
-const { getSettings, updateSetting } = require('./controllers/settingsController');
+const settingsRoutes = require('./routes/settingsRoutes');
 
 const app = express();
 
@@ -14,8 +14,7 @@ app.post('/api/bookings', createBooking);
 app.post('/api/admin/create', createAdminUser);
 app.get('/api/admin/paid-services', getPaidServices);
 app.put('/api/admin/services/:id', updateService);
-app.get('/api/settings', getSettings);
-app.put('/api/settings/:key', updateSetting);
+app.use('/api/settings', settingsRoutes);
 
 app.post('/api/process-payment', async (req, res) => {
   const { paymentMethodId, amount } = req.body;

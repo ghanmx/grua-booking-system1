@@ -2,19 +2,17 @@ import React from 'react';
 import { Box, VStack, Heading, Tabs, TabList, TabPanels, Tab, TabPanel, useToast } from "@chakra-ui/react";
 import { useSupabaseAuth } from '../../integrations/supabase/auth';
 import UserManagement from './UserManagement';
+import ServiceManagement from './ServiceManagement';
 import BookingManagement from './BookingManagement';
 import AnalyticsDashboard from './AnalyticsDashboard';
+import SMTPSettingsForm from '../SMTPSettingsForm';
 import { ROLES } from '../../constants/roles';
-import { useBookings } from '../../hooks/useBookings';
 
 const AdminPanel = () => {
   const { session } = useSupabaseAuth();
   const toast = useToast();
-  const { bookings, isLoading, error } = useBookings();
-
   const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
 
-  // Updated condition to allow access for test user with admin privileges
   if (!session && (!testModeUser || !testModeUser.isAdmin)) {
     return <Box p={4}><Heading as="h2" size="lg">You do not have admin privileges.</Heading></Box>;
   }
@@ -27,7 +25,9 @@ const AdminPanel = () => {
           <TabList mb="1em">
             <Tab>Analytics Dashboard</Tab>
             <Tab>Booking Management</Tab>
+            <Tab>Service Management</Tab>
             <Tab>User Management</Tab>
+            <Tab>SMTP Settings</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -35,9 +35,12 @@ const AdminPanel = () => {
             </TabPanel>
             <TabPanel>
               <BookingManagement
-                bookings={bookings}
-                isLoading={isLoading}
-                error={error}
+                showNotification={(title, description, status) => 
+                  toast({ title, description, status, duration: 3000, isClosable: true })}
+              />
+            </TabPanel>
+            <TabPanel>
+              <ServiceManagement
                 showNotification={(title, description, status) => 
                   toast({ title, description, status, duration: 3000, isClosable: true })}
               />
@@ -47,6 +50,9 @@ const AdminPanel = () => {
                 showNotification={(title, description, status) => 
                   toast({ title, description, status, duration: 3000, isClosable: true })}
               />
+            </TabPanel>
+            <TabPanel>
+              <SMTPSettingsForm />
             </TabPanel>
           </TabPanels>
         </Tabs>
