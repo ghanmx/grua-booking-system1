@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import { ROLES } from '../constants/roles';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_API_KEY;
@@ -19,23 +18,11 @@ const handleSupabaseError = async (operation) => {
       console.error('Supabase error:', error);
       retries++;
       if (retries === maxRetries) {
-        throw new Error(error.message || 'An unexpected error occurred');
+        throw new Error(`Failed after ${maxRetries} attempts: ${error.message}`);
       }
       await new Promise(resolve => setTimeout(resolve, 1000 * retries));
     }
   }
-};
-
-export const getUsers = async (page = 1, limit = 10) => {
-  return handleSupabaseError(async () => {
-    const startIndex = (page - 1) * limit;
-    const { data, error, count } = await supabase
-      .from('users')
-      .select('id, username, email, created_at', { count: 'exact' })
-      .range(startIndex, startIndex + limit - 1);
-    if (error) throw error;
-    return { data, count, totalPages: Math.ceil(count / limit) };
-  });
 };
 
 export const getBookings = async (page = 1, limit = 10) => {
@@ -46,7 +33,16 @@ export const getBookings = async (page = 1, limit = 10) => {
       .select('*, users(username)', { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(startIndex, startIndex + limit - 1);
-    if (error) throw error;
+    
+    if (error) {
+      console.error('Supabase error details:', error);
+      throw new Error(`Failed to fetch bookings: ${error.message}`);
+    }
+    
+    if (!data) {
+      throw new Error('No data returned from Supabase');
+    }
+    
     return { data, count, totalPages: Math.ceil(count / limit) };
   });
 };
@@ -132,3 +128,4 @@ export const deleteBooking = async (id) => {
     return data;
   });
 };
+

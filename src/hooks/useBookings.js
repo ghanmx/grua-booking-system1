@@ -15,16 +15,19 @@ export const useBookings = () => {
         console.error('Failed to fetch bookings:', error);
         toast({
           title: 'Error fetching bookings',
-          description: 'Please try again later or contact support if the problem persists.',
+          description: 'Please try again later. If the problem persists, contact support.',
           status: 'error',
           duration: 5000,
           isClosable: true,
         });
-        throw error;
+        throw error; // Re-throw the error to let React Query handle it
       }
     },
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     refetchOnWindowFocus: false,
+    onError: (error) => {
+      console.error('React Query error:', error);
+    },
   });
 };
