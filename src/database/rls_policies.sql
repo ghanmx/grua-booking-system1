@@ -1,34 +1,32 @@
--- Drop existing policies if they exist
-DROP POLICY IF EXISTS "Users can view own data" ON public.users;
-DROP POLICY IF EXISTS "Users can update own data" ON public.users;
-DROP POLICY IF EXISTS "Users can insert own data when authenticated and paid" ON public.users;
-DROP POLICY IF EXISTS "Users can view own bookings" ON public.bookings;
-DROP POLICY IF EXISTS "Users can insert own bookings" ON public.bookings;
-DROP POLICY IF EXISTS "Users can update own unpaid bookings" ON public.bookings;
+-- Drop existing policies for public.profiles
+DROP POLICY IF EXISTS "Admin users can update profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Authenticated users can update their full name" ON public.profiles;
+DROP POLICY IF EXISTS "Authenticated users can update their full name if not empty" ON public.profiles;
+DROP POLICY IF EXISTS "Authenticated users can update their phone number" ON public.profiles;
+DROP POLICY IF EXISTS "Authenticated users can update their phone number if it matches" ON public.profiles;
+DROP POLICY IF EXISTS "Authenticated users can update their phone number if not empty" ON public.profiles;
+DROP POLICY IF EXISTS "Authenticated users can update their role" ON public.profiles;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 
--- Create policies for the users table
-CREATE POLICY "Users can view own data" ON public.users
-    FOR SELECT USING (auth.uid() = id);
+-- Create a single comprehensive policy for authenticated users
+CREATE POLICY "Authenticated users can update their own profile" ON public.profiles
+FOR UPDATE TO authenticated
+USING (auth.uid() = user_id)
+WITH CHECK (
+    auth.uid() = user_id
+    AND (
+        (full_name IS NOT NULL AND full_name != '')
+        AND (phone_number IS NOT NULL AND phone_number != '' AND phone_number ~ '^[0-9+()-\s]{10,20}$')
+    )
+);
 
-CREATE POLICY "Users can update own data" ON public.users
-    FOR UPDATE USING (auth.uid() = id);
+-- Create a separate policy for admin users
+CREATE POLICY "Admin users can update all profiles" ON public.profiles
+FOR UPDATE TO authenticated
+USING (auth.jwt()->>'role' = 'admin')
+WITH CHECK (auth.jwt()->>'role' = 'admin');
 
-CREATE POLICY "Users can insert own data when authenticated and paid" ON public.users
-    FOR INSERT WITH CHECK (
-        auth.role() = 'authenticated' AND
-        EXISTS (
-            SELECT 1
-            FROM public.bookings
-            WHERE bookings.user_id = auth.uid() AND bookings.payment_status = 'paid'
-        )
-    );
+-- Ensure RLS is enabled on the profiles table
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
--- Create policies for the bookings table
-CREATE POLICY "Users can view own bookings" ON public.bookings
-    FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own bookings" ON public.bookings
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own unpaid bookings" ON public.bookings
-    FOR UPDATE USING (auth.uid() = user_id AND payment_status != 'paid');
+-- ... keep existing code
