@@ -10,7 +10,7 @@ CREATE TYPE vehicle_size AS ENUM('small', 'medium', 'large');
 CREATE TYPE tow_truck_type AS ENUM('A', 'C', 'D');
 
 -- Tables
-CREATE TABLE auth.users (
+CREATE TABLE IF NOT EXISTS auth.users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE auth.users (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE public.profiles (
+CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     full_name TEXT NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE public.profiles (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE public.services (
+CREATE TABLE IF NOT EXISTS public.services (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name TEXT NOT NULL,
     description TEXT,
@@ -40,7 +40,7 @@ CREATE TABLE public.services (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE public.bookings (
+CREATE TABLE IF NOT EXISTS public.bookings (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES auth.users(id),
     service_id UUID NOT NULL REFERENCES public.services(id),
@@ -66,7 +66,7 @@ CREATE TABLE public.bookings (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE public.payments (
+CREATE TABLE IF NOT EXISTS public.payments (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     booking_id UUID NOT NULL REFERENCES public.bookings(id),
     amount NUMERIC(10, 2) NOT NULL,
@@ -78,10 +78,10 @@ CREATE TABLE public.payments (
 );
 
 -- Indexes
-CREATE INDEX idx_users_email ON auth.users(email);
-CREATE INDEX idx_bookings_user_id ON public.bookings(user_id);
-CREATE INDEX idx_bookings_service_id ON public.bookings(service_id);
-CREATE INDEX idx_payments_booking_id ON public.payments(booking_id);
+CREATE INDEX IF NOT EXISTS idx_users_email ON auth.users(email);
+CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON public.bookings(user_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_service_id ON public.bookings(service_id);
+CREATE INDEX IF NOT EXISTS idx_payments_booking_id ON public.payments(booking_id);
 
 -- Functions and Triggers
 CREATE OR REPLACE FUNCTION update_updated_at()
@@ -113,8 +113,9 @@ BEFORE UPDATE ON public.payments
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- Roles and Access Control
-CREATE ROLE app_user;
-CREATE ROLE app_admin;
+-- Note: Role creation is typically handled by Supabase, so we'll skip this part
+-- CREATE ROLE app_user;
+-- CREATE ROLE app_admin;
 
 ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
