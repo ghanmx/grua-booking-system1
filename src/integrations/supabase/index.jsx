@@ -1,16 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
 import React, { createContext, useContext } from 'react';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_API_KEY;
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  }
-});
+import supabase from '../../config/supabase.config';
 
 // Add error handling for Supabase operations
 export const handleSupabaseError = (error) => {
@@ -36,4 +25,4 @@ export const useSupabase = () => {
   return context;
 };
 
-export default supabase;
+export { supabase };
