@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { createBooking } from '../server/db';
 import { testPayment } from '../utils/testPayment';
-import { getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
+import { getVehicleSize, getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
 
 export const useBookingForm = () => {
   const [formData, setFormData] = useState(() => {
@@ -26,6 +26,10 @@ export const useBookingForm = () => {
       wheelsStatus: '',
       pickupDateTime: new Date(),
       paymentMethod: 'card',
+      vehiclePosition: '',
+      inNeutral: false,
+      engineStarts: false,
+      wheelsSteer: false,
     };
   });
 
@@ -85,21 +89,26 @@ export const useBookingForm = () => {
         ...prevData,
         vehicleSize: vehicleSize
       }));
-      setSelectedTowTruck(towTruckType);
-      updateTotalCost(distance, towTruckType);
+      updateTotalCost(distance, towTruckType, formData.vehiclePosition === 'obstructed');
     }
-  }, [distance]);
+
+    if (name === 'vehiclePosition') {
+      const vehicleSize = getVehicleSize(formData.vehicleModel);
+      const towTruckType = getTowTruckType(vehicleSize);
+      updateTotalCost(distance, towTruckType, value === 'obstructed');
+    }
+  }, [distance, formData]);
+
+  const updateTotalCost = useCallback((distance, towTruckType, requiresManeuver) => {
+    const cost = calculateTotalCost(distance, towTruckType, requiresManeuver);
+    setTotalCost(cost);
+  }, []);
 
   const handleDateTimeChange = useCallback((date) => {
     setFormData(prevData => ({
       ...prevData,
       pickupDateTime: date
     }));
-  }, []);
-
-  const updateTotalCost = useCallback((distance, towTruckType) => {
-    const cost = calculateTotalCost(distance, towTruckType);
-    setTotalCost(cost);
   }, []);
 
   const handleBookingProcess = useCallback(async () => {

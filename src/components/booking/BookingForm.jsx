@@ -10,6 +10,7 @@ import {
   PickupDateTimeField,
   PaymentMethodField
 } from './BookingFormFields';
+import { getVehicleSize, getTowTruckType, calculateTotalCost } from '../../utils/towTruckSelection';
 
 const BookingForm = ({
   formData,
@@ -17,12 +18,26 @@ const BookingForm = ({
   handleDateTimeChange,
   handleBookingProcess,
   isLoading,
-  selectedTowTruck,
   totalCost,
+  setTotalCost,
+  distance,
   vehicleBrands,
   vehicleModels
 }) => {
-  const { register, handleSubmit, control, formState: { errors } } = useForm();
+  const { register, handleSubmit, control, watch, formState: { errors } } = useForm();
+
+  const watchVehicleModel = watch('vehicleModel');
+  const watchVehiclePosition = watch('vehiclePosition');
+
+  React.useEffect(() => {
+    if (watchVehicleModel && distance) {
+      const vehicleSize = getVehicleSize(watchVehicleModel);
+      const towTruckType = getTowTruckType(vehicleSize);
+      const requiresManeuver = watchVehiclePosition === 'obstructed';
+      const cost = calculateTotalCost(distance, towTruckType, requiresManeuver);
+      setTotalCost(cost);
+    }
+  }, [watchVehicleModel, watchVehiclePosition, distance, setTotalCost]);
 
   const onSubmit = (data) => {
     handleBookingProcess(data);
@@ -43,7 +58,7 @@ const BookingForm = ({
       zIndex={1000}
     >
       <VStack spacing={4} align="stretch">
-        <Heading as="h1" size="lg">Tow Service Booking</Heading>
+        <Heading as="h1" size="lg">Servicio de Grúa</Heading>
         <form onSubmit={handleSubmit(onSubmit)}>
           <ServiceTypeField register={register} errors={errors} formData={formData} handleChange={handleChange} />
           <UserInfoFields register={register} errors={errors} formData={formData} handleChange={handleChange} />
@@ -55,16 +70,15 @@ const BookingForm = ({
             vehicleBrands={vehicleBrands}
             vehicleModels={vehicleModels}
           />
-          <VehicleConditionFields control={control} errors={errors} />
+          <VehicleConditionFields control={control} errors={errors} register={register} />
           <AdditionalDetailsField register={register} errors={errors} formData={formData} handleChange={handleChange} />
           <PickupDateTimeField control={control} errors={errors} handleDateTimeChange={handleDateTimeChange} />
           <PaymentMethodField register={register} errors={errors} formData={formData} handleChange={handleChange} />
           
-          <Text mt={4} fontWeight="bold">Vehicle Size: {formData.vehicleSize}</Text>
-          <Text mt={2} fontWeight="bold">Tow Truck Type: {selectedTowTruck}</Text>
-          <Text mt={2} fontWeight="bold">Estimated Total Cost: ${totalCost.toFixed(2)}</Text>
+          <Text mt={4} fontWeight="bold">Tipo de Grúa: {getTowTruckType(getVehicleSize(watchVehicleModel))}</Text>
+          <Text mt={2} fontWeight="bold">Costo Estimado: ${totalCost.toFixed(2)}</Text>
           <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading}>
-            Request Tow Service
+            Solicitar Servicio de Grúa
           </Button>
         </form>
       </VStack>

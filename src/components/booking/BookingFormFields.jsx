@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormControl, FormLabel, Input, Select, Textarea, Radio, RadioGroup, Stack, FormErrorMessage } from "@chakra-ui/react";
+import { FormControl, FormLabel, Input, Select, Textarea, Radio, RadioGroup, Stack, FormErrorMessage, Checkbox } from "@chakra-ui/react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Controller } from "react-hook-form";
@@ -21,10 +21,9 @@ export const ServiceTypeField = ({ register, errors, formData, handleChange }) =
       name="serviceType"
     >
       <option value="">Seleccione un servicio de grúa</option>
-      <option value="Standard Tow">Remolque Estándar</option>
-      <option value="Flatbed Tow">Remolque de Plataforma</option>
-      <option value="Long Distance Tow">Remolque de Larga Distancia</option>
-      <option value="Heavy Duty Tow">Remolque de Carga Pesada</option>
+      <option value="flatbed">Grúa de Plataforma</option>
+      <option value="flatbedLarge">Grúa de Plataforma (Vehículo Grande)</option>
+      <option value="heavyDuty">Grúa para Camiones/Camionetas Pesadas</option>
     </Select>
   </FormField>
 );
@@ -110,23 +109,32 @@ export const VehicleInfoFields = ({ register, errors, formData, handleChange, ve
   </>
 );
 
-export const VehicleConditionFields = ({ control, errors }) => (
+export const VehicleConditionFields = ({ control, errors, register }) => (
   <>
     <FormField label="Condición del Vehículo" error={errors.vehicleCondition}>
-      <Controller
-        name="vehicleCondition"
-        control={control}
-        rules={{ required: "La condición del vehículo es requerida" }}
-        render={({ field }) => (
-          <RadioGroup {...field}>
-            <Stack direction="column">
-              <Radio value="driveable">Conducible</Radio>
-              <Radio value="notDriveable">No Conducible</Radio>
-              <Radio value="accident">Accidente/Colisión</Radio>
-            </Stack>
-          </RadioGroup>
-        )}
-      />
+      <Stack spacing={2}>
+        <Controller
+          name="inNeutral"
+          control={control}
+          render={({ field }) => (
+            <Checkbox {...field}>Se puede poner en neutral</Checkbox>
+          )}
+        />
+        <Controller
+          name="engineStarts"
+          control={control}
+          render={({ field }) => (
+            <Checkbox {...field}>El motor enciende</Checkbox>
+          )}
+        />
+        <Controller
+          name="wheelsSteer"
+          control={control}
+          render={({ field }) => (
+            <Checkbox {...field}>Las ruedas giran</Checkbox>
+          )}
+        />
+      </Stack>
     </FormField>
 
     <FormField label="Posición del Vehículo" error={errors.vehiclePosition}>
@@ -137,9 +145,8 @@ export const VehicleConditionFields = ({ control, errors }) => (
         render={({ field }) => (
           <RadioGroup {...field}>
             <Stack direction="column">
-              <Radio value="upright">De pie</Radio>
-              <Radio value="onSide">De lado</Radio>
-              <Radio value="upsideDown">Volcado</Radio>
+              <Radio value="roadside">Al lado de la pista/carretera</Radio>
+              <Radio value="obstructed">Obstruido/Requiere maniobra</Radio>
             </Stack>
           </RadioGroup>
         )}
