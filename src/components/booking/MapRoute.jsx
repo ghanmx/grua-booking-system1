@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Box } from '@chakra-ui/react';
@@ -18,57 +18,37 @@ L.Icon.Default.mergeOptions({
   shadowUrl,
 });
 
-// Configure axios-retry
 axiosRetry(axios, {
   retries: 3,
-  retryDelay: (retryCount) => {
-    return retryCount * 1000; // wait 1s, 2s, 3s between retries
-  },
-  retryCondition: (error) => {
-    return error.response.status === 429;
-  },
+  retryDelay: (retryCount) => retryCount * 1000,
+  retryCondition: (error) => error.response?.status === 429,
 });
+
+const companyLocation = [26.509672, -100.0095504];
+
+const MapEvents = ({ onMapClick }) => {
+  useMapEvents({ click: onMapClick });
+  return null;
+};
+
+const RoutePolyline = ({ route }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (route) {
+      const bounds = L.latLngBounds(route.map(coord => [coord[1], coord[0]]));
+      map.fitBounds(bounds, { padding: [50, 50] });
+    }
+  }, [route, map]);
+
+  return route ? <Polyline positions={route.map(coord => [coord[1], coord[0]])} color="blue" /> : null;
+};
 
 const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, vehicleSize }) => {
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
   const [route, setRoute] = useState(null);
   const mapRef = useRef(null);
-  const companyLocation = [26.509672, -100.0095504]; // Company location coordinates
-
-  const MapEvents = () => {
-    const map = useMapEvents({
-      click: handleMapClick,
-    });
-    return null;
-  };
-
-  const handleMapClick = useCallback(async (e) => {
-    const { lat, lng } = e.latlng;
-    if (!pickup) {
-      setPickup([lat, lng]);
-      const address = await getAddressFromLatLng(lat, lng);
-      setPickupAddress(address);
-    } else if (!destination) {
-      setDestination([lat, lng]);
-      const address = await getAddressFromLatLng(lat, lng);
-      setDropOffAddress(address);
-    } else {
-      // Allow changing existing markers
-      const distanceToPickup = L.latLng(pickup).distanceTo([lat, lng]);
-      const distanceToDestination = L.latLng(destination).distanceTo([lat, lng]);
-      
-      if (distanceToPickup < distanceToDestination) {
-        setPickup([lat, lng]);
-        const address = await getAddressFromLatLng(lat, lng);
-        setPickupAddress(address);
-      } else {
-        setDestination([lat, lng]);
-        const address = await getAddressFromLatLng(lat, lng);
-        setDropOffAddress(address);
-      }
-    }
-  }, [pickup, destination, setPickupAddress, setDropOffAddress]);
 
   const getAddressFromLatLng = async (lat, lng) => {
     try {
@@ -80,6 +60,31 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
     }
   };
 
+  const handleMapClick = useCallback(async (e) => {
+    const { lat, lng } = e.latlng;
+    const newPosition = [lat, lng];
+    const address = await getAddressFromLatLng(lat, lng);
+
+    if (!pickup) {
+      setPickup(newPosition);
+      setPickupAddress(address);
+    } else if (!destination) {
+      setDestination(newPosition);
+      setDropOffAddress(address);
+    } else {
+      const distanceToPickup = L.latLng(pickup).distanceTo(newPosition);
+      const distanceToDestination = L.latLng(destination).distanceTo(newPosition);
+      
+      if (distanceToPickup < distanceToDestination) {
+        setPickup(newPosition);
+        setPickupAddress(address);
+      } else {
+        setDestination(newPosition);
+        setDropOffAddress(address);
+      }
+    }
+  }, [pickup, destination, setPickupAddress, setDropOffAddress]);
+
   const calculateRoute = useCallback(async () => {
     if (pickup && destination) {
       try {
@@ -88,8 +93,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
         const data = response.data;
         if (data.routes && data.routes.length > 0) {
           setRoute(data.routes[0].geometry.coordinates);
-          const distanceInMeters = data.routes[0].distance;
-          const distanceInKm = distanceInMeters / 1000;
+          const distanceInKm = data.routes[0].distance / 1000;
           setDistance(distanceInKm);
           const towTruckType = getTowTruckType(vehicleSize);
           const cost = calculateTotalCost(distanceInKm, towTruckType);
@@ -99,7 +103,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
         console.error('Error calculating route:', error);
       }
     }
-  }, [pickup, destination, setDistance, setTotalCost, vehicleSize, companyLocation]);
+  }, [pickup, destination, setDistance, setTotalCost, vehicleSize]);
 
   useEffect(() => {
     calculateRoute();
@@ -121,39 +125,37 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
 
   return (
     <Box position="absolute" top="0" left="0" height="100%" width="100%">
-      {!mapRef.current && (
-        <MapContainer center={companyLocation} zoom={10} style={{ height: "100%", width: "100%" }} ref={mapRef}>
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          <MapEvents />
-          <Marker position={companyLocation}><Popup>Company Location</Popup></Marker>
-          {pickup && (
-            <Marker 
-              position={pickup} 
-              draggable={true}
-              eventHandlers={{
-                dragend: (e) => handleMarkerDragEnd(e, true)
-              }}
-            >
-              <Popup>Pickup Location</Popup>
-            </Marker>
-          )}
-          {destination && (
-            <Marker 
-              position={destination} 
-              draggable={true}
-              eventHandlers={{
-                dragend: (e) => handleMarkerDragEnd(e, false)
-              }}
-            >
-              <Popup>Drop-off Location</Popup>
-            </Marker>
-          )}
-          {route && <Polyline positions={route.map(coord => [coord[1], coord[0]])} color="blue" />}
-        </MapContainer>
-      )}
+      <MapContainer center={companyLocation} zoom={10} style={{ height: "100%", width: "100%" }} ref={mapRef}>
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        <MapEvents onMapClick={handleMapClick} />
+        <Marker position={companyLocation}><Popup>Company Location</Popup></Marker>
+        {pickup && (
+          <Marker 
+            position={pickup} 
+            draggable={true}
+            eventHandlers={{
+              dragend: (e) => handleMarkerDragEnd(e, true)
+            }}
+          >
+            <Popup>Pickup Location</Popup>
+          </Marker>
+        )}
+        {destination && (
+          <Marker 
+            position={destination} 
+            draggable={true}
+            eventHandlers={{
+              dragend: (e) => handleMarkerDragEnd(e, false)
+            }}
+          >
+            <Popup>Drop-off Location</Popup>
+          </Marker>
+        )}
+        <RoutePolyline route={route} />
+      </MapContainer>
     </Box>
   );
 };
