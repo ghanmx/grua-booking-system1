@@ -98,7 +98,7 @@ export const VehicleInfoFields = React.memo(({ register, errors, formData, handl
     <SelectField
       label="Modelo del Vehículo"
       name="vehicleModel"
-      options={(formData.vehicleBrand && vehicleModels[formData.vehicleBrand]) || []}
+      options={formData.vehicleBrand ? vehicleModels[formData.vehicleBrand].map(model => ({ value: model, label: model })) : []}
       register={register}
       errors={errors}
       value={formData.vehicleModel}
