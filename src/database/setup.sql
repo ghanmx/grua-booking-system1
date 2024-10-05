@@ -1,15 +1,15 @@
--- Enable necessary extensions for UUID generation
+-- Enable necessary extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- ENUM types for roles, statuses, vehicle categories
+-- ENUM types
 CREATE TYPE user_role AS ENUM('user', 'admin', 'super_admin');
 CREATE TYPE booking_status AS ENUM('pending', 'confirmed', 'in_progress', 'completed', 'cancelled');
 CREATE TYPE payment_status AS ENUM('pending', 'paid', 'failed', 'refunded');
 CREATE TYPE vehicle_size AS ENUM('small', 'medium', 'large');
 CREATE TYPE tow_truck_type AS ENUM('A', 'C', 'D');
 
--- Create users table with roles and timestamps
+-- Create tables
 CREATE TABLE IF NOT EXISTS auth.users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   email TEXT UNIQUE NOT NULL,
@@ -19,7 +19,6 @@ CREATE TABLE IF NOT EXISTS auth.users (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
--- Create profiles table with references to users
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -29,7 +28,6 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
--- Create services table for defining various tow services
 CREATE TABLE IF NOT EXISTS public.services (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
@@ -42,7 +40,6 @@ CREATE TABLE IF NOT EXISTS public.services (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
--- Create bookings table to track service bookings
 CREATE TABLE IF NOT EXISTS public.bookings (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -69,7 +66,6 @@ CREATE TABLE IF NOT EXISTS public.bookings (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
--- Create payments table to manage transaction data
 CREATE TABLE IF NOT EXISTS public.payments (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   booking_id UUID NOT NULL REFERENCES public.bookings(id) ON DELETE CASCADE,
@@ -81,13 +77,13 @@ CREATE TABLE IF NOT EXISTS public.payments (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
--- Indexes for faster access
+-- Indexes
 CREATE INDEX IF NOT EXISTS idx_users_email ON auth.users(email);
 CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON public.bookings(user_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_service_id ON public.bookings(service_id);
 CREATE INDEX IF NOT EXISTS idx_payments_booking_id ON public.payments(booking_id);
 
--- Triggers for updating timestamps
+-- Triggers
 CREATE OR REPLACE FUNCTION update_updated_at() RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = NOW();
@@ -114,9 +110,60 @@ CREATE POLICY payment_crud_own ON public.payments USING (
   auth.uid() = (SELECT user_id FROM public.bookings WHERE id = booking_id)
 );
 
--- Sample data for services
+-- Comprehensive policy for authenticated users
+CREATE POLICY "Authenticated users can update their own profile" ON public.profiles
+FOR UPDATE TO authenticated
+USING (auth.uid() = user_id)
+WITH CHECK (
+    auth.uid() = user_id
+    AND (
+        (full_name IS NOT NULL AND full_name != '')
+        AND (phone_number IS NOT NULL AND phone_number != '' AND phone_number ~ '^[0-9+()-\s]{10,20}$')
+    )
+);
+
+-- Policy for admin users
+CREATE POLICY "Admin users can update all profiles" ON public.profiles
+FOR UPDATE TO authenticated
+USING (auth.jwt()->>'role' = 'admin')
+WITH CHECK (auth.jwt()->>'role' = 'admin');
+
+-- Sample data
+INSERT INTO auth.users (email, password_hash, role) VALUES
+  ('john.doe@example.com', crypt('password123', gen_salt('bf')), 'user'),
+  ('jane.smith@example.com', crypt('adminpass456', gen_salt('bf')), 'admin');
+
+INSERT INTO public.profiles (user_id, full_name, phone_number)
+SELECT id, 'John Doe', '123-456-7890' FROM auth.users WHERE email = 'john.doe@example.com'
+UNION ALL
+SELECT id, 'Jane Smith', '098-765-4321' FROM auth.users WHERE email = 'jane.smith@example.com';
+
 INSERT INTO public.services (name, description, base_price, price_per_km, maneuver_charge, tow_truck_type)
 VALUES
   ('Grúa de Plataforma (Vehículo Pequeño)', 'Para vehículos pequeños', 528.69, 18.82, 1219.55, 'A'),
   ('Grúa de Plataforma (Vehículo Grande)', 'Para vehículos grandes', 721.79, 23.47, 1524.21, 'C'),
   ('Grúa para Camiones/Camionetas Pesadas', 'Para vehículos muy pesados', 885.84, 32.35, 2101.65, 'D');
+
+-- Sample bookings
+INSERT INTO public.bookings (user_id, service_id, status, payment_status, pickup_location, dropoff_location, vehicle_brand, vehicle_model, vehicle_color, license_plate, vehicle_size, in_neutral, engine_starts, wheels_turn, vehicle_position, requires_maneuver, distance, total_cost, pickup_datetime)
+SELECT 
+  (SELECT id FROM auth.users WHERE email = 'john.doe@example.com'),
+  (SELECT id FROM public.services WHERE name = 'Grúa de Plataforma (Vehículo Pequeño)'),
+  'completed', 'paid', '123 Main St', '456 Elm St', 'Honda', 'Civic', 'Blue', 'ABC123', 'small', true, true, true, 'Upright', false, 10.5, 726.30, NOW() - INTERVAL '2 days'
+UNION ALL
+SELECT
+  (SELECT id FROM auth.users WHERE email = 'jane.smith@example.com'),
+  (SELECT id FROM public.services WHERE name = 'Grúa de Plataforma (Vehículo Grande)'),
+  'pending', 'pending', '789 Oak St', '101 Pine St', 'Toyota', 'Corolla', 'Red', 'XYZ789', 'medium', false, false, true, 'Tilted', true, 15.3, 1304.80, NOW() + INTERVAL '1 day';
+
+-- Sample payments
+INSERT INTO public.payments (booking_id, amount, payment_method, transaction_id, status)
+SELECT 
+  id, total_cost, 'Credit Card', 'TXN123456', 'paid'
+FROM public.bookings 
+WHERE status = 'completed'
+UNION ALL
+SELECT 
+  id, total_cost, 'PayPal', NULL, 'pending'
+FROM public.bookings 
+WHERE status = 'pending';
