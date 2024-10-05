@@ -47,8 +47,8 @@ export const getBookings = async (page = 1, limit = 10) => {
       .from('bookings')
       .select(`
         *,
-        users (id, email),
-        services (id, name, tow_truck_type)
+        user:user_id (id, email),
+        service:service_id (id, name, tow_truck_type)
       `, { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(startIndex, startIndex + limit - 1);
@@ -113,4 +113,15 @@ export const deleteBooking = async (id) => {
     if (error) throw new Error(`Failed to delete booking: ${error.message}`);
     return { success: true };
   }, 'bookings');
+};
+
+export const deleteUser = async (id) => {
+  return handleSupabaseError(async () => {
+    const { error } = await supabase
+      .from('users')
+      .delete()
+      .eq('id', id);
+    if (error) throw new Error(`Failed to delete user: ${error.message}`);
+    return { success: true };
+  }, 'users');
 };

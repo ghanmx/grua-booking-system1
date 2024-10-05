@@ -1,77 +1,64 @@
 import React from 'react';
-import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select } from "@chakra-ui/react";
-import { useUsers } from '../../hooks/useUsers';
-import { ROLES } from '../../constants/roles';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, useToast } from "@chakra-ui/react";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getUsers, deleteUser } from '../../server/db';
 
-const UserManagement = ({ showNotification }) => {
+const UserManagement = () => {
+  const toast = useToast();
   const queryClient = useQueryClient();
-  const { data: users, isLoading, error } = useUsers();
+
+  const { data: usersData, isLoading, error } = useQuery({
+    queryKey: ['users'],
+    queryFn: getUsers,
+  });
 
   const deleteUserMutation = useMutation({
-    mutationFn: (userId) => deleteUser(userId),
+    mutationFn: deleteUser,
     onSuccess: () => {
       queryClient.invalidateQueries('users');
-      showNotification('User Deleted', 'The user has been deleted successfully.', 'success');
+      toast({
+        title: 'User Deleted',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
     },
   });
 
-  const handleRoleChange = (userId, newRole) => {
-    updateUserMutation.mutate({ id: userId, userData: { role: newRole } });
-  };
-
-  const handleDeleteUser = (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      deleteUserMutation.mutate(userId);
-    }
-  };
-
   if (isLoading) return <Box>Loading users...</Box>;
   if (error) return <Box>Error loading users: {error.message}</Box>;
-  if (!users || users.length === 0) return <Box>No users found.</Box>;
 
   return (
     <Box>
-      <Heading as="h2" size="lg" mb={4}>User Management</Heading>
-      <Table variant="simple">
-        <Thead>
-          <Tr>
-            <Th>ID</Th>
-            <Th>Email</Th>
-            <Th>Full Name</Th>
-            <Th>Role</Th>
-            <Th>Actions</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {users.map((user) => (
-            <Tr key={user.id}>
-              <Td>{user.id}</Td>
-              <Td>{user.email}</Td>
-              <Td>{user.full_name}</Td>
-              <Td>
-                <Select
-                  value={user.role}
-                  onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                >
-                  <option value={ROLES.USER}>User</option>
-                  <option value={ROLES.ADMIN}>Admin</option>
-                  <option value={ROLES.SUPER_ADMIN}>Super Admin</option>
-                </Select>
-              </Td>
-              <Td>
-                <Button
-                  colorScheme="red"
-                  size="sm"
-                  onClick={() => handleDeleteUser(user.id)}
-                >
-                  Delete
-                </Button>
-              </Td>
+      <VStack spacing={4} align="stretch">
+        <Heading as="h2" size="lg">User Management</Heading>
+        <Table variant="simple">
+          <Thead>
+            <Tr>
+              <Th>ID</Th>
+              <Th>Email</Th>
+              <Th>Actions</Th>
             </Tr>
-          ))}
-        </Tbody>
-      </Table>
+          </Thead>
+          <Tbody>
+            {usersData && usersData.data && usersData.data.map((user) => (
+              <Tr key={user.id}>
+                <Td>{user.id}</Td>
+                <Td>{user.email}</Td>
+                <Td>
+                  <Button
+                    size="sm"
+                    colorScheme="red"
+                    onClick={() => deleteUserMutation.mutate(user.id)}
+                  >
+                    Delete
+                  </Button>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      </VStack>
     </Box>
   );
 };
