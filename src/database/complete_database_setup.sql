@@ -92,14 +92,33 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_timestamp
-BEFORE UPDATE ON auth.users OR public.profiles OR public.services OR public.bookings OR public.payments
+CREATE TRIGGER update_users_timestamp
+BEFORE UPDATE ON auth.users
+FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER update_profiles_timestamp
+BEFORE UPDATE ON public.profiles
+FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER update_services_timestamp
+BEFORE UPDATE ON public.services
+FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER update_bookings_timestamp
+BEFORE UPDATE ON public.bookings
+FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER update_payments_timestamp
+BEFORE UPDATE ON public.payments
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- Roles and Access Control
 CREATE ROLE app_user, app_admin;
 
-ALTER TABLE auth.users, public.profiles, public.bookings, public.payments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.payments ENABLE ROW LEVEL SECURITY;
 
 -- Policies
 CREATE POLICY user_crud_own ON auth.users USING (auth.uid() = id);
