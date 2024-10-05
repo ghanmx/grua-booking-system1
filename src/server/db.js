@@ -1,6 +1,5 @@
 import supabase from '../config/supabase.config';
 
-// Simple logger function compatible with both browser and Node.js
 const logger = {
   error: (...args) => console.error(...args),
   warn: (...args) => console.warn(...args),

@@ -2,20 +2,20 @@ import { useQuery } from '@tanstack/react-query';
 import { getBookings } from '../server/db';
 import { useToast } from '@chakra-ui/react';
 
-export const useBookings = () => {
+export const useBookings = (page = 1, limit = 10) => {
   const toast = useToast();
 
   return useQuery({
-    queryKey: ['bookings'],
+    queryKey: ['bookings', page, limit],
     queryFn: async () => {
       try {
-        const bookings = await getBookings();
+        const bookings = await getBookings(page, limit);
         return bookings;
       } catch (error) {
         console.error('Failed to fetch bookings:', error);
         toast({
           title: 'Error fetching bookings',
-          description: `${error.message}. Please try again later or contact support if the problem persists.`,
+          description: `${error.message}. Please check your network connection and try again.`,
           status: 'error',
           duration: 5000,
           isClosable: true,

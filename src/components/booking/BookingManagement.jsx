@@ -1,23 +1,18 @@
 import React from 'react';
 import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast, Text, Alert, AlertIcon } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getPaidBookings, updateBooking, deleteBooking } from '../../server/db';
+import { useBookings } from '../../hooks/useBookings';
+import { updateBooking, deleteBooking } from '../../server/db';
 
 const BookingManagement = () => {
   const queryClient = useQueryClient();
   const toast = useToast();
-
-  const { data: bookingsData, isLoading, error, refetch } = useQuery({
-    queryKey: ['paidBookings'],
-    queryFn: getPaidBookings,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-  });
+  const { data: bookingsData, isLoading, error, refetch } = useBookings();
 
   const updateBookingMutation = useMutation({
     mutationFn: ({ id, status }) => updateBooking(id, { status }),
     onSuccess: () => {
-      queryClient.invalidateQueries('paidBookings');
+      queryClient.invalidateQueries('bookings');
       toast({
         title: 'Booking Updated',
         description: 'The booking status has been updated successfully.',
@@ -31,7 +26,7 @@ const BookingManagement = () => {
   const deleteBookingMutation = useMutation({
     mutationFn: deleteBooking,
     onSuccess: () => {
-      queryClient.invalidateQueries('paidBookings');
+      queryClient.invalidateQueries('bookings');
       toast({
         title: 'Booking Deleted',
         description: 'The booking has been deleted successfully.',
@@ -71,7 +66,7 @@ const BookingManagement = () => {
       <Box>
         <Alert status="info" mb={4}>
           <AlertIcon />
-          No paid bookings found.
+          No bookings found.
         </Alert>
         <Button onClick={() => refetch()}>Refresh</Button>
       </Box>
@@ -80,7 +75,7 @@ const BookingManagement = () => {
 
   return (
     <Box>
-      <Heading as="h2" size="lg" mb={4}>Paid Bookings Management</Heading>
+      <Heading as="h2" size="lg" mb={4}>Booking Management</Heading>
       <Table variant="simple">
         <Thead>
           <Tr>
