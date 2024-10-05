@@ -1,5 +1,5 @@
-import { insertSampleData } from './utils/insertSampleData';
+import { resetAndInsertSampleData } from './utils/insertSampleData';
 
-insertSampleData()
-  .then(() => console.log('Sample data setup complete'))
-  .catch(error => console.error('Error setting up sample data:', error));
+resetAndInsertSampleData()
+  .then(() => console.log('Database reset and sample data setup complete'))
+  catch(error => console.error('Error resetting database and setting up sample data:', error));
