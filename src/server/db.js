@@ -21,42 +21,47 @@ const handleSupabaseError = async (operation) => {
       if (retries === maxRetries) {
         throw new Error(error.message || 'An unexpected error occurred');
       }
-      // Wait for a short time before retrying
       await new Promise(resolve => setTimeout(resolve, 1000 * retries));
     }
   }
 };
 
-export const getUsers = async () => {
+export const getUsers = async (page = 1, limit = 10) => {
   return handleSupabaseError(async () => {
-    const { data, error } = await supabase
+    const startIndex = (page - 1) * limit;
+    const { data, error, count } = await supabase
       .from('users')
-      .select('id, username, email, created_at');
+      .select('id, username, email, created_at', { count: 'exact' })
+      .range(startIndex, startIndex + limit - 1);
     if (error) throw error;
-    return data;
+    return { data, count, totalPages: Math.ceil(count / limit) };
   });
 };
 
-export const getBookings = async () => {
+export const getBookings = async (page = 1, limit = 10) => {
   return handleSupabaseError(async () => {
-    const { data, error } = await supabase
+    const startIndex = (page - 1) * limit;
+    const { data, error, count } = await supabase
       .from('bookings')
-      .select('*, users(username)')
-      .order('created_at', { ascending: false });
+      .select('*, users(username)', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(startIndex, startIndex + limit - 1);
     if (error) throw error;
-    return data;
+    return { data, count, totalPages: Math.ceil(count / limit) };
   });
 };
 
-export const getPaidBookings = async () => {
+export const getPaidBookings = async (page = 1, limit = 10) => {
   return handleSupabaseError(async () => {
-    const { data, error } = await supabase
+    const startIndex = (page - 1) * limit;
+    const { data, error, count } = await supabase
       .from('bookings')
-      .select('*, users(username)')
+      .select('*, users(username)', { count: 'exact' })
       .eq('payment_status', 'paid')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .range(startIndex, startIndex + limit - 1);
     if (error) throw error;
-    return data;
+    return { data, count, totalPages: Math.ceil(count / limit) };
   });
 };
 
