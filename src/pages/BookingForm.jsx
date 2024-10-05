@@ -9,12 +9,12 @@ import { useBookingForm } from '../hooks/useBookingForm';
 import { usePaymentSubmit } from '../hooks/usePaymentSubmit';
 
 const MapRoute = lazy(() => import('../components/booking/MapRoute'));
-const FloatingForm = lazy(() => import('../components/booking/FloatingForm'));
+const BookingForm = lazy(() => import('../components/booking/BookingForm'));
 const PaymentWindow = lazy(() => import('../components/booking/PaymentWindow'));
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-const BookingForm = () => {
+const BookingPage = () => {
   const {
     formData,
     setFormData,
@@ -53,7 +53,7 @@ const BookingForm = () => {
           setTotalCost={setTotalCost}
           vehicleSize={formData.vehicleSize}
         />
-        <FloatingForm
+        <BookingForm
           formData={formData}
           setFormData={setFormData}
           handleChange={handleChange}
@@ -80,4 +80,4 @@ const BookingForm = () => {
   );
 };
 
-export default BookingForm;
+export default BookingPage;
