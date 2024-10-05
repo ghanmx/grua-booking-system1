@@ -1,14 +1,10 @@
-const winston = require('winston');
-
-const logger = winston.createLogger({
-  level: 'error',
-  format: winston.format.json(),
-  defaultMeta: { service: 'user-service' },
-  transports: [
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.Console({ format: winston.format.simple() })
-  ]
-});
+// Simple logger function compatible with both browser and Node.js
+const logger = {
+  error: (...args) => console.error(...args),
+  warn: (...args) => console.warn(...args),
+  info: (...args) => console.info(...args),
+  debug: (...args) => console.debug(...args),
+};
 
 const errorHandler = (err, req, res, next) => {
   logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);

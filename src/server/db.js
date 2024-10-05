@@ -1,15 +1,12 @@
 import supabase from '../config/supabase.config';
-import winston from 'winston';
 
-// Create a logger
-const logger = winston.createLogger({
-  level: 'error',
-  format: winston.format.json(),
-  defaultMeta: { service: 'user-service' },
-  transports: [
-    new winston.transports.Console({ format: winston.format.simple() })
-  ]
-});
+// Simple logger function compatible with both browser and Node.js
+const logger = {
+  error: (...args) => console.error(...args),
+  warn: (...args) => console.warn(...args),
+  info: (...args) => console.info(...args),
+  debug: (...args) => console.debug(...args),
+};
 
 const handleSupabaseError = async (operation, entityName) => {
   const maxRetries = 3;
