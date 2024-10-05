@@ -12,100 +12,115 @@ const FormField = ({ label, children, error }) => (
   </FormControl>
 );
 
-export const ServiceTypeField = React.memo(({ register, errors, formData, handleChange }) => (
-  <FormField label="Tipo de Servicio de Grúa" error={errors.serviceType}>
+const SelectField = ({ label, name, options, register, errors, value, onChange, disabled = false }) => (
+  <FormField label={label} error={errors[name]}>
     <Select
-      {...register("serviceType", { required: "El tipo de servicio es requerido" })}
-      value={formData.serviceType}
-      onChange={handleChange}
-      name="serviceType"
+      {...register(name, { required: `${label} es requerido` })}
+      value={value}
+      onChange={onChange}
+      name={name}
+      disabled={disabled}
     >
-      <option value="">Seleccione un servicio de grúa</option>
-      <option value="flatbed">Grúa de Plataforma</option>
-      <option value="flatbedLarge">Grúa de Plataforma (Vehículo Grande)</option>
-      <option value="heavyDuty">Grúa para Camiones/Camionetas Pesadas</option>
+      <option value="">Seleccione {label.toLowerCase()}</option>
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>{option.label}</option>
+      ))}
     </Select>
   </FormField>
+);
+
+const InputField = ({ label, name, register, errors, value, onChange, type = "text", validation = {} }) => (
+  <FormField label={label} error={errors[name]}>
+    <Input
+      {...register(name, { required: `${label} es requerido`, ...validation })}
+      value={value}
+      onChange={onChange}
+      name={name}
+      type={type}
+    />
+  </FormField>
+);
+
+export const ServiceTypeField = React.memo(({ register, errors, formData, handleChange }) => (
+  <SelectField
+    label="Tipo de Servicio de Grúa"
+    name="serviceType"
+    options={[
+      { value: "flatbed", label: "Grúa de Plataforma" },
+      { value: "flatbedLarge", label: "Grúa de Plataforma (Vehículo Grande)" },
+      { value: "heavyDuty", label: "Grúa para Camiones/Camionetas Pesadas" }
+    ]}
+    register={register}
+    errors={errors}
+    value={formData.serviceType}
+    onChange={handleChange}
+  />
 ));
 
 export const UserInfoFields = React.memo(({ register, errors, formData, handleChange }) => (
   <>
-    <FormField label="Nombre" error={errors.userName}>
-      <Input
-        {...register("userName", { required: "El nombre es requerido" })}
-        value={formData.userName}
-        onChange={handleChange}
-        name="userName"
-      />
-    </FormField>
-    
-    <FormField label="Número de Teléfono" error={errors.phoneNumber}>
-      <Input
-        {...register("phoneNumber", { 
-          required: "El número de teléfono es requerido",
-          pattern: {
-            value: /^\d{10}$/,
-            message: "Número de teléfono inválido, debe tener 10 dígitos"
-          }
-        })}
-        value={formData.phoneNumber}
-        onChange={handleChange}
-        name="phoneNumber"
-      />
-    </FormField>
+    <InputField
+      label="Nombre"
+      name="userName"
+      register={register}
+      errors={errors}
+      value={formData.userName}
+      onChange={handleChange}
+    />
+    <InputField
+      label="Número de Teléfono"
+      name="phoneNumber"
+      register={register}
+      errors={errors}
+      value={formData.phoneNumber}
+      onChange={handleChange}
+      validation={{
+        pattern: {
+          value: /^\d{10}$/,
+          message: "Número de teléfono inválido, debe tener 10 dígitos"
+        }
+      }}
+    />
   </>
 ));
 
 export const VehicleInfoFields = React.memo(({ register, errors, formData, handleChange, vehicleBrands, vehicleModels }) => (
   <>
-    <FormField label="Marca del Vehículo" error={errors.vehicleBrand}>
-      <Select
-        {...register("vehicleBrand", { required: "La marca del vehículo es requerida" })}
-        value={formData.vehicleBrand}
-        onChange={handleChange}
-        name="vehicleBrand"
-      >
-        <option value="">Seleccione una marca</option>
-        {vehicleBrands.map((brand) => (
-          <option key={brand} value={brand}>{brand}</option>
-        ))}
-      </Select>
-    </FormField>
-
-    <FormField label="Modelo del Vehículo" error={errors.vehicleModel}>
-      <Select
-        {...register("vehicleModel", { required: "El modelo del vehículo es requerido" })}
-        value={formData.vehicleModel}
-        onChange={handleChange}
-        name="vehicleModel"
-        disabled={!formData.vehicleBrand}
-      >
-        <option value="">Seleccione un modelo</option>
-        {formData.vehicleBrand && vehicleModels[formData.vehicleBrand] && 
-          vehicleModels[formData.vehicleBrand].map((model) => (
-            <option key={model} value={model}>{model}</option>
-          ))
-        }
-      </Select>
-    </FormField>
-
-    <FormField label="Color del Vehículo" error={errors.vehicleColor}>
-      <Input
-        {...register("vehicleColor", { required: "El color del vehículo es requerido" })}
-        value={formData.vehicleColor}
-        onChange={handleChange}
-        name="vehicleColor"
-      />
-    </FormField>
-
-    <FormField label="Placa del Vehículo" error={errors.licensePlate}>
-      <Input
-        {...register("licensePlate", { required: "La placa del vehículo es requerida" })}
-        value={formData.licensePlate}
-        onChange={handleChange}
-        name="licensePlate"
-      />
-    </FormField>
+    <SelectField
+      label="Marca del Vehículo"
+      name="vehicleBrand"
+      options={vehicleBrands.map(brand => ({ value: brand, label: brand }))}
+      register={register}
+      errors={errors}
+      value={formData.vehicleBrand}
+      onChange={handleChange}
+    />
+    <SelectField
+      label="Modelo del Vehículo"
+      name="vehicleModel"
+      options={(formData.vehicleBrand && vehicleModels[formData.vehicleBrand]) || []}
+      register={register}
+      errors={errors}
+      value={formData.vehicleModel}
+      onChange={handleChange}
+      disabled={!formData.vehicleBrand}
+    />
+    <InputField
+      label="Color del Vehículo"
+      name="vehicleColor"
+      register={register}
+      errors={errors}
+      value={formData.vehicleColor}
+      onChange={handleChange}
+    />
+    <InputField
+      label="Placa del Vehículo"
+      name="licensePlate"
+      register={register}
+      errors={errors}
+      value={formData.licensePlate}
+      onChange={handleChange}
+    />
   </>
 ));
 
@@ -113,30 +128,21 @@ export const VehicleConditionFields = React.memo(({ control, errors, register })
   <>
     <FormField label="Condición del Vehículo" error={errors.vehicleCondition}>
       <Stack spacing={2}>
-        <Controller
-          name="inNeutral"
-          control={control}
-          render={({ field }) => (
-            <Checkbox {...field}>Se puede poner en neutral</Checkbox>
-          )}
-        />
-        <Controller
-          name="engineStarts"
-          control={control}
-          render={({ field }) => (
-            <Checkbox {...field}>El motor enciende</Checkbox>
-          )}
-        />
-        <Controller
-          name="wheelsSteer"
-          control={control}
-          render={({ field }) => (
-            <Checkbox {...field}>Las ruedas giran</Checkbox>
-          )}
-        />
+        {['inNeutral', 'engineStarts', 'wheelsSteer'].map((field) => (
+          <Controller
+            key={field}
+            name={field}
+            control={control}
+            render={({ field: { onChange, value, ref } }) => (
+              <Checkbox onChange={onChange} isChecked={value} ref={ref}>
+                {field === 'inNeutral' ? 'Se puede poner en neutral' :
+                 field === 'engineStarts' ? 'El motor enciende' : 'Las ruedas giran'}
+              </Checkbox>
+            )}
+          />
+        ))}
       </Stack>
     </FormField>
-
     <FormField label="Posición del Vehículo" error={errors.vehiclePosition}>
       <Controller
         name="vehiclePosition"
@@ -190,16 +196,16 @@ export const PickupDateTimeField = React.memo(({ control, errors, handleDateTime
 ));
 
 export const PaymentMethodField = React.memo(({ register, errors, formData, handleChange }) => (
-  <FormField label="Método de Pago" error={errors.paymentMethod}>
-    <Select
-      {...register("paymentMethod", { required: "El método de pago es requerido" })}
-      value={formData.paymentMethod}
-      onChange={handleChange}
-      name="paymentMethod"
-    >
-      <option value="">Seleccione un método de pago</option>
-      <option value="card">Tarjeta de Crédito/Débito</option>
-      <option value="paypal">PayPal</option>
-    </Select>
-  </FormField>
+  <SelectField
+    label="Método de Pago"
+    name="paymentMethod"
+    options={[
+      { value: "card", label: "Tarjeta de Crédito/Débito" },
+      { value: "paypal", label: "PayPal" }
+    ]}
+    register={register}
+    errors={errors}
+    value={formData.paymentMethod}
+    onChange={handleChange}
+  />
 ));
