@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast, Text, Alert, AlertIcon } from "@chakra-ui/react";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useBookings } from '../../hooks/useBookings';
 import { updateBooking, deleteBooking } from '../../server/db';
 import { runDiagnostics } from '../../utils/diagnostics';
@@ -113,7 +113,7 @@ const BookingManagement = () => {
           {bookingsData.data.map((booking) => (
             <Tr key={booking.id}>
               <Td>{booking.id}</Td>
-              <Td>{booking.users?.email}</Td>
+              <Td>{booking.profiles?.full_name || booking.profiles?.email}</Td>
               <Td>{booking.services?.name}</Td>
               <Td>
                 <Select
