@@ -1,10 +1,10 @@
 import React from 'react';
-import { Box, VStack, Heading, Text, Button, FormControl, FormLabel, Input, Select, Textarea, FormErrorMessage } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, Button, FormControl, FormLabel, Input, Select, Textarea, FormErrorMessage, Radio, RadioGroup, Stack } from "@chakra-ui/react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useForm, Controller } from "react-hook-form";
 
-const FloatingForm = ({
+const BookingForm = ({
   formData,
   setFormData,
   handleChange,
@@ -37,21 +37,21 @@ const FloatingForm = ({
       zIndex={1000}
     >
       <VStack spacing={4} align="stretch">
-        <Heading as="h1" size="lg">Booking Form</Heading>
+        <Heading as="h1" size="lg">Tow Service Booking</Heading>
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl isInvalid={errors.serviceType}>
-            <FormLabel>Service Type</FormLabel>
+            <FormLabel>Tow Service Type</FormLabel>
             <Select
               {...register("serviceType", { required: "Service type is required" })}
               value={formData.serviceType}
               onChange={handleChange}
               name="serviceType"
             >
-              <option value="">Select a service</option>
-              <option value="Tow">Tow</option>
-              <option value="Jumpstart">Jumpstart</option>
-              <option value="Tire Change">Tire Change</option>
-              <option value="Fuel Delivery">Fuel Delivery</option>
+              <option value="">Select a tow service</option>
+              <option value="Standard Tow">Standard Tow</option>
+              <option value="Flatbed Tow">Flatbed Tow</option>
+              <option value="Long Distance Tow">Long Distance Tow</option>
+              <option value="Heavy Duty Tow">Heavy Duty Tow</option>
             </Select>
             <FormErrorMessage>{errors.serviceType && errors.serviceType.message}</FormErrorMessage>
           </FormControl>
@@ -140,7 +140,57 @@ const FloatingForm = ({
             />
             <FormErrorMessage>{errors.licensePlate && errors.licensePlate.message}</FormErrorMessage>
           </FormControl>
-          
+
+          <FormControl isInvalid={errors.vehicleCondition}>
+            <FormLabel>Vehicle Condition</FormLabel>
+            <Controller
+              name="vehicleCondition"
+              control={control}
+              rules={{ required: "Vehicle condition is required" }}
+              render={({ field }) => (
+                <RadioGroup {...field}>
+                  <Stack direction="column">
+                    <Radio value="driveable">Driveable</Radio>
+                    <Radio value="notDriveable">Not Driveable</Radio>
+                    <Radio value="accident">Accident/Collision</Radio>
+                  </Stack>
+                </RadioGroup>
+              )}
+            />
+            <FormErrorMessage>{errors.vehicleCondition && errors.vehicleCondition.message}</FormErrorMessage>
+          </FormControl>
+
+          <FormControl isInvalid={errors.vehiclePosition}>
+            <FormLabel>Vehicle Position</FormLabel>
+            <Controller
+              name="vehiclePosition"
+              control={control}
+              rules={{ required: "Vehicle position is required" }}
+              render={({ field }) => (
+                <RadioGroup {...field}>
+                  <Stack direction="column">
+                    <Radio value="upright">Upright</Radio>
+                    <Radio value="onSide">On its side</Radio>
+                    <Radio value="upsideDown">Upside down</Radio>
+                  </Stack>
+                </RadioGroup>
+              )}
+            />
+            <FormErrorMessage>{errors.vehiclePosition && errors.vehiclePosition.message}</FormErrorMessage>
+          </FormControl>
+
+          <FormControl isInvalid={errors.additionalDetails}>
+            <FormLabel>Additional Details</FormLabel>
+            <Textarea
+              {...register("additionalDetails")}
+              placeholder="Any other information about the vehicle or situation"
+              value={formData.additionalDetails}
+              onChange={handleChange}
+              name="additionalDetails"
+            />
+            <FormErrorMessage>{errors.additionalDetails && errors.additionalDetails.message}</FormErrorMessage>
+          </FormControl>
+
           <FormControl isInvalid={errors.pickupDateTime}>
             <FormLabel>Pickup Date and Time</FormLabel>
             <Controller
@@ -180,9 +230,9 @@ const FloatingForm = ({
           
           <Text mt={4} fontWeight="bold">Vehicle Size: {formData.vehicleSize}</Text>
           <Text mt={2} fontWeight="bold">Tow Truck Type: {selectedTowTruck}</Text>
-          <Text mt={2} fontWeight="bold">Total Cost: ${totalCost.toFixed(2)}</Text>
+          <Text mt={2} fontWeight="bold">Estimated Total Cost: ${totalCost.toFixed(2)}</Text>
           <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading}>
-            Book Now
+            Request Tow Service
           </Button>
         </form>
       </VStack>
@@ -190,4 +240,4 @@ const FloatingForm = ({
   );
 };
 
-export default FloatingForm;
+export default BookingForm;
