@@ -5,12 +5,26 @@ const { logger } = require('../middleware/errorHandler');
 exports.createBooking = async (req, res, next) => {
   try {
     const bookingData = {
-      profile_id: req.body.userId,
+      user_id: req.body.userId,
       service_id: req.body.serviceId,
       status: 'pending',
       total_cost: req.body.totalCost,
       payment_status: 'pending',
-      user_id: req.user.id
+      pickup_location: req.body.pickupLocation,
+      dropoff_location: req.body.dropoffLocation,
+      vehicle_brand: req.body.vehicleBrand,
+      vehicle_model: req.body.vehicleModel,
+      vehicle_color: req.body.vehicleColor,
+      license_plate: req.body.licensePlate,
+      vehicle_size: req.body.vehicleSize,
+      in_neutral: req.body.inNeutral,
+      engine_starts: req.body.engineStarts,
+      wheels_turn: req.body.wheelsTurn,
+      vehicle_position: req.body.vehiclePosition,
+      requires_maneuver: req.body.requiresManeuver,
+      distance: req.body.distance,
+      pickup_datetime: req.body.pickupDateTime,
+      additional_details: req.body.additionalDetails
     };
 
     const { data: createdBooking, error: bookingError } = await supabase
