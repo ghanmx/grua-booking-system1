@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 );
 
 CREATE TABLE IF NOT EXISTS public.services (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   description TEXT,
   base_price NUMERIC(10, 2) NOT NULL,
@@ -134,15 +134,8 @@ CREATE POLICY payment_crud_own ON public.payments USING (
   auth.uid() = (SELECT user_id FROM public.bookings WHERE id = booking_id)
 );
 
-INSERT INTO auth.users (email, password_hash, role) VALUES
-  ('john.doe@example.com', crypt('password123', gen_salt('bf')), 'user'),
-  ('jane.smith@example.com', crypt('adminpass456', gen_salt('bf')), 'admin');
 
-INSERT INTO public.profiles (user_id, full_name, phone_number)
-SELECT id, 'John Doe', '123-456-7890' FROM auth.users WHERE email = 'john.doe@example.com'
-UNION ALL
-SELECT id, 'Jane Smith', '098-765-4321' FROM auth.users WHERE email = 'jane.smith@example.com';
-
+-- Sample data insertions
 INSERT INTO public.services (name, description, base_price, price_per_km, maneuver_charge, tow_truck_type)
 VALUES
   ('Grúa de Plataforma (Vehículo Pequeño)', 'Para vehículos pequeños', 528.69, 18.82, 1219.55, 'A'),
