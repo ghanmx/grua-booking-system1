@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS public.bookings (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
+-- Create payments table to manage transaction data
 CREATE TABLE IF NOT EXISTS public.payments (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   booking_id UUID NOT NULL REFERENCES public.bookings(id) ON DELETE CASCADE,

@@ -5,4 +5,6 @@ module.exports = {
   supabaseUrl: process.env.VITE_SUPABASE_PROJECT_URL,
   supabaseKey: process.env.VITE_SUPABASE_API_KEY,
   stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+  tollguruApiKey: process.env.VITE_TOLLGURU_API_KEY,
+  nodeEnv: process.env.NODE_ENV || 'development',
 };
