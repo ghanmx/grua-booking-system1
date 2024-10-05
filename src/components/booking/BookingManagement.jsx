@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast, Text, Alert, AlertIcon } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useBookings } from '../../hooks/useBookings';
@@ -68,6 +68,7 @@ const BookingManagement = () => {
     }
   };
 
+
   if (isLoading) return <Box>Loading bookings...</Box>;
   
   if (error) {
@@ -113,8 +114,8 @@ const BookingManagement = () => {
           {bookingsData.data.map((booking) => (
             <Tr key={booking.id}>
               <Td>{booking.id}</Td>
-              <Td>{booking.profiles?.full_name || booking.profiles?.email}</Td>
-              <Td>{booking.services?.name}</Td>
+              <Td>{booking.user?.full_name || booking.user?.email}</Td>
+              <Td>{booking.service?.name}</Td>
               <Td>
                 <Select
                   value={booking.status}
