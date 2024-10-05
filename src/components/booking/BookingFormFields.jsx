@@ -12,7 +12,7 @@ const FormField = ({ label, children, error }) => (
   </FormControl>
 );
 
-export const ServiceTypeField = ({ register, errors, formData, handleChange }) => (
+export const ServiceTypeField = React.memo(({ register, errors, formData, handleChange }) => (
   <FormField label="Tipo de Servicio de Grúa" error={errors.serviceType}>
     <Select
       {...register("serviceType", { required: "El tipo de servicio es requerido" })}
@@ -26,9 +26,9 @@ export const ServiceTypeField = ({ register, errors, formData, handleChange }) =
       <option value="heavyDuty">Grúa para Camiones/Camionetas Pesadas</option>
     </Select>
   </FormField>
-);
+));
 
-export const UserInfoFields = ({ register, errors, formData, handleChange }) => (
+export const UserInfoFields = React.memo(({ register, errors, formData, handleChange }) => (
   <>
     <FormField label="Nombre" error={errors.userName}>
       <Input
@@ -54,9 +54,9 @@ export const UserInfoFields = ({ register, errors, formData, handleChange }) => 
       />
     </FormField>
   </>
-);
+));
 
-export const VehicleInfoFields = ({ register, errors, formData, handleChange, vehicleBrands, vehicleModels }) => (
+export const VehicleInfoFields = React.memo(({ register, errors, formData, handleChange, vehicleBrands, vehicleModels }) => (
   <>
     <FormField label="Marca del Vehículo" error={errors.vehicleBrand}>
       <Select
@@ -107,9 +107,9 @@ export const VehicleInfoFields = ({ register, errors, formData, handleChange, ve
       />
     </FormField>
   </>
-);
+));
 
-export const VehicleConditionFields = ({ control, errors, register }) => (
+export const VehicleConditionFields = React.memo(({ control, errors, register }) => (
   <>
     <FormField label="Condición del Vehículo" error={errors.vehicleCondition}>
       <Stack spacing={2}>
@@ -153,9 +153,9 @@ export const VehicleConditionFields = ({ control, errors, register }) => (
       />
     </FormField>
   </>
-);
+));
 
-export const AdditionalDetailsField = ({ register, errors, formData, handleChange }) => (
+export const AdditionalDetailsField = React.memo(({ register, errors, formData, handleChange }) => (
   <FormField label="Detalles Adicionales" error={errors.additionalDetails}>
     <Textarea
       {...register("additionalDetails")}
@@ -165,9 +165,9 @@ export const AdditionalDetailsField = ({ register, errors, formData, handleChang
       name="additionalDetails"
     />
   </FormField>
-);
+));
 
-export const PickupDateTimeField = ({ control, errors, handleDateTimeChange }) => (
+export const PickupDateTimeField = React.memo(({ control, errors, handleDateTimeChange }) => (
   <FormField label="Fecha y Hora de Recogida" error={errors.pickupDateTime}>
     <Controller
       control={control}
@@ -187,9 +187,9 @@ export const PickupDateTimeField = ({ control, errors, handleDateTimeChange }) =
       )}
     />
   </FormField>
-);
+));
 
-export const PaymentMethodField = ({ register, errors, formData, handleChange }) => (
+export const PaymentMethodField = React.memo(({ register, errors, formData, handleChange }) => (
   <FormField label="Método de Pago" error={errors.paymentMethod}>
     <Select
       {...register("paymentMethod", { required: "El método de pago es requerido" })}
@@ -202,4 +202,4 @@ export const PaymentMethodField = ({ register, errors, formData, handleChange })
       <option value="paypal">PayPal</option>
     </Select>
   </FormField>
-);
+));

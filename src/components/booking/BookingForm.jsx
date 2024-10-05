@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Box, VStack, Heading, Text, Button } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import {
@@ -10,7 +10,7 @@ import {
   PickupDateTimeField,
   PaymentMethodField
 } from './BookingFormFields';
-import { getVehicleSize, getTowTruckType, calculateTotalCost } from '../../utils/towTruckSelection';
+import { getVehicleSize, getTowTruckType } from '../../utils/towTruckSelection';
 
 const BookingForm = ({
   formData,
@@ -28,6 +28,14 @@ const BookingForm = ({
 
   const watchVehicleModel = watch('vehicleModel');
   const watchVehiclePosition = watch('vehiclePosition');
+
+  const selectedTowTruck = useMemo(() => {
+    if (watchVehicleModel) {
+      const vehicleSize = getVehicleSize(watchVehicleModel);
+      return getTowTruckType(vehicleSize);
+    }
+    return '';
+  }, [watchVehicleModel]);
 
   React.useEffect(() => {
     if (watchVehicleModel && distance) {
@@ -75,7 +83,7 @@ const BookingForm = ({
           <PickupDateTimeField control={control} errors={errors} handleDateTimeChange={handleDateTimeChange} />
           <PaymentMethodField register={register} errors={errors} formData={formData} handleChange={handleChange} />
           
-          <Text mt={4} fontWeight="bold">Tipo de Grúa: {getTowTruckType(getVehicleSize(watchVehicleModel))}</Text>
+          <Text mt={4} fontWeight="bold">Tipo de Grúa: {selectedTowTruck}</Text>
           <Text mt={2} fontWeight="bold">Costo Estimado: ${totalCost.toFixed(2)}</Text>
           <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading}>
             Solicitar Servicio de Grúa
@@ -86,4 +94,4 @@ const BookingForm = ({
   );
 };
 
-export default BookingForm;
+export default React.memo(BookingForm);

@@ -22,7 +22,6 @@ const BookingPage = () => {
     setDistance,
     totalCost,
     setTotalCost,
-    selectedTowTruck,
     isPaymentWindowOpen,
     setIsPaymentWindowOpen,
     handleChange,
@@ -55,13 +54,13 @@ const BookingPage = () => {
         />
         <BookingForm
           formData={formData}
-          setFormData={setFormData}
           handleChange={handleChange}
           handleDateTimeChange={handleDateTimeChange}
           handleBookingProcess={handleBookingProcess}
           isLoading={createBookingMutation.isLoading}
-          selectedTowTruck={selectedTowTruck}
           totalCost={totalCost}
+          setTotalCost={setTotalCost}
+          distance={distance}
           vehicleBrands={memoizedVehicleData.vehicleBrands}
           vehicleModels={memoizedVehicleData.vehicleModels}
         />
