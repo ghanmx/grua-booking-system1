@@ -47,8 +47,8 @@ export const getBookings = async (page = 1, limit = 10) => {
       .from('bookings')
       .select(`
         *,
-        user:user_id (id, full_name, email),
-        service:service_id (id, name, tow_truck_type)
+        user:profiles!user_id (id, full_name, email),
+        service:services!service_id (id, name, tow_truck_type)
       `, { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(startIndex, startIndex + limit - 1);
