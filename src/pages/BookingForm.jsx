@@ -63,6 +63,7 @@ const BookingPage = () => {
           distance={distance}
           vehicleBrands={memoizedVehicleData.vehicleBrands}
           vehicleModels={memoizedVehicleData.vehicleModels}
+          setIsPaymentWindowOpen={setIsPaymentWindowOpen} // Add this prop
         />
         {isPaymentWindowOpen && (
           <Elements stripe={stripePromise}>

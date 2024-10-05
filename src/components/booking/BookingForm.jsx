@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect } from 'react';
-import { Box, VStack, Heading, Text, Button } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, Button, useToast } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import {
   ServiceTypeField,
@@ -22,9 +22,11 @@ const BookingForm = ({
   setTotalCost,
   distance,
   vehicleBrands,
-  vehicleModels
+  vehicleModels,
+  setIsPaymentWindowOpen // Add this prop
 }) => {
   const { register, handleSubmit, control, watch, formState: { errors } } = useForm();
+  const toast = useToast();
 
   const watchVehicleModel = watch('vehicleModel');
   const watchVehiclePosition = watch('vehiclePosition');
@@ -47,8 +49,29 @@ const BookingForm = ({
     }
   }, [watchVehicleModel, watchVehiclePosition, distance, setTotalCost]);
 
-  const onSubmit = (data) => {
-    handleBookingProcess(data);
+  const onSubmit = async (data) => {
+    if (Object.keys(errors).length === 0) {
+      try {
+        await handleBookingProcess(data);
+        setIsPaymentWindowOpen(true); // Open payment window after successful form submission
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "There was an error processing your request. Please try again.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    } else {
+      toast({
+        title: "Form Error",
+        description: "Please fill in all required fields correctly.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
 
   return (
