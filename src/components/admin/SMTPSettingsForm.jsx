@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import { Box, Button, FormControl, FormLabel, Input, Switch, VStack, useToast } from '@chakra-ui/react';
-import { saveSMTPSettings } from '../utils/api';
+import { saveSMTPSettings } from '../../utils/api';
 
 const SMTPSettingsForm = () => {
   const [isCustomSMTP, setIsCustomSMTP] = useState(false);
