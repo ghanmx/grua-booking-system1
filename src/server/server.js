@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const config = require('./config/config');
+const stripe = require('stripe')(config.stripeSecretKey);
 const bookingRoutes = require('./routes/bookingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const { errorHandler } = require('./middleware/errorHandler');
@@ -32,5 +33,4 @@ app.post('/api/process-payment', async (req, res) => {
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(config.port, () => console.log(`Server running on port ${config.port}`));
