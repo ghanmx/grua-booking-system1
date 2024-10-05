@@ -1,6 +1,5 @@
 -- Enable necessary extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp", "pgcrypto";
 
 -- Enumerated Types
 CREATE TYPE user_role AS ENUM('user', 'admin', 'super_admin');
@@ -95,14 +94,9 @@ BEFORE UPDATE ON auth.users OR public.profiles OR public.services OR public.book
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- Roles and Access Control
-CREATE ROLE app_user;
-CREATE ROLE app_admin;
+CREATE ROLE app_user, app_admin;
 
-ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.payments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.smtp_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE auth.users, public.profiles, public.bookings, public.payments, public.smtp_settings ENABLE ROW LEVEL SECURITY;
 
 -- Policies
 CREATE POLICY user_crud_own ON auth.users USING (auth.uid() = id);
