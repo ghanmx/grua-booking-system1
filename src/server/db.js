@@ -40,7 +40,11 @@ export const getBookings = async (page = 1, limit = 10) => {
     const startIndex = (page - 1) * limit;
     const { data, error, count } = await supabase
       .from('bookings')
-      .select('*, users(username)', { count: 'exact' })
+      .select(`
+        *,
+        users (id, email),
+        services (id, name, tow_truck_type)
+      `, { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(startIndex, startIndex + limit - 1);
     
@@ -119,7 +123,26 @@ export const createBooking = async (bookingData) => {
   return handleSupabaseError(async () => {
     const { data, error } = await supabase
       .from('bookings')
-      .insert(bookingData);
+      .insert({
+        user_id: bookingData.userId,
+        service_id: bookingData.serviceId,
+        pickup_location: bookingData.pickupLocation,
+        dropoff_location: bookingData.dropoffLocation,
+        vehicle_brand: bookingData.vehicleBrand,
+        vehicle_model: bookingData.vehicleModel,
+        vehicle_color: bookingData.vehicleColor,
+        license_plate: bookingData.licensePlate,
+        vehicle_size: bookingData.vehicleSize,
+        in_neutral: bookingData.inNeutral,
+        engine_starts: bookingData.engineStarts,
+        wheels_turn: bookingData.wheelsTurn,
+        vehicle_position: bookingData.vehiclePosition,
+        requires_maneuver: bookingData.requiresManeuver,
+        distance: bookingData.distance,
+        total_cost: bookingData.totalCost,
+        pickup_datetime: bookingData.pickupDateTime,
+        additional_details: bookingData.additionalDetails
+      });
     if (error) throw error;
     return data;
   });

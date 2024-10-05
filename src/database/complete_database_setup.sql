@@ -5,7 +5,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp", "pgcrypto";
 CREATE TYPE user_role AS ENUM('user', 'admin', 'super_admin');
 CREATE TYPE booking_status AS ENUM('pending', 'confirmed', 'in_progress', 'completed', 'cancelled');
 CREATE TYPE payment_status AS ENUM('pending', 'paid', 'failed', 'refunded');
-CREATE TYPE vehicle_size AS ENUM('small', 'medium', 'large', 'extra_large');
+CREATE TYPE vehicle_size AS ENUM('small', 'medium', 'large');
+CREATE TYPE tow_truck_type AS ENUM('A', 'C', 'D');
 
 -- Tables
 CREATE TABLE auth.users (
@@ -31,6 +32,9 @@ CREATE TABLE public.services (
     name TEXT NOT NULL,
     description TEXT,
     base_price NUMERIC(10, 2) NOT NULL,
+    price_per_km NUMERIC(10, 2) NOT NULL,
+    maneuver_charge NUMERIC(10, 2) NOT NULL,
+    tow_truck_type tow_truck_type NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -43,10 +47,20 @@ CREATE TABLE public.bookings (
     payment_status payment_status NOT NULL DEFAULT 'pending',
     pickup_location TEXT NOT NULL,
     dropoff_location TEXT NOT NULL,
-    vehicle_make TEXT NOT NULL,
+    vehicle_brand TEXT NOT NULL,
     vehicle_model TEXT NOT NULL,
+    vehicle_color TEXT NOT NULL,
+    license_plate TEXT NOT NULL,
     vehicle_size vehicle_size NOT NULL,
+    in_neutral BOOLEAN NOT NULL,
+    engine_starts BOOLEAN NOT NULL,
+    wheels_turn BOOLEAN NOT NULL,
+    vehicle_position TEXT NOT NULL,
+    requires_maneuver BOOLEAN NOT NULL,
+    distance NUMERIC(10, 2) NOT NULL,
     total_cost NUMERIC(10, 2) NOT NULL,
+    pickup_datetime TIMESTAMPTZ NOT NULL,
+    additional_details TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -58,18 +72,6 @@ CREATE TABLE public.payments (
     payment_method TEXT NOT NULL,
     transaction_id TEXT,
     status payment_status NOT NULL DEFAULT 'pending',
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE TABLE public.smtp_settings (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID NOT NULL REFERENCES auth.users(id),
-    host TEXT NOT NULL,
-    port INTEGER NOT NULL,
-    username TEXT NOT NULL,
-    password TEXT NOT NULL,
-    from_email TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -90,14 +92,23 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER update_timestamp
-BEFORE UPDATE ON auth.users OR public.profiles OR public.services OR public.bookings OR public.payments OR public.smtp_settings
+BEFORE UPDATE ON auth.users OR public.profiles OR public.services OR public.bookings OR public.payments
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- Roles and Access Control
 CREATE ROLE app_user, app_admin;
 
-ALTER TABLE auth.users, public.profiles, public.bookings, public.payments, public.smtp_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE auth.users, public.profiles, public.bookings, public.payments ENABLE ROW LEVEL SECURITY;
 
 -- Policies
 CREATE POLICY user_crud_own ON auth.users USING (auth.uid() = id);
 CREATE POLICY profile_crud_own ON public.profiles USING (auth.uid() = user_id);
+CREATE POLICY booking_crud_own ON public.bookings USING (auth.uid() = user_id);
+CREATE POLICY payment_crud_own ON public.payments USING (auth.uid() = (SELECT user_id FROM public.bookings WHERE id = booking_id));
+
+-- Insert sample data for services
+INSERT INTO public.services (name, description, base_price, price_per_km, maneuver_charge, tow_truck_type)
+VALUES
+    ('Grúa de Plataforma (Vehículo Pequeño)', 'Para vehículos pequeños', 528.69, 18.82, 1219.55, 'A'),
+    ('Grúa de Plataforma (Vehículo Grande)', 'Para vehículos grandes', 721.79, 23.47, 1524.21, 'C'),
+    ('Grúa para Camiones/Camionetas Pesadas', 'Para vehículos muy pesados', 885.84, 32.35, 2101.65, 'D');
