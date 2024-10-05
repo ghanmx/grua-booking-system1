@@ -25,6 +25,28 @@ const handleSupabaseError = async (operation) => {
   }
 };
 
+export const getUsers = async (page = 1, limit = 10) => {
+  return handleSupabaseError(async () => {
+    const startIndex = (page - 1) * limit;
+    const { data, error, count } = await supabase
+      .from('users')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(startIndex, startIndex + limit - 1);
+    
+    if (error) {
+      console.error('Supabase error details:', error);
+      throw new Error(`Failed to fetch users: ${error.message}`);
+    }
+    
+    if (!data) {
+      throw new Error('No data returned from Supabase');
+    }
+    
+    return { data, count, totalPages: Math.ceil(count / limit) };
+  });
+};
+
 export const getBookings = async (page = 1, limit = 10) => {
   return handleSupabaseError(async () => {
     const startIndex = (page - 1) * limit;
@@ -128,4 +150,3 @@ export const deleteBooking = async (id) => {
     return data;
   });
 };
-
