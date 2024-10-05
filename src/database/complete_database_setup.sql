@@ -33,9 +33,7 @@ CREATE TABLE services (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name TEXT NOT NULL,
     description TEXT,
-    base_price DECIMAL(10, 2) NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    base_price DECIMAL(10, 2) NOT NULL
 );
 
 CREATE TABLE bookings (
@@ -56,7 +54,7 @@ CREATE TABLE bookings (
 
 CREATE TABLE payments (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    booking_id UUID NOT NULL REFERENCES bookings(id),
+    booking_id UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
     amount DECIMAL(10, 2) NOT NULL,
     payment_method TEXT NOT NULL,
     transaction_id TEXT,
@@ -68,15 +66,19 @@ CREATE TABLE payments (
 CREATE TABLE smtp_settings (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES users(id),
-    host TEXT NOT NULL,
-    port INTEGER NOT NULL,
-    username TEXT NOT NULL,
-    password TEXT NOT NULL,
-    from_email TEXT NOT NULL,
+    is_custom_smtp BOOLEAN NOT NULL DEFAULT false,
+    sender_email TEXT,
+    sender_name TEXT,
+    smtp_host TEXT,
+    port_number INTEGER,
+    min_interval INTEGER,
+    username TEXT,
+    password TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Indexes, Functions, Triggers, Roles, and Policies
 -- Indexes
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_bookings_user_id ON bookings(user_id);
@@ -196,5 +198,6 @@ CREATE TRIGGER on_auth_user_created
 
 -- Publications (for real-time subscriptions)
 CREATE PUBLICATION supabase_realtime FOR TABLE bookings, payments;
+
 
 COMMIT;
