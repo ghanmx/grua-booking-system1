@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { useSupabaseAuth } from '../../integrations/supabase/auth';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
     const { session, loading } = useSupabaseAuth();

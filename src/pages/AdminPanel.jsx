@@ -1,12 +1,12 @@
 import React from 'react';
 import { Box, VStack, Heading, Tabs, TabList, TabPanels, Tab, TabPanel, useToast } from "@chakra-ui/react";
-import { useSupabaseAuth } from '../../integrations/supabase/auth';
-import UserManagement from './UserManagement';
-import ServiceManagement from './ServiceManagement';
-import BookingManagement from './BookingManagement';
-import AnalyticsDashboard from './AnalyticsDashboard';
-import SMTPSettingsForm from '../SMTPSettingsForm';
-import { ROLES } from '../../constants/roles';
+import { useSupabaseAuth } from '../integrations/supabase/auth';
+import UserManagement from '../components/admin/UserManagement';
+import ServiceManagement from '../components/admin/ServiceManagement';
+import BookingManagement from '../components/admin/BookingManagement';
+import AnalyticsDashboard from '../components/admin/AnalyticsDashboard';
+import SMTPSettingsForm from '../components/admin/SMTPSettingsForm';
+import { ROLES } from '../constants/roles';
 
 const AdminPanel = () => {
   const { session } = useSupabaseAuth();
