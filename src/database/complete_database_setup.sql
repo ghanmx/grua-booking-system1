@@ -113,7 +113,8 @@ BEFORE UPDATE ON public.payments
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- Roles and Access Control
-CREATE ROLE app_user, app_admin;
+CREATE ROLE app_user;
+CREATE ROLE app_admin;
 
 ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
