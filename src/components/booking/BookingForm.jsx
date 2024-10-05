@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Box, VStack, Heading, Text, Button } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import {
@@ -10,7 +10,7 @@ import {
   PickupDateTimeField,
   PaymentMethodField
 } from './BookingFormFields';
-import { getVehicleSize, getTowTruckType } from '../../utils/towTruckSelection';
+import { getVehicleSize, getTowTruckType, calculateTotalCost } from '../../utils/towTruckSelection';
 
 const BookingForm = ({
   formData,
@@ -37,7 +37,7 @@ const BookingForm = ({
     return '';
   }, [watchVehicleModel]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (watchVehicleModel && distance) {
       const vehicleSize = getVehicleSize(watchVehicleModel);
       const towTruckType = getTowTruckType(vehicleSize);
