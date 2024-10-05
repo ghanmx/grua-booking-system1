@@ -11,10 +11,7 @@ import {
   VStack,
   Text,
   Box,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
+  useToast,
 } from '@chakra-ui/react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
@@ -23,14 +20,14 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
   const elements = useElements();
   const [error, setError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const toast = useToast();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsProcessing(true);
-    setError('');
 
     if (!stripe || !elements) {
-      setError('Payment system is not available. Please try again later.');
+      setError('Stripe has not loaded. Please try again later.');
       setIsProcessing(false);
       return;
     }
@@ -44,14 +41,21 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
       });
 
       if (error) {
-        throw error;
+        setError(error.message);
+        setIsProcessing(false);
+        return;
       }
 
-      await onPaymentSubmit(paymentMethod);
-      onClose();
+      onPaymentSubmit(paymentMethod);
     } catch (err) {
-      console.error('Payment Error:', err);
-      setError(err.message || 'An unexpected error occurred during payment processing. Please try again.');
+      setError(err.message || 'An unexpected error occurred');
+      toast({
+        title: 'Payment Error',
+        description: err.message || 'An unexpected error occurred during payment processing.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -60,7 +64,7 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent aria-describedby="payment-description">
         <ModalHeader>Payment Information</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
@@ -84,13 +88,10 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
               />
             </Box>
             <Text fontWeight="bold">Total Cost: ${totalCost.toFixed(2)}</Text>
-            {error && (
-              <Alert status="error">
-                <AlertIcon />
-                <AlertTitle mr={2}>Payment Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+            {error && <Text color="red.500">{error}</Text>}
+            <Text id="payment-description" hidden>
+              Enter your payment details to complete the booking process.
+            </Text>
           </VStack>
         </ModalBody>
         <ModalFooter>

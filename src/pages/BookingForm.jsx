@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useMemo } from 'react';
-import { Box, Spinner } from "@chakra-ui/react";
+import { Box, Spinner, useToast } from "@chakra-ui/react";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { useQuery } from '@tanstack/react-query';
@@ -15,6 +15,8 @@ const PaymentWindow = lazy(() => import('../components/booking/PaymentWindow'));
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const BookingPage = () => {
+  const toast = useToast();
+
   const {
     formData,
     setFormData,
@@ -32,15 +34,31 @@ const BookingPage = () => {
 
   const handlePaymentSubmit = usePaymentSubmit(formData, totalCost, createBookingMutation, setIsPaymentWindowOpen);
 
-  const { data: bookings } = useQuery({
+  const { data: bookings, error } = useQuery({
     queryKey: ['bookings'],
     queryFn: getBookings,
+    retry: 3,
+    retryDelay: (attempt) => Math.min(attempt * 1000, 3000),
+    onError: (err) => {
+      console.error('Failed to fetch bookings:', err);
+      toast({
+        title: 'Error fetching bookings',
+        description: 'Please try again later.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    },
   });
 
   const memoizedVehicleData = useMemo(() => ({
     vehicleBrands,
     vehicleModels
   }), []);
+
+  if (error) {
+    return <Box>Error loading bookings. Please try again later.</Box>;
+  }
 
   return (
     <Box position="relative" height="100vh" width="100vw">
@@ -63,7 +81,7 @@ const BookingPage = () => {
           distance={distance}
           vehicleBrands={memoizedVehicleData.vehicleBrands}
           vehicleModels={memoizedVehicleData.vehicleModels}
-          setIsPaymentWindowOpen={setIsPaymentWindowOpen} // Add this prop
+          setIsPaymentWindowOpen={setIsPaymentWindowOpen}
         />
         {isPaymentWindowOpen && (
           <Elements stripe={stripePromise}>
