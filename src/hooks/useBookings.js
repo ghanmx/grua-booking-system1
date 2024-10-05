@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getBookings } from '../server/db';
 import { useToast } from '@chakra-ui/react';
+import { runDiagnostics } from '../utils/diagnostics';
 
 export const useBookings = (page = 1, limit = 10) => {
   const toast = useToast();
@@ -13,9 +14,11 @@ export const useBookings = (page = 1, limit = 10) => {
         return bookings;
       } catch (error) {
         console.error('Failed to fetch bookings:', error);
+        const diagnosticResults = await runDiagnostics();
+        console.log('Diagnostic Results:', diagnosticResults);
         toast({
           title: 'Error fetching bookings',
-          description: `${error.message}. Please check your network connection and try again.`,
+          description: `${error.message}. Diagnostics have been run. Check console for details.`,
           status: 'error',
           duration: 5000,
           isClosable: true,

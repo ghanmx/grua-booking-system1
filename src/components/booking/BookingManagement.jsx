@@ -1,13 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast, Text, Alert, AlertIcon } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useBookings } from '../../hooks/useBookings';
 import { updateBooking, deleteBooking } from '../../server/db';
+import { runDiagnostics } from '../../utils/diagnostics';
 
 const BookingManagement = () => {
   const queryClient = useQueryClient();
   const toast = useToast();
   const { data: bookingsData, isLoading, error, refetch } = useBookings();
+  const [diagnosticResults, setDiagnosticResults] = useState(null);
+
+  useEffect(() => {
+    if (error) {
+      runDiagnostics().then(results => setDiagnosticResults(results));
+    }
+  }, [error]);
 
   const updateBookingMutation = useMutation({
     mutationFn: ({ id, status }) => updateBooking(id, { status }),
@@ -37,6 +45,19 @@ const BookingManagement = () => {
     },
   });
 
+  const handleRunDiagnostics = async () => {
+    const results = await runDiagnostics();
+    setDiagnosticResults(results);
+    toast({
+      title: 'Diagnostics Complete',
+      description: 'Check the console for detailed results.',
+      status: 'info',
+      duration: 5000,
+      isClosable: true,
+    });
+    console.log('Diagnostic Results:', results);
+  };
+
   const handleStatusChange = (bookingId, newStatus) => {
     updateBookingMutation.mutate({ id: bookingId, status: newStatus });
   };
@@ -56,19 +77,20 @@ const BookingManagement = () => {
           <AlertIcon />
           Error loading bookings: {error.message}
         </Alert>
+        <Button onClick={handleRunDiagnostics} colorScheme="blue" mr={4}>Run Diagnostics</Button>
         <Button onClick={() => refetch()}>Try Again</Button>
-      </Box>
-    );
-  }
-
-  if (!bookingsData || bookingsData.data.length === 0) {
-    return (
-      <Box>
-        <Alert status="info" mb={4}>
-          <AlertIcon />
-          No bookings found.
-        </Alert>
-        <Button onClick={() => refetch()}>Refresh</Button>
+        {diagnosticResults && (
+          <VStack align="start" mt={4}>
+            <Text fontWeight="bold">Diagnostic Results:</Text>
+            <Text>Database Connection: {diagnosticResults.databaseConnection ? 'OK' : 'Failed'}</Text>
+            <Text>Bookings Table: {diagnosticResults.bookingsTable ? 'OK' : 'Failed'}</Text>
+            <Text>Users Table: {diagnosticResults.usersTable ? 'OK' : 'Failed'}</Text>
+            <Text>Services Table: {diagnosticResults.servicesTable ? 'OK' : 'Failed'}</Text>
+            <Text>Bookings-Users Relationship: {diagnosticResults.relationships.bookings_users ? 'OK' : 'Failed'}</Text>
+            <Text>Bookings-Services Relationship: {diagnosticResults.relationships.bookings_services ? 'OK' : 'Failed'}</Text>
+            <Text>Payment Integration: {diagnosticResults.paymentIntegration ? 'OK' : 'Failed'}</Text>
+          </VStack>
+        )}
       </Box>
     );
   }
@@ -76,6 +98,7 @@ const BookingManagement = () => {
   return (
     <Box>
       <Heading as="h2" size="lg" mb={4}>Booking Management</Heading>
+      <Button onClick={handleRunDiagnostics} colorScheme="blue" mb={4}>Run Diagnostics</Button>
       <Table variant="simple">
         <Thead>
           <Tr>
