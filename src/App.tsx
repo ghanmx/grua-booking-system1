@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { SupabaseAuthProvider } from './integrations/supabase';
 import { Elements } from "@stripe/react-stripe-js";
-import stripePromise from './config/stripe';
+import { loadStripe } from "@stripe/stripe-js";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import Index from "./pages/Index";
@@ -27,6 +27,8 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 function App() {
   return (
