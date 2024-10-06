@@ -8,11 +8,11 @@ import AnalyticsDashboard from '../components/admin/AnalyticsDashboard';
 import SMTPSettingsForm from '../components/admin/SMTPSettingsForm';
 
 const AdminPanel = () => {
-  const { session } = useSupabaseAuth();
+  const auth = useSupabaseAuth();
   const toast = useToast();
   const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
 
-  if (!session && (!testModeUser || !testModeUser.isAdmin)) {
+  if (!auth || (!auth.session && (!testModeUser || !testModeUser.isAdmin))) {
     return <Box p={4}><Heading as="h2" size="lg">You do not have admin privileges.</Heading></Box>;
   }
 
