@@ -44,6 +44,7 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
         await handleBookingProcess({ ...data, serviceType: selectedTowTruckType });
         setIsPaymentWindowOpen(true);
       } catch (error) {
+        console.error('Error al procesar la reserva:', error);
         toast({
           title: "Error",
           description: "Hubo un error al procesar su solicitud. Por favor, intente de nuevo.",
@@ -64,35 +65,15 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
   };
 
   if (isLoading) {
-    return (
-      <Box textAlign="center" p={4}>
-        <Text mt={4}>Cargando formulario de reserva...</Text>
-      </Box>
-    );
+    return <Box textAlign="center" p={4}><Text mt={4}>Cargando formulario de reserva...</Text></Box>;
   }
 
   if (mapError) {
-    return (
-      <Box p={4}>
-        <Text color="red.500">Error al cargar el mapa. Por favor, actualice la página o contacte con soporte.</Text>
-      </Box>
-    );
+    return <Box p={4}><Text color="red.500">Error al cargar el mapa. Por favor, actualice la página o contacte con soporte.</Text></Box>;
   }
 
   return (
-    <Box
-      position="fixed"
-      top="20px"
-      right="20px"
-      width="400px"
-      maxHeight="calc(100vh - 40px)"
-      overflowY="auto"
-      bg="white"
-      p={4}
-      borderRadius="md"
-      boxShadow="xl"
-      zIndex={1000}
-    >
+    <Box position="fixed" top="20px" right="20px" width="400px" maxHeight="calc(100vh - 40px)" overflowY="auto" bg="white" p={4} borderRadius="md" boxShadow="xl" zIndex={1000}>
       <VStack spacing={4} align="stretch">
         <Heading as="h1" size="lg">Formulario de Reserva</Heading>
         <BookingFormStepper currentStep={currentStep} />

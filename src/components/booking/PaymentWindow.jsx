@@ -27,7 +27,7 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
     setIsProcessing(true);
 
     if (!stripe || !elements) {
-      setError('Stripe has not loaded. Please try again later.');
+      setError('Stripe no se ha cargado. Por favor, intente más tarde.');
       setIsProcessing(false);
       return;
     }
@@ -46,12 +46,13 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
         return;
       }
 
-      onPaymentSubmit(paymentMethod);
+      await onPaymentSubmit(paymentMethod);
     } catch (err) {
-      setError(err.message || 'An unexpected error occurred');
+      console.error('Error al procesar el pago:', err);
+      setError(err.message || 'Ocurrió un error inesperado');
       toast({
-        title: 'Payment Error',
-        description: err.message || 'An unexpected error occurred during payment processing.',
+        title: 'Error de Pago',
+        description: err.message || 'Ocurrió un error inesperado durante el procesamiento del pago.',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -64,8 +65,8 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
-      <ModalContent aria-describedby="payment-description">
-        <ModalHeader>Payment Information</ModalHeader>
+      <ModalContent>
+        <ModalHeader>Información de Pago</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <VStack spacing={4}>
@@ -87,18 +88,15 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
                 }}
               />
             </Box>
-            <Text fontWeight="bold">Total Cost: ${totalCost.toFixed(2)}</Text>
+            <Text fontWeight="bold">Costo Total: ${totalCost.toFixed(2)}</Text>
             {error && <Text color="red.500">{error}</Text>}
-            <Text id="payment-description" hidden>
-              Enter your payment details to complete the booking process.
-            </Text>
           </VStack>
         </ModalBody>
         <ModalFooter>
           <Button colorScheme="blue" mr={3} onClick={handleSubmit} isLoading={isProcessing}>
-            Submit Payment
+            Procesar Pago
           </Button>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

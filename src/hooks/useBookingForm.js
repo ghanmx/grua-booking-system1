@@ -56,6 +56,7 @@ export const useBookingForm = () => {
       navigate('/confirmation');
     },
     onError: (error) => {
+      console.error('Error al crear la reserva:', error);
       toast({
         title: 'Ocurrió un error.',
         description: error.message,
