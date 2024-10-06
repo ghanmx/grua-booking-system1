@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
-import { Box, VStack, Heading, Text, Button, useToast, Spinner, Alert, AlertIcon, Stepper, Step, StepIndicator, StepStatus, StepTitle, StepDescription, StepSeparator } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, Button, useToast, Spinner, Alert, AlertIcon } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { renderField, fieldNames } from './BookingFormFields';
 import { getVehicleSize, getTowTruckType, calculateTotalCost } from '../../utils/towTruckSelection';
+import BookingFormStepper from './BookingFormStepper';
 
 const BookingForm = ({
   formData,
@@ -24,20 +25,8 @@ const BookingForm = ({
   const watchVehicleModel = watch('vehicleModel');
   const watchVehiclePosition = watch('vehiclePosition');
 
-  const selectedVehicleSize = useMemo(() => {
-    return watchVehicleModel ? getVehicleSize(watchVehicleModel) : '';
-  }, [watchVehicleModel]);
-
-  const selectedTowTruckType = useMemo(() => {
-    return getTowTruckType(selectedVehicleSize);
-  }, [selectedVehicleSize]);
-
-  const steps = [
-    { title: 'Vehículo', description: 'Detalles del vehículo' },
-    { title: 'Ubicación', description: 'Punto de recogida y destino' },
-    { title: 'Servicio', description: 'Tipo de servicio y detalles' },
-    { title: 'Confirmación', description: 'Revisar y confirmar' }
-  ];
+  const selectedVehicleSize = useMemo(() => watchVehicleModel ? getVehicleSize(watchVehicleModel) : '', [watchVehicleModel]);
+  const selectedTowTruckType = useMemo(() => getTowTruckType(selectedVehicleSize), [selectedVehicleSize]);
 
   const currentStep = useMemo(() => {
     if (!watchVehicleModel) return 0;
@@ -113,26 +102,7 @@ const BookingForm = ({
     >
       <VStack spacing={4} align="stretch">
         <Heading as="h1" size="lg">Servicio de Grúa</Heading>
-        <Stepper index={currentStep} orientation="vertical" height="200px" gap="0">
-          {steps.map((step, index) => (
-            <Step key={index}>
-              <StepIndicator>
-                <StepStatus
-                  complete={<StepIcon />}
-                  incomplete={<StepNumber />}
-                  active={<StepNumber />}
-                />
-              </StepIndicator>
-
-              <Box flexShrink="0">
-                <StepTitle>{step.title}</StepTitle>
-                <StepDescription>{step.description}</StepDescription>
-              </Box>
-
-              <StepSeparator />
-            </Step>
-          ))}
-        </Stepper>
+        <BookingFormStepper currentStep={currentStep} />
         <form onSubmit={handleSubmit(onSubmit)}>
           {fieldNames.map(fieldName => 
             renderField(fieldName, { 
