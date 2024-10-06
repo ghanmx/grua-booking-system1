@@ -9,12 +9,16 @@ if (!supabaseUrl || !supabaseKey) {
   throw new Error('Missing Supabase environment variables. Please check your .env file.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+});
 
-// Add error handling for Supabase operations
 export const handleSupabaseError = (error) => {
   console.error('Supabase error:', error);
-  // You can add more error handling logic here, such as showing a toast notification
 };
 
 const SupabaseContext = createContext();
@@ -22,7 +26,9 @@ const SupabaseContext = createContext();
 export const SupabaseProvider = ({ children }) => {
   return (
     <SupabaseContext.Provider value={supabase}>
-      {children}
+      <SupabaseAuthProvider>
+        {children}
+      </SupabaseAuthProvider>
     </SupabaseContext.Provider>
   );
 };
@@ -35,4 +41,4 @@ export const useSupabase = () => {
   return context;
 };
 
-export { SupabaseAuthProvider, useSupabaseAuth };
+export { useSupabaseAuth };
