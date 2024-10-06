@@ -61,8 +61,6 @@ CREATE TABLE IF NOT EXISTS public.bookings (
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
 
--- Removed unused indexes on bookings table
-
 -- Triggers for updating 'updated_at' columns
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
