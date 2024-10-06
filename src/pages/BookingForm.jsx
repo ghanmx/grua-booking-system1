@@ -111,7 +111,7 @@ const BookingPage = () => {
           handleChange={handleChange}
           handleDateTimeChange={handleDateTimeChange}
           handleBookingProcess={handleBookingProcess}
-          isLoading={isLoading || createBookingMutation.isLoading}
+          isLoading={createBookingMutation.isLoading}
           selectedTowTruck={selectedTowTruck}
           totalCost={totalCost}
           setTotalCost={setTotalCost}
