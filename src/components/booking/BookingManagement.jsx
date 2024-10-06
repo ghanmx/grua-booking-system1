@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast, Text, Alert, AlertIcon } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useBookings } from '../../hooks/useBookings';
@@ -68,7 +68,6 @@ const BookingManagement = () => {
     }
   };
 
-
   if (isLoading) return <Box>Loading bookings...</Box>;
   
   if (error) {
@@ -84,12 +83,11 @@ const BookingManagement = () => {
           <VStack align="start" mt={4}>
             <Text fontWeight="bold">Diagnostic Results:</Text>
             <Text>Database Connection: {diagnosticResults.databaseConnection ? 'OK' : 'Failed'}</Text>
-            <Text>Bookings Table: {diagnosticResults.bookingsTable ? 'OK' : 'Failed'}</Text>
-            <Text>Users Table: {diagnosticResults.usersTable ? 'OK' : 'Failed'}</Text>
-            <Text>Services Table: {diagnosticResults.servicesTable ? 'OK' : 'Failed'}</Text>
+            <Text>Bookings Table: {diagnosticResults.tables.bookings.exists ? 'OK' : 'Failed'}</Text>
+            <Text>Users Table: {diagnosticResults.tables.users.exists ? 'OK' : 'Failed'}</Text>
+            <Text>Services Table: {diagnosticResults.tables.services.exists ? 'OK' : 'Failed'}</Text>
             <Text>Bookings-Users Relationship: {diagnosticResults.relationships.bookings_users ? 'OK' : 'Failed'}</Text>
             <Text>Bookings-Services Relationship: {diagnosticResults.relationships.bookings_services ? 'OK' : 'Failed'}</Text>
-            <Text>Payment Integration: {diagnosticResults.paymentIntegration ? 'OK' : 'Failed'}</Text>
           </VStack>
         )}
       </Box>
@@ -114,7 +112,7 @@ const BookingManagement = () => {
           {bookingsData.data.map((booking) => (
             <Tr key={booking.id}>
               <Td>{booking.id}</Td>
-              <Td>{booking.user?.full_name || booking.user?.email}</Td>
+              <Td>{booking.user?.profile?.full_name || booking.user?.email}</Td>
               <Td>{booking.service?.name}</Td>
               <Td>
                 <Select
