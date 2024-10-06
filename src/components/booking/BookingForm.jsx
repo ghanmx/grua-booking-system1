@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Box, VStack, Heading, Text, Button, useToast } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import {
@@ -76,7 +76,6 @@ const BookingForm = ({
   };
 
   const handleTowTruckSelect = (type) => {
-    // Update the form data with the selected tow truck type
     handleChange({ target: { name: 'serviceType', value: type } });
   };
 
