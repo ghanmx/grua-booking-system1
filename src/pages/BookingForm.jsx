@@ -65,7 +65,7 @@ const BookingPage = () => {
   };
 
   if (error) {
-    return <Box>Error loading bookings. Please try again later.</Box>;
+    return <Box p={4}>Error loading bookings. Please try again later.</Box>;
   }
 
   return (
