@@ -27,17 +27,17 @@ const handleSupabaseError = async (operation, entityName) => {
 };
 
 export const getUsers = async (page = 1, limit = 10) => {
-  const startIndex = (page - 1) * limit;
-  const { data, error, count } = await supabase
-    .from('users')
-    .select('*', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(startIndex, startIndex + limit - 1);
-  
-  if (error) throw new Error(`Failed to fetch users: ${error.message}`);
-  if (!data) throw new Error('No user data returned from Supabase');
-  
-  return { data, count, totalPages: Math.ceil(count / limit) };
+  return handleSupabaseError(async () => {
+    const startIndex = (page - 1) * limit;
+    const { data, error, count } = await supabase
+      .from('users')
+      .select('*, profiles(*)', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(startIndex, startIndex + limit - 1);
+    
+    if (error) throw new Error(`Failed to fetch users: ${error.message}`);
+    return { data, count, totalPages: Math.ceil(count / limit) };
+  }, 'users');
 };
 
 export const getBookings = async (page = 1, limit = 10) => {
@@ -47,38 +47,15 @@ export const getBookings = async (page = 1, limit = 10) => {
       .from('bookings')
       .select(`
         *,
-        user:users!bookings_user_id_fkey (id, email),
-        service:services!bookings_service_id_fkey (id, name, tow_truck_type)
+        users (id, email, profiles(full_name)),
+        services (id, name, tow_truck_type)
       `, { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(startIndex, startIndex + limit - 1);
     
     if (error) throw new Error(`Failed to fetch bookings: ${error.message}`);
-    if (!data) throw new Error('No booking data returned from Supabase');
-    
     return { data, count, totalPages: Math.ceil(count / limit) };
   }, 'bookings');
-};
-
-export const getPaidBookings = async (page = 1, limit = 10) => {
-  return handleSupabaseError(async () => {
-    const startIndex = (page - 1) * limit;
-    const { data, error, count } = await supabase
-      .from('bookings')
-      .select(`
-        *,
-        users (id, email),
-        services (id, name, tow_truck_type)
-      `, { count: 'exact' })
-      .eq('payment_status', 'paid')
-      .order('created_at', { ascending: false })
-      .range(startIndex, startIndex + limit - 1);
-    
-    if (error) throw new Error(`Failed to fetch paid bookings: ${error.message}`);
-    if (!data) throw new Error('No paid booking data returned from Supabase');
-    
-    return { data, count, totalPages: Math.ceil(count / limit) };
-  }, 'paid bookings');
 };
 
 export const createBooking = async (bookingData) => {

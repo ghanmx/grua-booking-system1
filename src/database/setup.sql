@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   full_name TEXT NOT NULL,
   phone_number TEXT CHECK (LENGTH(phone_number) <= 20),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  UNIQUE(user_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.services (
@@ -48,16 +49,7 @@ CREATE TABLE IF NOT EXISTS public.bookings (
   payment_status payment_status NOT NULL DEFAULT 'pending',
   pickup_location TEXT NOT NULL,
   dropoff_location TEXT NOT NULL,
-  vehicle_brand TEXT NOT NULL,
-  vehicle_model TEXT NOT NULL,
-  vehicle_color TEXT NOT NULL,
-  license_plate TEXT NOT NULL,
-  vehicle_size vehicle_size NOT NULL,
-  in_neutral BOOLEAN NOT NULL,
-  engine_starts BOOLEAN NOT NULL,
-  wheels_turn BOOLEAN NOT NULL,
-  vehicle_position TEXT NOT NULL,
-  requires_maneuver BOOLEAN NOT NULL,
+  vehicle_details JSONB NOT NULL,
   distance NUMERIC(10, 2) NOT NULL CHECK (distance > 0),
   total_cost NUMERIC(10, 2) NOT NULL CHECK (total_cost > 0),
   pickup_datetime TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -108,9 +100,11 @@ VALUES
 ('Grúa para Camiones/Camionetas Pesadas', 'Para vehículos muy pesados', 885.84, 32.35, 2101.65, 'D');
 
 -- Sample booking
-INSERT INTO public.bookings (user_id, service_id, status, payment_status, pickup_location, dropoff_location, vehicle_brand, vehicle_model, vehicle_color, license_plate, vehicle_size, in_neutral, engine_starts, wheels_turn, vehicle_position, requires_maneuver, distance, total_cost, pickup_datetime)
+INSERT INTO public.bookings (user_id, service_id, status, payment_status, pickup_location, dropoff_location, vehicle_details, distance, total_cost, pickup_datetime)
 VALUES (
   (SELECT id FROM public.users WHERE email = 'user@example.com'),
   (SELECT id FROM public.services WHERE name = 'Grúa de Plataforma (Vehículo Pequeño)'),
-  'pending', 'pending', '123 Main St', '456 Elm St', 'Honda', 'Civic', 'Blue', 'ABC123', 'small', true, true, true, 'Upright', false, 10.5, 726.30, NOW() + INTERVAL '1 day'
+  'pending', 'pending', '123 Main St', '456 Elm St', 
+  '{"brand": "Honda", "model": "Civic", "color": "Blue", "license_plate": "ABC123", "size": "small", "in_neutral": true, "engine_starts": true, "wheels_turn": true, "position": "Upright", "requires_maneuver": false}',
+  10.5, 726.30, NOW() + INTERVAL '1 day'
 );
