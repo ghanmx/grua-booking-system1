@@ -30,13 +30,13 @@ const TowTruckSelection = ({ onSelect }) => {
       description: "Para vehículos grandes y SUVs",
       price: 106.45,
       eta: "Llegada en 25 minutos",
-      image: "/images/large-flatbed-tow-truck.png"
+      image: "/images/tow-truck-type-c.png"
     },
     {
       type: "Grúa para Camiones Pesados (Tipo D)",
       description: "Para camiones y vehículos muy pesados",
       price: 149.60,
-      eta: "Llegada en 30 minutos",
+      eta: "Llegada en 30 minutes",
       image: "/images/heavy-duty-tow-truck.png"
     }
   ];
