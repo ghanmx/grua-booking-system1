@@ -1,7 +1,8 @@
 import React from 'react';
 import { Box, VStack, Text, Image, Button } from "@chakra-ui/react";
+import { towTruckTypes } from '../../utils/towTruckSelection';
 
-const TowTruckOption = ({ type, description, price, image, onSelect, isAvailable }) => (
+const TowTruckOption = ({ type, description, basePrice, perKm, maneuverCharge, image, onSelect, isAvailable }) => (
   <Box 
     borderWidth="1px" 
     borderRadius="lg" 
@@ -13,7 +14,9 @@ const TowTruckOption = ({ type, description, price, image, onSelect, isAvailable
       <Image src={image} alt={type} boxSize="200px" objectFit="cover" />
       <Text fontWeight="bold">{type}</Text>
       <Text fontSize="sm">{description}</Text>
-      {price !== undefined && <Text fontWeight="bold">${price.toFixed(2)}</Text>}
+      <Text fontWeight="bold">Precio base: ${basePrice.toFixed(2)}</Text>
+      <Text fontWeight="bold">Precio por km: ${perKm.toFixed(2)}</Text>
+      <Text fontWeight="bold">Cargo por maniobra: ${maneuverCharge.toFixed(2)}</Text>
       <Button 
         onClick={() => onSelect(type)} 
         colorScheme="blue" 
@@ -26,25 +29,28 @@ const TowTruckOption = ({ type, description, price, image, onSelect, isAvailable
   </Box>
 );
 
-const TowTruckSelection = ({ onSelect, selectedVehicleSize, pricesCalculated }) => {
+const TowTruckSelection = ({ onSelect, selectedVehicleSize }) => {
   const towTrucks = [
     {
       type: "Grúa de Plataforma (Tipo A)",
       description: "Para vehículos pequeños y medianos",
       image: "/images/tow-truck-type-a.png",
-      forVehicleSize: "small"
+      forVehicleSize: "small",
+      ...towTruckTypes.A
     },
     {
       type: "Grúa de Plataforma (Tipo C)",
       description: "Para vehículos grandes y SUVs",
       image: "/images/tow-truck-type-c.png",
-      forVehicleSize: "medium"
+      forVehicleSize: "medium",
+      ...towTruckTypes.C
     },
     {
       type: "Grúa para Camiones Pesados (Tipo D)",
       description: "Para camiones y vehículos muy pesados",
       image: "/images/heavy-duty-tow-truck.png",
-      forVehicleSize: "large"
+      forVehicleSize: "large",
+      ...towTruckTypes.D
     }
   ];
 
@@ -55,7 +61,6 @@ const TowTruckSelection = ({ onSelect, selectedVehicleSize, pricesCalculated }) 
         <TowTruckOption
           key={index}
           {...truck}
-          price={pricesCalculated ? truck.price : undefined}
           onSelect={onSelect}
           isAvailable={!selectedVehicleSize || truck.forVehicleSize === selectedVehicleSize}
         />
