@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Box, useToast } from '@chakra-ui/react';
+import { Box, useToast, Button, VStack } from '@chakra-ui/react';
 import { calculateTotalCost, getTowTruckType } from '../../utils/towTruckSelection';
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -16,13 +16,17 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [map, setMap] = useState(null);
   const companyLocation = [26.509672, -100.0095504];
   const toast = useToast();
 
   const MapEvents = () => {
-    useMapEvents({
+    const map = useMapEvents({
       click: handleMapClick,
     });
+    useEffect(() => {
+      setMap(map);
+    }, [map]);
     return null;
   };
 
@@ -33,31 +37,25 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
         setPickup([lat, lng]);
         const address = await getAddressFromLatLng(lat, lng);
         setPickupAddress(address);
+        toast({
+          title: 'Punto de recogida seleccionado',
+          description: 'Ahora seleccione el punto de destino',
+          status: 'info',
+          duration: 3000,
+          isClosable: true,
+        });
       } else if (!destination) {
         setDestination([lat, lng]);
         const address = await getAddressFromLatLng(lat, lng);
         setDropOffAddress(address);
-      } else {
-        // Allow repositioning of existing markers
-        const pickupDist = L.latLng(pickup).distanceTo([lat, lng]);
-        const destDist = L.latLng(destination).distanceTo([lat, lng]);
-        if (pickupDist < destDist) {
-          setPickup([lat, lng]);
-          const address = await getAddressFromLatLng(lat, lng);
-          setPickupAddress(address);
-        } else {
-          setDestination([lat, lng]);
-          const address = await getAddressFromLatLng(lat, lng);
-          setDropOffAddress(address);
-        }
+        toast({
+          title: 'Destino seleccionado',
+          description: 'Ruta calculada',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
       }
-      toast({
-        title: 'Marcador colocado',
-        description: 'La ubicación del marcador ha sido actualizada.',
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-      });
     } catch (error) {
       console.error('Error al manejar el clic en el mapa:', error);
       toast({
@@ -133,6 +131,13 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
             const towTruckType = getTowTruckType(vehicleSize);
             const cost = calculateTotalCost(distanceInKm, towTruckType);
             setTotalCost(cost);
+            toast({
+              title: 'Ruta calculada',
+              description: `Distancia: ${distanceInKm.toFixed(2)} km`,
+              status: 'success',
+              duration: 5000,
+              isClosable: true,
+            });
           }
         } catch (error) {
           console.error('Error al calcular la ruta:', error);
@@ -148,6 +153,25 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
       calculateRoute();
     }
   }, [pickup, destination, setDistance, setTotalCost, vehicleSize, toast]);
+
+  const resetMap = useCallback(() => {
+    setPickup(null);
+    setDestination(null);
+    setPickupAddress('');
+    setDropOffAddress('');
+    setDistance(0);
+    setTotalCost(0);
+    if (map) {
+      map.setView(companyLocation, 10);
+    }
+    toast({
+      title: 'Mapa reiniciado',
+      description: 'Seleccione nuevos puntos de recogida y destino',
+      status: 'info',
+      duration: 3000,
+      isClosable: true,
+    });
+  }, [map, setPickupAddress, setDropOffAddress, setDistance, setTotalCost, toast]);
 
   return (
     <Box position="absolute" top="0" left="0" height="100%" width="100%">
@@ -205,6 +229,11 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
           </Marker>
         )}
       </MapContainer>
+      <VStack position="absolute" top="20px" left="20px" spacing={4}>
+        <Button colorScheme="blue" onClick={resetMap}>
+          Reiniciar Mapa
+        </Button>
+      </VStack>
     </Box>
   );
 };

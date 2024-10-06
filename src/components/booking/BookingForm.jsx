@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
-import { Box, VStack, Heading, Text, Button, useToast, Spinner, Alert, AlertIcon } from "@chakra-ui/react";
+import React, { useMemo } from 'react';
+import { Box, VStack, Heading, Text, Button, useToast, Spinner, Alert, AlertIcon, Stepper, Step, StepIndicator, StepStatus, StepTitle, StepDescription, StepSeparator } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { renderField, fieldNames } from './BookingFormFields';
 import { getVehicleSize, getTowTruckType, calculateTotalCost } from '../../utils/towTruckSelection';
@@ -18,7 +18,7 @@ const BookingForm = ({
   setIsPaymentWindowOpen,
   mapError
 }) => {
-  const { register, handleSubmit, control, watch, formState: { errors } } = useForm();
+  const { register, handleSubmit, control, watch, formState: { errors, isValid } } = useForm({ mode: 'onChange' });
   const toast = useToast();
 
   const watchVehicleModel = watch('vehicleModel');
@@ -32,7 +32,21 @@ const BookingForm = ({
     return getTowTruckType(selectedVehicleSize);
   }, [selectedVehicleSize]);
 
-  useEffect(() => {
+  const steps = [
+    { title: 'Vehículo', description: 'Detalles del vehículo' },
+    { title: 'Ubicación', description: 'Punto de recogida y destino' },
+    { title: 'Servicio', description: 'Tipo de servicio y detalles' },
+    { title: 'Confirmación', description: 'Revisar y confirmar' }
+  ];
+
+  const currentStep = useMemo(() => {
+    if (!watchVehicleModel) return 0;
+    if (!formData.pickupAddress || !formData.dropOffAddress) return 1;
+    if (!formData.serviceType) return 2;
+    return 3;
+  }, [watchVehicleModel, formData.pickupAddress, formData.dropOffAddress, formData.serviceType]);
+
+  React.useEffect(() => {
     if (watchVehicleModel && distance) {
       const requiresManeuver = watchVehiclePosition === 'obstructed';
       const cost = calculateTotalCost(distance, selectedTowTruckType, requiresManeuver);
@@ -41,7 +55,7 @@ const BookingForm = ({
   }, [watchVehicleModel, watchVehiclePosition, distance, selectedTowTruckType, setTotalCost]);
 
   const onSubmit = async (data) => {
-    if (Object.keys(errors).length === 0) {
+    if (isValid) {
       try {
         await handleBookingProcess({ ...data, serviceType: selectedTowTruckType });
         setIsPaymentWindowOpen(true);
@@ -99,6 +113,26 @@ const BookingForm = ({
     >
       <VStack spacing={4} align="stretch">
         <Heading as="h1" size="lg">Servicio de Grúa</Heading>
+        <Stepper index={currentStep} orientation="vertical" height="200px" gap="0">
+          {steps.map((step, index) => (
+            <Step key={index}>
+              <StepIndicator>
+                <StepStatus
+                  complete={<StepIcon />}
+                  incomplete={<StepNumber />}
+                  active={<StepNumber />}
+                />
+              </StepIndicator>
+
+              <Box flexShrink="0">
+                <StepTitle>{step.title}</StepTitle>
+                <StepDescription>{step.description}</StepDescription>
+              </Box>
+
+              <StepSeparator />
+            </Step>
+          ))}
+        </Stepper>
         <form onSubmit={handleSubmit(onSubmit)}>
           {fieldNames.map(fieldName => 
             renderField(fieldName, { 
@@ -118,7 +152,7 @@ const BookingForm = ({
               <Text mt={2} fontWeight="bold">Costo Estimado: ${totalCost.toFixed(2)}</Text>
             </>
           )}
-          <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading}>
+          <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading} isDisabled={!isValid}>
             Solicitar Servicio de Grúa
           </Button>
         </form>
