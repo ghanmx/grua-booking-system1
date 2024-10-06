@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { Box, VStack, Heading, Text, Button, useToast } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import {
@@ -10,6 +10,7 @@ import {
   PickupDateTimeField,
   PaymentMethodField
 } from './BookingFormFields';
+import TowTruckSelection from './TowTruckSelection';
 import { getVehicleSize, getTowTruckType, calculateTotalCost } from '../../utils/towTruckSelection';
 
 const BookingForm = ({
@@ -23,7 +24,7 @@ const BookingForm = ({
   distance,
   vehicleBrands,
   vehicleModels,
-  setIsPaymentWindowOpen // Add this prop
+  setIsPaymentWindowOpen
 }) => {
   const { register, handleSubmit, control, watch, formState: { errors } } = useForm();
   const toast = useToast();
@@ -53,11 +54,11 @@ const BookingForm = ({
     if (Object.keys(errors).length === 0) {
       try {
         await handleBookingProcess(data);
-        setIsPaymentWindowOpen(true); // Open payment window after successful form submission
+        setIsPaymentWindowOpen(true);
       } catch (error) {
         toast({
           title: "Error",
-          description: "There was an error processing your request. Please try again.",
+          description: "Hubo un error al procesar su solicitud. Por favor, intente de nuevo.",
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -65,13 +66,18 @@ const BookingForm = ({
       }
     } else {
       toast({
-        title: "Form Error",
-        description: "Please fill in all required fields correctly.",
+        title: "Error en el formulario",
+        description: "Por favor, complete todos los campos requeridos correctamente.",
         status: "error",
         duration: 5000,
         isClosable: true,
       });
     }
+  };
+
+  const handleTowTruckSelect = (type) => {
+    // Update the form data with the selected tow truck type
+    handleChange({ target: { name: 'serviceType', value: type } });
   };
 
   return (
@@ -91,7 +97,7 @@ const BookingForm = ({
       <VStack spacing={4} align="stretch">
         <Heading as="h1" size="lg">Servicio de Grúa</Heading>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <ServiceTypeField register={register} errors={errors} formData={formData} handleChange={handleChange} />
+          <TowTruckSelection onSelect={handleTowTruckSelect} />
           <UserInfoFields register={register} errors={errors} formData={formData} handleChange={handleChange} />
           <VehicleInfoFields 
             register={register} 
