@@ -7,7 +7,7 @@ const UserManagement = () => {
   const toast = useToast();
   const queryClient = useQueryClient();
 
-  const { data: usersData, isLoading, error } = useQuery({
+  const { data: users, isLoading, error } = useQuery({
     queryKey: ['users'],
     queryFn: getUsers,
   });
@@ -37,14 +37,16 @@ const UserManagement = () => {
             <Tr>
               <Th>ID</Th>
               <Th>Email</Th>
+              <Th>Role</Th>
               <Th>Actions</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {usersData && usersData.data && usersData.data.map((user) => (
+            {users && users.map((user) => (
               <Tr key={user.id}>
                 <Td>{user.id}</Td>
                 <Td>{user.email}</Td>
+                <Td>{user.role}</Td>
                 <Td>
                   <Button
                     size="sm"

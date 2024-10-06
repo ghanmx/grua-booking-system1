@@ -18,6 +18,17 @@ const handleSupabaseError = async (operation) => {
   }
 };
 
+export const getUsers = async () => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, email, role');
+    
+    if (error) throw error;
+    return data;
+  });
+};
+
 export const getBookings = async (page = 1, limit = 10) => {
   return handleSupabaseError(async () => {
     const startIndex = (page - 1) * limit;
@@ -88,6 +99,17 @@ export const deleteBooking = async (id) => {
   return handleSupabaseError(async () => {
     const { error } = await supabase
       .from('bookings')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+    return { success: true };
+  });
+};
+
+export const deleteUser = async (id) => {
+  return handleSupabaseError(async () => {
+    const { error } = await supabase
+      .from('users')
       .delete()
       .eq('id', id);
     if (error) throw error;
