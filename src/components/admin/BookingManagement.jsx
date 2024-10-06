@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast } from "@chakra-ui/react";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getBookings, updateBooking, deleteBooking, subscribeToBookings } from '../../server/db';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { updateBooking, deleteBooking, subscribeToBookings } from '../../server/db';
 import { useBookings } from '../../hooks/useBookings';
 
 const BookingManagement = ({ showNotification }) => {
