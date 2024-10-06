@@ -5,13 +5,13 @@ import ReactGA from "react-ga4";
 export const initializeMonitoring = () => {
   // Initialize Sentry
   Sentry.init({
-    dsn: "YOUR_SENTRY_DSN", // Replace with your actual Sentry DSN
+    dsn: import.meta.env.VITE_SENTRY_DSN, // Make sure to add this to your .env file
     integrations: [new BrowserTracing()],
     tracesSampleRate: 1.0,
   });
 
   // Initialize Google Analytics
-  ReactGA.initialize("YOUR_GA_MEASUREMENT_ID"); // Replace with your GA4 Measurement ID
+  ReactGA.initialize(import.meta.env.VITE_GA_MEASUREMENT_ID); // Make sure to add this to your .env file
 };
 
 export const logPageView = (path) => {

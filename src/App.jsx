@@ -58,16 +58,16 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <ChakraProvider theme={theme}>
-        <SupabaseAuthProvider>
-          <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <ChakraProvider theme={theme}>
+          <SupabaseAuthProvider>
             <Router>
               <AppContent />
             </Router>
-            <ReactQueryDevtools initialIsOpen={false} />
-          </QueryClientProvider>
-        </SupabaseAuthProvider>
-      </ChakraProvider>
+          </SupabaseAuthProvider>
+        </ChakraProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 }
