@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Box, useToast, Button, VStack } from '@chakra-ui/react';
@@ -17,6 +17,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
   const [map, setMap] = useState(null);
+  const [route, setRoute] = useState(null);
   const companyLocation = [26.509672, -100.0095504];
   const toast = useToast();
 
@@ -88,13 +89,6 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
         setDestination([lat, lng]);
         setDropOffAddress(address);
       }
-      toast({
-        title: 'Marcador movido',
-        description: `La ubicación de ${isPickup ? 'recogida' : 'destino'} ha sido actualizada.`,
-        status: 'info',
-        duration: 2000,
-        isClosable: true,
-      });
     } catch (error) {
       console.error('Error al manejar el arrastre del marcador:', error);
       toast({
@@ -111,10 +105,12 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
     if (pickup && destination) {
       const calculateRoute = async () => {
         try {
-          const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${pickup[1]},${pickup[0]};${destination[1]},${destination[0]}?overview=false`);
+          const fullRoute = `${companyLocation[1]},${companyLocation[0]};${pickup[1]},${pickup[0]};${destination[1]},${destination[0]};${companyLocation[1]},${companyLocation[0]}`;
+          const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${fullRoute}?overview=full&geometries=geojson`);
           if (!response.ok) throw new Error('No se pudo calcular la ruta');
           const data = await response.json();
           if (data.routes && data.routes.length > 0) {
+            setRoute(data.routes[0].geometry.coordinates);
             const distanceInMeters = data.routes[0].distance;
             const distanceInKm = distanceInMeters / 1000;
             setDistance(distanceInKm);
@@ -123,7 +119,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
             setTotalCost(cost);
             toast({
               title: 'Ruta calculada',
-              description: `Distancia: ${distanceInKm.toFixed(2)} km`,
+              description: `Distancia total: ${distanceInKm.toFixed(2)} km`,
               status: 'success',
               duration: 5000,
               isClosable: true,
@@ -142,7 +138,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
       };
       calculateRoute();
     }
-  }, [pickup, destination, setDistance, setTotalCost, vehicleSize, toast]);
+  }, [pickup, destination, setDistance, setTotalCost, vehicleSize, toast, companyLocation]);
 
   const resetMap = useCallback(() => {
     setPickup(null);
@@ -151,6 +147,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
     setDropOffAddress('');
     setDistance(0);
     setTotalCost(0);
+    setRoute(null);
     if (map) {
       map.setView(companyLocation, 10);
     }
@@ -161,7 +158,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
       duration: 3000,
       isClosable: true,
     });
-  }, [map, setPickupAddress, setDropOffAddress, setDistance, setTotalCost, toast]);
+  }, [map, setPickupAddress, setDropOffAddress, setDistance, setTotalCost, toast, companyLocation]);
 
   return (
     <Box position="absolute" top="0" left="0" height="100%" width="100%">
@@ -169,28 +166,20 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
         center={companyLocation} 
         zoom={10} 
         style={{ height: "100%", width: "100%" }}
+        whenCreated={setMap}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        <MapEvents onMapClick={handleMapClick} setMap={setMap} />
+        <MapEvents onMapClick={handleMapClick} />
         <Marker position={companyLocation}><Popup>Ubicación de la Compañía</Popup></Marker>
         {pickup && (
           <Marker 
             position={pickup} 
             draggable={true} 
             eventHandlers={{ 
-              dragend: (e) => handleMarkerDrag(e, true),
-              dragstart: () => {
-                toast({
-                  title: 'Moviendo marcador',
-                  description: 'Arrastra el marcador a la nueva ubicación.',
-                  status: 'info',
-                  duration: 2000,
-                  isClosable: true,
-                });
-              }
+              dragend: (e) => handleMarkerDrag(e, true)
             }}
           >
             <Popup>Ubicación de Recogida</Popup>
@@ -201,21 +190,13 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
             position={destination} 
             draggable={true} 
             eventHandlers={{ 
-              dragend: (e) => handleMarkerDrag(e, false),
-              dragstart: () => {
-                toast({
-                  title: 'Moviendo marcador',
-                  description: 'Arrastra el marcador a la nueva ubicación.',
-                  status: 'info',
-                  duration: 2000,
-                  isClosable: true,
-                });
-              }
+              dragend: (e) => handleMarkerDrag(e, false)
             }}
           >
             <Popup>Ubicación de Destino</Popup>
           </Marker>
         )}
+        {route && <Polyline positions={route.map(coord => [coord[1], coord[0]])} color="blue" />}
       </MapContainer>
       <VStack position="absolute" top="20px" left="20px" spacing={4}>
         <Button colorScheme="blue" onClick={resetMap}>
