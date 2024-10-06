@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, useToast, Button, VStack } from '@chakra-ui/react';
+import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
+import { Box, useToast, Button, VStack, Spinner } from '@chakra-ui/react';
 import { calculateTotalCost, getTowTruckType } from '../../utils/towTruckSelection';
-import MapContainer from './MapContainer';
-import MapMarkers from './MapMarkers';
-import MapControls from './MapControls';
+import { useOptimizedImage } from '../../utils/imageOptimization';
+
+const MapContainer = lazy(() => import('./MapContainer'));
+const MapMarkers = lazy(() => import('./MapMarkers'));
+const MapControls = lazy(() => import('./MapControls'));
 
 const MapRoute = React.memo(({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, vehicleSize }) => {
   const [pickup, setPickup] = useState(null);
@@ -152,24 +154,39 @@ const MapRoute = React.memo(({ setPickupAddress, setDropOffAddress, setDistance,
     });
   }, [map, setPickupAddress, setDropOffAddress, setDistance, setTotalCost, toast, companyLocation]);
 
+  const companyLocationImage = useOptimizedImage('/images/company-location.png', { width: 32, height: 32 });
+  const pickupImage = useOptimizedImage('/images/pickup-location.png', { width: 32, height: 32 });
+  const destinationImage = useOptimizedImage('/images/destination-location.png', { width: 32, height: 32 });
+
+
+
   return (
     <Box position="absolute" top="0" left="0" height="100%" width="100%">
-      <MapContainer
-        center={companyLocation}
-        zoom={10}
-        setMap={setMap}
-        handleMapClick={handleMapClick}
-      >
-        <MapMarkers
-          companyLocation={companyLocation}
-          pickup={pickup}
-          destination={destination}
-          handleMarkerDrag={handleMarkerDrag}
-        />
-        {route && <MapControls route={route} />}
-      </MapContainer>
+      <Suspense fallback={<Spinner />}>
+        <MapContainer
+          center={companyLocation}
+          zoom={10}
+          setMap={setMap}
+          handleMapClick={handleMapClick}
+        >
+          <MapMarkers
+            companyLocation={companyLocation}
+            pickup={pickup}
+            destination={destination}
+            handleMarkerDrag={handleMarkerDrag}
+            companyLocationImage={companyLocationImage}
+            pickupImage={pickupImage}
+            destinationImage={destinationImage}
+          />
+          {route && <MapControls route={route} />}
+        </MapContainer>
+      </Suspense>
       <VStack position="absolute" top="20px" left="20px" spacing={4}>
-        <Button colorScheme="blue" onClick={resetMap}>
+        <Button 
+          colorScheme="blue" 
+          onClick={resetMap}
+          aria-label="Reiniciar Mapa"
+        >
           Reiniciar Mapa
         </Button>
       </VStack>

@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react';
-import { Box, VStack, Heading, Text, Button, useToast } from "@chakra-ui/react";
+import React, { useMemo, lazy, Suspense } from 'react';
+import { Box, VStack, Heading, Text, Button, useToast, Spinner } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { renderField, fieldNames } from './BookingFormFields';
 import { getVehicleSize, getTowTruckType } from '../../utils/towTruckSelection';
-import BookingFormStepper from './BookingFormStepper';
 import { useBookingForm } from '../../hooks/useBookingForm';
+
+const BookingFormStepper = lazy(() => import('./BookingFormStepper'));
 
 const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
   const {
@@ -73,10 +74,26 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
   }
 
   return (
-    <Box position="fixed" top="20px" right="20px" width="400px" maxHeight="calc(100vh - 40px)" overflowY="auto" bg="white" p={4} borderRadius="md" boxShadow="xl" zIndex={1000}>
+    <Box 
+      position="fixed" 
+      top="20px" 
+      right="20px" 
+      width="400px" 
+      maxHeight="calc(100vh - 40px)" 
+      overflowY="auto" 
+      bg="white" 
+      p={4} 
+      borderRadius="md" 
+      boxShadow="xl" 
+      zIndex={1000}
+      role="form"
+      aria-label="Formulario de Reserva de Grúa"
+    >
       <VStack spacing={4} align="stretch">
         <Heading as="h1" size="lg">Formulario de Reserva</Heading>
-        <BookingFormStepper currentStep={currentStep} />
+        <Suspense fallback={<Spinner />}>
+          <BookingFormStepper currentStep={currentStep} />
+        </Suspense>
         <form onSubmit={handleSubmit(onSubmit)}>
           {fieldNames.map(fieldName => 
             renderField(fieldName, { 
@@ -96,7 +113,14 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
               <Text mt={2} fontWeight="bold">Costo estimado: ${totalCost.toFixed(2)}</Text>
             </>
           )}
-          <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading} isDisabled={!isValid}>
+          <Button 
+            colorScheme="blue" 
+            type="submit" 
+            mt={4} 
+            isLoading={isLoading} 
+            isDisabled={!isValid}
+            aria-label="Solicitar Servicio de Grúa"
+          >
             Solicitar Servicio de Grúa
           </Button>
         </form>
