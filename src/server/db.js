@@ -57,7 +57,16 @@ export const getBookings = async (page = 1, limit = 10) => {
       .order('created_at', { ascending: false })
       .range(startIndex, startIndex + limit - 1);
     
-    if (error) throw new Error(`Failed to fetch bookings: ${error.message}`);
+    if (error) {
+      logger.error('Error fetching bookings:', error);
+      throw new Error(`Failed to fetch bookings: ${error.message}`);
+    }
+    
+    if (!data) {
+      logger.warn('No bookings data returned from Supabase');
+      return { data: [], count: 0, totalPages: 0 };
+    }
+    
     return { data, count, totalPages: Math.ceil(count / limit) };
   }, 'bookings');
 };

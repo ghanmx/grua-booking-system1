@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useState } from 'react';
-import { Box, Spinner, useToast } from "@chakra-ui/react";
+import { Box, Spinner, useToast, Alert, AlertIcon, AlertTitle, AlertDescription } from "@chakra-ui/react";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { useQuery } from '@tanstack/react-query';
@@ -36,7 +36,7 @@ const BookingPage = () => {
 
   const handlePaymentSubmit = usePaymentSubmit(formData, totalCost, createBookingMutation, setIsPaymentWindowOpen);
 
-  const { isLoading, error } = useQuery({
+  const { isLoading, error, data } = useQuery({
     queryKey: ['bookings'],
     queryFn: getBookings,
     retry: 3,
@@ -65,8 +65,24 @@ const BookingPage = () => {
     });
   };
 
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <Spinner size="xl" />
+      </Box>
+    );
+  }
+
   if (error) {
-    return <Box p={4}>Error al cargar las reservas. Por favor, intente de nuevo más tarde.</Box>;
+    return (
+      <Box p={4}>
+        <Alert status="error">
+          <AlertIcon />
+          <AlertTitle mr={2}>Error al cargar las reservas</AlertTitle>
+          <AlertDescription>Por favor, intente de nuevo más tarde. Si el problema persiste, contacte con soporte.</AlertDescription>
+        </Alert>
+      </Box>
+    );
   }
 
   return (
