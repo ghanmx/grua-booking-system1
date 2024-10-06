@@ -32,14 +32,34 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
   const watchVehicleModel = watch('vehicleModel');
   const watchVehiclePosition = watch('vehiclePosition');
 
-  const selectedVehicleSize = useMemo(() => watchVehicleModel ? getVehicleSize(watchVehicleModel) : '', [watchVehicleModel]);
-  const selectedTowTruckType = useMemo(() => getTowTruckType(selectedVehicleSize), [selectedVehicleSize]);
+  const selectedVehicleSize = useMemo(() => {
+    try {
+      return watchVehicleModel ? getVehicleSize(watchVehicleModel) : '';
+    } catch (error) {
+      console.error('Error in getVehicleSize:', error);
+      return '';
+    }
+  }, [watchVehicleModel]);
+
+  const selectedTowTruckType = useMemo(() => {
+    try {
+      return getTowTruckType(selectedVehicleSize);
+    } catch (error) {
+      console.error('Error in getTowTruckType:', error);
+      return '';
+    }
+  }, [selectedVehicleSize]);
 
   const currentStep = useMemo(() => {
-    if (!watchVehicleModel) return 0;
-    if (!formData.pickupAddress || !formData.dropOffAddress) return 1;
-    if (!formData.serviceType) return 2;
-    return 3;
+    try {
+      if (!watchVehicleModel) return 0;
+      if (!formData.pickupAddress || !formData.dropOffAddress) return 1;
+      if (!formData.serviceType) return 2;
+      return 3;
+    } catch (error) {
+      console.error('Error in currentStep calculation:', error);
+      return 0;
+    }
   }, [watchVehicleModel, formData.pickupAddress, formData.dropOffAddress, formData.serviceType]);
 
   const onSubmit = async (data) => {
