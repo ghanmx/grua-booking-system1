@@ -2,7 +2,6 @@ import React, { useEffect, useMemo } from 'react';
 import { Box, VStack, Heading, Text, Button, useToast, Spinner, Alert, AlertIcon } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { renderField, fieldNames } from './BookingFormFields';
-import TowTruckSelection from './TowTruckSelection';
 import { getVehicleSize, getTowTruckType, calculateTotalCost } from '../../utils/towTruckSelection';
 
 const BookingForm = ({
@@ -29,20 +28,22 @@ const BookingForm = ({
     return watchVehicleModel ? getVehicleSize(watchVehicleModel) : '';
   }, [watchVehicleModel]);
 
+  const selectedTowTruckType = useMemo(() => {
+    return getTowTruckType(selectedVehicleSize);
+  }, [selectedVehicleSize]);
+
   useEffect(() => {
     if (watchVehicleModel && distance) {
-      const vehicleSize = getVehicleSize(watchVehicleModel);
-      const towTruckType = getTowTruckType(vehicleSize);
       const requiresManeuver = watchVehiclePosition === 'obstructed';
-      const cost = calculateTotalCost(distance, towTruckType, requiresManeuver);
+      const cost = calculateTotalCost(distance, selectedTowTruckType, requiresManeuver);
       setTotalCost(cost);
     }
-  }, [watchVehicleModel, watchVehiclePosition, distance, setTotalCost]);
+  }, [watchVehicleModel, watchVehiclePosition, distance, selectedTowTruckType, setTotalCost]);
 
   const onSubmit = async (data) => {
     if (Object.keys(errors).length === 0) {
       try {
-        await handleBookingProcess(data);
+        await handleBookingProcess({ ...data, serviceType: selectedTowTruckType });
         setIsPaymentWindowOpen(true);
       } catch (error) {
         toast({
@@ -111,13 +112,9 @@ const BookingForm = ({
               vehicleModels
             })
           )}
-          <TowTruckSelection 
-            onSelect={(type) => handleChange({ target: { name: 'serviceType', value: type } })}
-            selectedVehicleSize={selectedVehicleSize}
-          />
           {distance > 0 && (
             <>
-              <Text mt={4} fontWeight="bold">Tipo de Grúa: {getTowTruckType(selectedVehicleSize)}</Text>
+              <Text mt={4} fontWeight="bold">Tipo de Grúa: {selectedTowTruckType}</Text>
               <Text mt={2} fontWeight="bold">Costo Estimado: ${totalCost.toFixed(2)}</Text>
             </>
           )}
