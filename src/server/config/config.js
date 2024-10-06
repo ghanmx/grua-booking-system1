@@ -7,4 +7,5 @@ module.exports = {
   stripeSecretKey: process.env.STRIPE_SECRET_KEY,
   tollguruApiKey: process.env.VITE_TOLLGURU_API_KEY,
   nodeEnv: process.env.NODE_ENV || 'development',
+  jwtSecret: process.env.JWT_SECRET,
 };
