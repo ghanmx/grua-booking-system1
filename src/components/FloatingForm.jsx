@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, VStack, Heading, Text, Button, FormControl, FormLabel, Input, Select, Textarea, FormErrorMessage } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, Button, FormControl, FormLabel, Input, Select, FormErrorMessage } from "@chakra-ui/react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useForm, Controller } from "react-hook-form";
@@ -14,13 +14,32 @@ const FloatingForm = ({
   selectedTowTruck,
   totalCost,
   vehicleBrands,
-  vehicleModels
+  vehicleModels,
+  mapError
 }) => {
   const { register, handleSubmit, control, formState: { errors } } = useForm();
 
   const onSubmit = (data) => {
     handleBookingProcess(data);
   };
+
+  if (mapError) {
+    return (
+      <Box
+        position="fixed"
+        top="20px"
+        right="20px"
+        width="400px"
+        bg="white"
+        p={4}
+        borderRadius="md"
+        boxShadow="xl"
+        zIndex={1000}
+      >
+        <Text color="red.500">Error loading map. Please refresh the page.</Text>
+      </Box>
+    );
+  }
 
   return (
     <Box

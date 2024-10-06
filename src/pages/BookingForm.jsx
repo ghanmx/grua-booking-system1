@@ -9,7 +9,7 @@ import { useBookingForm } from '../hooks/useBookingForm';
 import { usePaymentSubmit } from '../hooks/usePaymentSubmit';
 
 const MapRoute = lazy(() => import('../components/booking/MapRoute'));
-const BookingForm = lazy(() => import('../components/booking/BookingForm'));
+const FloatingForm = lazy(() => import('../components/FloatingForm'));
 const PaymentWindow = lazy(() => import('../components/booking/PaymentWindow'));
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -25,6 +25,7 @@ const BookingPage = () => {
     setDistance,
     totalCost,
     setTotalCost,
+    selectedTowTruck,
     isPaymentWindowOpen,
     setIsPaymentWindowOpen,
     handleChange,
@@ -78,18 +79,17 @@ const BookingPage = () => {
           vehicleSize={formData.vehicleSize}
           onError={handleMapError}
         />
-        <BookingForm
+        <FloatingForm
           formData={formData}
+          setFormData={setFormData}
           handleChange={handleChange}
           handleDateTimeChange={handleDateTimeChange}
           handleBookingProcess={handleBookingProcess}
           isLoading={isLoading || createBookingMutation.isLoading}
+          selectedTowTruck={selectedTowTruck}
           totalCost={totalCost}
-          setTotalCost={setTotalCost}
-          distance={distance}
           vehicleBrands={vehicleBrands}
           vehicleModels={vehicleModels}
-          setIsPaymentWindowOpen={setIsPaymentWindowOpen}
           mapError={mapError}
         />
         {isPaymentWindowOpen && (
