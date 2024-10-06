@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from "react";
-import { ChakraProvider, Box, ColorModeScript } from "@chakra-ui/react";
+import { ChakraProvider, Box, ColorModeScript, Spinner, Text } from "@chakra-ui/react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -35,7 +35,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 function App() {
   return (
-    <ErrorBoundary>
+    <ErrorBoundary fallback={<Text>Something went wrong. Please refresh the page.</Text>}>
       <QueryClientProvider client={queryClient}>
         <SupabaseAuthProvider>
           <ChakraProvider theme={theme}>
@@ -44,7 +44,12 @@ function App() {
               <Box minHeight="100vh" display="flex" flexDirection="column">
                 <Navbar />
                 <Box flex="1">
-                  <Suspense fallback={<div>Loading...</div>}>
+                  <Suspense fallback={
+                    <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+                      <Spinner size="xl" />
+                      <Text ml={4}>Loading...</Text>
+                    </Box>
+                  }>
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/about" element={<About />} />
