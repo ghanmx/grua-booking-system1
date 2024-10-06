@@ -3,45 +3,52 @@ import { supabase } from '../config/supabase.config';
 export const runDiagnostics = async () => {
   const diagnosticResults = {
     databaseConnection: false,
-    bookingsTable: false,
-    usersTable: false,
-    servicesTable: false,
+    tables: {
+      users: { exists: false, count: 0 },
+      profiles: { exists: false, count: 0 },
+      services: { exists: false, count: 0 },
+      bookings: { exists: false, count: 0 },
+    },
     relationships: {
       bookings_users: false,
-      bookings_services: false
+      bookings_services: false,
+      profiles_users: false,
     },
     paymentIntegration: false
   };
 
   try {
     // Test database connection
-    const { data, error } = await supabase.from('bookings').select('count').single();
+    const { data, error } = await supabase.from('users').select('count', { count: 'exact' });
     diagnosticResults.databaseConnection = !error;
 
-    // Check bookings table
-    const { data: bookingsData, error: bookingsError } = await supabase.from('bookings').select('id').limit(1);
-    diagnosticResults.bookingsTable = !bookingsError && bookingsData;
+    if (diagnosticResults.databaseConnection) {
+      // Check tables
+      for (const table of ['users', 'profiles', 'services', 'bookings']) {
+        const { count, error } = await supabase.from(table).select('*', { count: 'exact', head: true });
+        diagnosticResults.tables[table].exists = !error;
+        diagnosticResults.tables[table].count = count || 0;
+      }
 
-    // Check users table
-    const { data: usersData, error: usersError } = await supabase.from('users').select('id').limit(1);
-    diagnosticResults.usersTable = !usersError && usersData;
+      // Check relationships
+      const { data: bookingUserData, error: bookingUserError } = await supabase
+        .from('bookings')
+        .select('id, user_id')
+        .limit(1);
+      diagnosticResults.relationships.bookings_users = !bookingUserError && bookingUserData && bookingUserData.length > 0;
 
-    // Check services table
-    const { data: servicesData, error: servicesError } = await supabase.from('services').select('id').limit(1);
-    diagnosticResults.servicesTable = !servicesError && servicesData;
+      const { data: bookingServiceData, error: bookingServiceError } = await supabase
+        .from('bookings')
+        .select('id, service_id')
+        .limit(1);
+      diagnosticResults.relationships.bookings_services = !bookingServiceError && bookingServiceData && bookingServiceData.length > 0;
 
-    // Check relationships
-    const { data: bookingUserData, error: bookingUserError } = await supabase
-      .from('bookings')
-      .select('id, user_id (id)')
-      .limit(1);
-    diagnosticResults.relationships.bookings_users = !bookingUserError && bookingUserData && bookingUserData[0]?.user_id;
-
-    const { data: bookingServiceData, error: bookingServiceError } = await supabase
-      .from('bookings')
-      .select('id, service_id (id)')
-      .limit(1);
-    diagnosticResults.relationships.bookings_services = !bookingServiceError && bookingServiceData && bookingServiceData[0]?.service_id;
+      const { data: profileUserData, error: profileUserError } = await supabase
+        .from('profiles')
+        .select('id, user_id')
+        .limit(1);
+      diagnosticResults.relationships.profiles_users = !profileUserError && profileUserData && profileUserData.length > 0;
+    }
 
     // Check payment integration (this is a mock check, replace with actual integration test if available)
     diagnosticResults.paymentIntegration = !!import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
