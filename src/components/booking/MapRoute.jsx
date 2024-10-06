@@ -1,23 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import { Box, useToast, Button, VStack } from '@chakra-ui/react';
 import { calculateTotalCost, getTowTruckType } from '../../utils/towTruckSelection';
-
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
-
-const MapEvents = React.memo(({ onMapClick }) => {
-  useMapEvents({
-    click: onMapClick,
-  });
-  return null;
-});
+import MapContainer from './MapContainer';
+import MapMarkers from './MapMarkers';
+import MapControls from './MapControls';
 
 const MapRoute = React.memo(({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, vehicleSize }) => {
   const [pickup, setPickup] = useState(null);
@@ -168,41 +154,19 @@ const MapRoute = React.memo(({ setPickupAddress, setDropOffAddress, setDistance,
 
   return (
     <Box position="absolute" top="0" left="0" height="100%" width="100%">
-      <MapContainer 
-        center={companyLocation} 
-        zoom={10} 
-        style={{ height: "100%", width: "100%" }}
-        whenCreated={setMap}
+      <MapContainer
+        center={companyLocation}
+        zoom={10}
+        setMap={setMap}
+        handleMapClick={handleMapClick}
       >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        <MapMarkers
+          companyLocation={companyLocation}
+          pickup={pickup}
+          destination={destination}
+          handleMarkerDrag={handleMarkerDrag}
         />
-        <MapEvents onMapClick={handleMapClick} />
-        <Marker position={companyLocation}><Popup>Ubicación de la Compañía</Popup></Marker>
-        {pickup && (
-          <Marker 
-            position={pickup} 
-            draggable={true} 
-            eventHandlers={{ 
-              dragend: (e) => handleMarkerDrag(e, true)
-            }}
-          >
-            <Popup>Ubicación de Recogida</Popup>
-          </Marker>
-        )}
-        {destination && (
-          <Marker 
-            position={destination} 
-            draggable={true} 
-            eventHandlers={{ 
-              dragend: (e) => handleMarkerDrag(e, false)
-            }}
-          >
-            <Popup>Ubicación de Destino</Popup>
-          </Marker>
-        )}
-        {route && <Polyline positions={route.map(coord => [coord[1], coord[0]])} color="blue" />}
+        {route && <MapControls route={route} />}
       </MapContainer>
       <VStack position="absolute" top="20px" left="20px" spacing={4}>
         <Button colorScheme="blue" onClick={resetMap}>
