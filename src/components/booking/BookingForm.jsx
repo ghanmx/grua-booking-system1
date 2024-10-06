@@ -6,7 +6,7 @@ import { getVehicleSize, getTowTruckType } from '../../utils/towTruckSelection';
 import BookingFormStepper from './BookingFormStepper';
 import { useBookingForm } from '../../hooks/useBookingForm';
 
-const BookingForm = ({ vehicleBrands, vehicleModels, mapError }) => {
+const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
   const {
     formData,
     handleChange,
@@ -122,6 +122,6 @@ const BookingForm = ({ vehicleBrands, vehicleModels, mapError }) => {
       </VStack>
     </Box>
   );
-};
+});
 
-export default React.memo(BookingForm);
+export default BookingForm;

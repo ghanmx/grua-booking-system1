@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getBookings, updateBooking, deleteBooking } from '../../server/db';
+import { getBookings, updateBooking, deleteBooking, subscribeToBookings } from '../../server/db';
 import { useBookings } from '../../hooks/useBookings';
 
 const BookingManagement = ({ showNotification }) => {
@@ -9,11 +9,28 @@ const BookingManagement = ({ showNotification }) => {
   const toast = useToast();
   const { bookings, isLoading, error } = useBookings();
 
+  useEffect(() => {
+    const subscription = subscribeToBookings((payload) => {
+      queryClient.invalidateQueries('bookings');
+      toast({
+        title: 'Actualización de reserva',
+        description: `La reserva ${payload.new.id} ha sido actualizada.`,
+        status: 'info',
+        duration: 3000,
+        isClosable: true,
+      });
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [queryClient, toast]);
+
   const updateBookingMutation = useMutation({
     mutationFn: ({ id, status }) => updateBooking(id, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries('bookings');
-      showNotification('Booking Updated', 'The booking status has been updated successfully.', 'success');
+      showNotification('Reserva actualizada', 'El estado de la reserva ha sido actualizado con éxito.', 'success');
     },
   });
 
@@ -21,7 +38,7 @@ const BookingManagement = ({ showNotification }) => {
     mutationFn: deleteBooking,
     onSuccess: () => {
       queryClient.invalidateQueries('bookings');
-      showNotification('Booking Deleted', 'The booking has been deleted successfully.', 'success');
+      showNotification('Reserva eliminada', 'La reserva ha sido eliminada con éxito.', 'success');
     },
   });
 
@@ -30,26 +47,26 @@ const BookingManagement = ({ showNotification }) => {
   };
 
   const handleDeleteBooking = (bookingId) => {
-    if (window.confirm('Are you sure you want to delete this booking?')) {
+    if (window.confirm('¿Está seguro de que desea eliminar esta reserva?')) {
       deleteBookingMutation.mutate(bookingId);
     }
   };
 
-  if (isLoading) return <Box>Loading bookings...</Box>;
-  if (error) return <Box>Error loading bookings: {error.message}</Box>;
-  if (!bookings || bookings.length === 0) return <Box>No bookings found.</Box>;
+  if (isLoading) return <Box>Cargando reservas...</Box>;
+  if (error) return <Box>Error al cargar las reservas: {error.message}</Box>;
+  if (!bookings || bookings.length === 0) return <Box>No se encontraron reservas.</Box>;
 
   return (
     <Box>
-      <Heading as="h2" size="lg" mb={4}>Booking Management</Heading>
+      <Heading as="h2" size="lg" mb={4}>Gestión de Reservas</Heading>
       <Table variant="simple">
         <Thead>
           <Tr>
             <Th>ID</Th>
-            <Th>User</Th>
-            <Th>Service</Th>
-            <Th>Status</Th>
-            <Th>Actions</Th>
+            <Th>Usuario</Th>
+            <Th>Servicio</Th>
+            <Th>Estado</Th>
+            <Th>Acciones</Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -63,10 +80,10 @@ const BookingManagement = ({ showNotification }) => {
                   value={booking.status}
                   onChange={(e) => handleStatusChange(booking.id, e.target.value)}
                 >
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
+                  <option value="pending">Pendiente</option>
+                  <option value="confirmed">Confirmado</option>
+                  <option value="completed">Completado</option>
+                  <option value="cancelled">Cancelado</option>
                 </Select>
               </Td>
               <Td>
@@ -75,7 +92,7 @@ const BookingManagement = ({ showNotification }) => {
                   size="sm"
                   onClick={() => handleDeleteBooking(booking.id)}
                 >
-                  Delete
+                  Eliminar
                 </Button>
               </Td>
             </Tr>
@@ -86,4 +103,4 @@ const BookingManagement = ({ showNotification }) => {
   );
 };
 
-export default BookingManagement;
+export default React.memo(BookingManagement);

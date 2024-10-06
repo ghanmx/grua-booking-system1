@@ -1,71 +1,81 @@
-import React, { useEffect } from 'react';
-import { ChakraProvider } from '@chakra-ui/react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import React, { lazy, Suspense } from "react";
+import { ChakraProvider, Box, ColorModeScript } from "@chakra-ui/react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { SupabaseAuthProvider } from './integrations/supabase/auth';
-import { initializeMonitoring, logPageView } from './utils/monitoring';
-import { runAccessibilityChecks } from './utils/accessibility';
-import { Helmet } from 'react-helmet';
-import theme from './theme';
-import Navbar from './components/layout/Navbar';
-import Footer from './components/layout/Footer';
-import Index from './pages/Index';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import Login from './pages/Login';
-import BookingForm from './pages/BookingForm';
-import AdminPanel from './pages/AdminPanel';
-import Confirmation from './pages/Confirmation';
-import ErrorBoundary from './components/ErrorBoundary';
+import { SupabaseAuthProvider } from './integrations/supabase';
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
+import ErrorBoundary from "./components/common/ErrorBoundary";
+import theme from "./theme";
 
-const queryClient = new QueryClient();
+const Index = lazy(() => import("./pages/Index"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const BookingForm = lazy(() => import("./pages/BookingForm"));
+const Confirmation = lazy(() => import("./pages/Confirmation"));
+const Login = lazy(() => import("./pages/Login"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const ProtectedRoute = lazy(() => import("./components/common/ProtectedRoute"));
 
-function AppContent() {
-  const location = useLocation();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes
+    },
+  },
+});
 
-  useEffect(() => {
-    logPageView(location.pathname);
-  }, [location]);
-
-  return (
-    <>
-      <Helmet>
-        <title>M.R. Gruas - Towing Service</title>
-        <meta name="description" content="Professional towing services in your area. Fast, reliable, and affordable." />
-        <meta name="keywords" content="towing, roadside assistance, car towing, emergency towing" />
-      </Helmet>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/booking" element={<BookingForm />} />
-        <Route path="/admin" element={<AdminPanel />} />
-        <Route path="/confirmation" element={<Confirmation />} />
-      </Routes>
-      <Footer />
-    </>
-  );
-}
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 function App() {
-  useEffect(() => {
-    initializeMonitoring();
-    runAccessibilityChecks();
-  }, []);
-
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <ChakraProvider theme={theme}>
-          <SupabaseAuthProvider>
+        <SupabaseAuthProvider>
+          <ChakraProvider theme={theme}>
+            <ColorModeScript initialColorMode={theme.config.initialColorMode} />
             <Router>
-              <AppContent />
+              <Box minHeight="100vh" display="flex" flexDirection="column">
+                <Navbar />
+                <Box flex="1">
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/about" element={<About />} />
+                      <Route path="/contact" element={<Contact />} />
+                      <Route path="/booking" element={
+                        <ProtectedRoute>
+                          <Elements stripe={stripePromise}>
+                            <BookingForm />
+                          </Elements>
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/confirmation" element={
+                        <ProtectedRoute>
+                          <Confirmation />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/admin" element={
+                        <ProtectedRoute adminOnly>
+                          <AdminPanel />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/login" element={<Login />} />
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                  </Suspense>
+                </Box>
+                <Footer />
+              </Box>
             </Router>
-          </SupabaseAuthProvider>
-        </ChakraProvider>
+          </ChakraProvider>
+        </SupabaseAuthProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </ErrorBoundary>

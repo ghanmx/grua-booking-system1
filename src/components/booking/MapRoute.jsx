@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Box, useToast, Button, VStack } from '@chakra-ui/react';
 import { calculateTotalCost, getTowTruckType } from '../../utils/towTruckSelection';
-import MapEvents from './MapEvents';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -13,15 +12,22 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, vehicleSize }) => {
+const MapEvents = React.memo(({ onMapClick }) => {
+  useMapEvents({
+    click: onMapClick,
+  });
+  return null;
+});
+
+const MapRoute = React.memo(({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, vehicleSize }) => {
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
   const [map, setMap] = useState(null);
   const [route, setRoute] = useState(null);
-  const companyLocation = [26.509672, -100.0095504];
+  const companyLocation = useMemo(() => [26.509672, -100.0095504], []);
   const toast = useToast();
 
-  const getAddressFromLatLng = async (lat, lng) => {
+  const getAddressFromLatLng = useCallback(async (lat, lng) => {
     try {
       const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
       if (!response.ok) throw new Error('No se pudo obtener la dirección');
@@ -38,7 +44,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
       });
       return '';
     }
-  };
+  }, [toast]);
 
   const handleMapClick = useCallback(async (e) => {
     try {
@@ -76,7 +82,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
         isClosable: true,
       });
     }
-  }, [pickup, destination, setPickupAddress, setDropOffAddress, toast]);
+  }, [pickup, destination, setPickupAddress, setDropOffAddress, toast, getAddressFromLatLng]);
 
   const handleMarkerDrag = useCallback(async (e, isPickup) => {
     try {
@@ -99,7 +105,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
         isClosable: true,
       });
     }
-  }, [setPickupAddress, setDropOffAddress, toast]);
+  }, [setPickupAddress, setDropOffAddress, toast, getAddressFromLatLng]);
 
   useEffect(() => {
     if (pickup && destination) {
@@ -205,6 +211,6 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
       </VStack>
     </Box>
   );
-};
+});
 
 export default MapRoute;
