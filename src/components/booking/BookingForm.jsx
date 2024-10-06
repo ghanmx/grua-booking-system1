@@ -7,6 +7,7 @@ import { useBookingForm } from '../../hooks/useBookingForm';
 import PaymentWindow from './PaymentWindow';
 
 const BookingFormStepper = lazy(() => import('./BookingFormStepper'));
+const BookingFormFields = lazy(() => import('./BookingFormFields'));
 
 const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
   const {
@@ -120,18 +121,20 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
           <BookingFormStepper currentStep={currentStep} />
         </Suspense>
         <form onSubmit={handleSubmit(onSubmit)}>
-          {fieldNames.map(fieldName => 
-            renderField(fieldName, { 
-              register, 
-              errors, 
-              formData, 
-              handleChange, 
-              control, 
-              handleDateTimeChange,
-              vehicleBrands,
-              vehicleModels
-            })
-          )}
+          <Suspense fallback={<Spinner />}>
+            <BookingFormFields
+              fieldNames={fieldNames}
+              renderField={renderField}
+              register={register}
+              errors={errors}
+              formData={formData}
+              handleChange={handleChange}
+              control={control}
+              handleDateTimeChange={handleDateTimeChange}
+              vehicleBrands={vehicleBrands}
+              vehicleModels={vehicleModels}
+            />
+          </Suspense>
           {distance > 0 && (
             <>
               <Text mt={4} fontWeight="bold">Tipo de grúa: {selectedTowTruckType}</Text>
