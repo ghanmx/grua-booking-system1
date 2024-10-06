@@ -98,19 +98,57 @@ export const deleteUser = async (id) => {
   });
 };
 
-// Implementación de suscripciones en tiempo real
+// New function to create a user account
+export const createAccount = async (email, password, userData) => {
+  return handleSupabaseError(async () => {
+    // First, create the user authentication
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+    });
 
-export const subscribeToBookings = (callback) => {
-  const channel = supabase
-    .channel('bookings_changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, payload => {
-      callback(payload);
+    if (authError) throw authError;
+
+    // If auth is successful, create the user profile
+    if (authData.user) {
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .insert([{ ...userData, user_id: authData.user.id }])
+        .select();
+
+      if (profileError) {
+        // If profile creation fails, we should delete the auth user to maintain consistency
+        await supabase.auth.admin.deleteUser(authData.user.id);
+        throw profileError;
+      }
+
+      return { user: authData.user, profile: profileData[0] };
+    }
+  });
+};
+
+// Function to set up real-time updates
+export const setupRealtimeSubscription = (table, onUpdate) => {
+  return supabase
+    .channel(`${table}_changes`)
+    .on('postgres_changes', { event: '*', schema: 'public', table: table }, (payload) => {
+      onUpdate(payload);
     })
     .subscribe();
+};
 
-  return () => {
-    supabase.removeChannel(channel);
-  };
+// Existing subscribeToBookings function
+export const subscribeToBookings = (callback) => {
+  return setupRealtimeSubscription('bookings', callback);
+};
+
+// You can add more subscription functions for other tables as needed
+export const subscribeToUsers = (callback) => {
+  return setupRealtimeSubscription('users', callback);
+};
+
+export const subscribeToProfiles = (callback) => {
+  return setupRealtimeSubscription('profiles', callback);
 };
 
 // ... keep existing code
