@@ -6,7 +6,6 @@ import ServiceManagement from '../components/admin/ServiceManagement';
 import BookingManagement from '../components/admin/BookingManagement';
 import AnalyticsDashboard from '../components/admin/AnalyticsDashboard';
 import SMTPSettingsForm from '../components/admin/SMTPSettingsForm';
-import { ROLES } from '../constants/roles';
 
 const AdminPanel = () => {
   const { session } = useSupabaseAuth();
@@ -16,6 +15,10 @@ const AdminPanel = () => {
   if (!session && (!testModeUser || !testModeUser.isAdmin)) {
     return <Box p={4}><Heading as="h2" size="lg">You do not have admin privileges.</Heading></Box>;
   }
+
+  const showNotification = (title, description, status) => {
+    toast({ title, description, status, duration: 3000, isClosable: true });
+  };
 
   return (
     <Box p={4}>
@@ -34,22 +37,13 @@ const AdminPanel = () => {
               <AnalyticsDashboard />
             </TabPanel>
             <TabPanel>
-              <BookingManagement
-                showNotification={(title, description, status) => 
-                  toast({ title, description, status, duration: 3000, isClosable: true })}
-              />
+              <BookingManagement showNotification={showNotification} />
             </TabPanel>
             <TabPanel>
-              <ServiceManagement
-                showNotification={(title, description, status) => 
-                  toast({ title, description, status, duration: 3000, isClosable: true })}
-              />
+              <ServiceManagement showNotification={showNotification} />
             </TabPanel>
             <TabPanel>
-              <UserManagement 
-                showNotification={(title, description, status) => 
-                  toast({ title, description, status, duration: 3000, isClosable: true })}
-              />
+              <UserManagement showNotification={showNotification} />
             </TabPanel>
             <TabPanel>
               <SMTPSettingsForm />
