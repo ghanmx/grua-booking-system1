@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useMemo } from 'react';
+import React, { lazy, Suspense, useState } from 'react';
 import { Box, Spinner, useToast } from "@chakra-ui/react";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
@@ -16,6 +16,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const BookingPage = () => {
   const toast = useToast();
+  const [mapError, setMapError] = useState(false);
 
   const {
     formData,
@@ -34,7 +35,7 @@ const BookingPage = () => {
 
   const handlePaymentSubmit = usePaymentSubmit(formData, totalCost, createBookingMutation, setIsPaymentWindowOpen);
 
-  const { data: bookings, error } = useQuery({
+  const { isLoading, error } = useQuery({
     queryKey: ['bookings'],
     queryFn: getBookings,
     retry: 3,
@@ -51,10 +52,16 @@ const BookingPage = () => {
     },
   });
 
-  const memoizedVehicleData = useMemo(() => ({
-    vehicleBrands,
-    vehicleModels
-  }), []);
+  const handleMapError = () => {
+    setMapError(true);
+    toast({
+      title: 'Error loading map',
+      description: 'Unable to load the map. Please try refreshing the page.',
+      status: 'error',
+      duration: 5000,
+      isClosable: true,
+    });
+  };
 
   if (error) {
     return <Box>Error loading bookings. Please try again later.</Box>;
@@ -69,19 +76,21 @@ const BookingPage = () => {
           setDistance={setDistance}
           setTotalCost={setTotalCost}
           vehicleSize={formData.vehicleSize}
+          onError={handleMapError}
         />
         <BookingForm
           formData={formData}
           handleChange={handleChange}
           handleDateTimeChange={handleDateTimeChange}
           handleBookingProcess={handleBookingProcess}
-          isLoading={createBookingMutation.isLoading}
+          isLoading={isLoading || createBookingMutation.isLoading}
           totalCost={totalCost}
           setTotalCost={setTotalCost}
           distance={distance}
-          vehicleBrands={memoizedVehicleData.vehicleBrands}
-          vehicleModels={memoizedVehicleData.vehicleModels}
+          vehicleBrands={vehicleBrands}
+          vehicleModels={vehicleModels}
           setIsPaymentWindowOpen={setIsPaymentWindowOpen}
+          mapError={mapError}
         />
         {isPaymentWindowOpen && (
           <Elements stripe={stripePromise}>

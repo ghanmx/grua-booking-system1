@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Box, VStack, Heading, Text, Button, useToast } from "@chakra-ui/react";
+import React, { useEffect, useMemo } from 'react';
+import { Box, VStack, Heading, Text, Button, useToast, Spinner, Alert, AlertIcon } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { renderField, fieldNames } from './BookingFormFields';
 import TowTruckSelection from './TowTruckSelection';
@@ -16,11 +16,11 @@ const BookingForm = ({
   distance,
   vehicleBrands,
   vehicleModels,
-  setIsPaymentWindowOpen
+  setIsPaymentWindowOpen,
+  mapError
 }) => {
   const { register, handleSubmit, control, watch, formState: { errors } } = useForm();
   const toast = useToast();
-  const [pricesCalculated, setPricesCalculated] = useState(false);
 
   const watchVehicleModel = watch('vehicleModel');
   const watchVehiclePosition = watch('vehiclePosition');
@@ -36,9 +36,6 @@ const BookingForm = ({
       const requiresManeuver = watchVehiclePosition === 'obstructed';
       const cost = calculateTotalCost(distance, towTruckType, requiresManeuver);
       setTotalCost(cost);
-      setPricesCalculated(true);
-    } else {
-      setPricesCalculated(false);
     }
   }, [watchVehicleModel, watchVehiclePosition, distance, setTotalCost]);
 
@@ -67,9 +64,23 @@ const BookingForm = ({
     }
   };
 
-  const handleTowTruckSelect = (type) => {
-    handleChange({ target: { name: 'serviceType', value: type } });
-  };
+  if (isLoading) {
+    return (
+      <Box textAlign="center" p={4}>
+        <Spinner size="xl" />
+        <Text mt={4}>Cargando formulario de reserva...</Text>
+      </Box>
+    );
+  }
+
+  if (mapError) {
+    return (
+      <Alert status="error">
+        <AlertIcon />
+        Error al cargar el mapa. Por favor, recargue la página o contacte soporte.
+      </Alert>
+    );
+  }
 
   return (
     <Box
@@ -101,11 +112,10 @@ const BookingForm = ({
             })
           )}
           <TowTruckSelection 
-            onSelect={handleTowTruckSelect} 
+            onSelect={(type) => handleChange({ target: { name: 'serviceType', value: type } })}
             selectedVehicleSize={selectedVehicleSize}
-            pricesCalculated={pricesCalculated}
           />
-          {pricesCalculated && (
+          {distance > 0 && (
             <>
               <Text mt={4} fontWeight="bold">Tipo de Grúa: {getTowTruckType(selectedVehicleSize)}</Text>
               <Text mt={2} fontWeight="bold">Costo Estimado: ${totalCost.toFixed(2)}</Text>
