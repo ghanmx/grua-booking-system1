@@ -1,4 +1,4 @@
-const towTruckTypes = {
+export const towTruckTypes = {
   A: { perKm: 18.82, basePrice: 528.69, maneuverCharge: 1219.55 },
   C: { perKm: 23.47, basePrice: 721.79, maneuverCharge: 1524.21 },
   D: { perKm: 32.35, basePrice: 885.84, maneuverCharge: 2101.65 },
