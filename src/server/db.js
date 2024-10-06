@@ -26,6 +26,16 @@ const handleSupabaseError = async (operation, entityName) => {
   }
 };
 
+export const getUsers = async () => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*');
+    if (error) throw new Error(`Failed to fetch users: ${error.message}`);
+    return data;
+  }, 'users');
+};
+
 export const getBookings = async (page = 1, limit = 10) => {
   return handleSupabaseError(async () => {
     const startIndex = (page - 1) * limit;
