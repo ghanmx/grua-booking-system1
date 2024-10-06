@@ -53,7 +53,8 @@ const BookingPage = () => {
     },
   });
 
-  const handleMapError = () => {
+  const handleMapError = (error) => {
+    console.error('Map error:', error);
     setMapError(true);
     toast({
       title: 'Error loading map',

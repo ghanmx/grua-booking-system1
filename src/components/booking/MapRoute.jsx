@@ -37,7 +37,27 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
         setDestination([lat, lng]);
         const address = await getAddressFromLatLng(lat, lng);
         setDropOffAddress(address);
+      } else {
+        // Allow repositioning of existing markers
+        const pickupDist = L.latLng(pickup).distanceTo([lat, lng]);
+        const destDist = L.latLng(destination).distanceTo([lat, lng]);
+        if (pickupDist < destDist) {
+          setPickup([lat, lng]);
+          const address = await getAddressFromLatLng(lat, lng);
+          setPickupAddress(address);
+        } else {
+          setDestination([lat, lng]);
+          const address = await getAddressFromLatLng(lat, lng);
+          setDropOffAddress(address);
+        }
       }
+      toast({
+        title: 'Marker placed',
+        description: 'Location marker has been updated.',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+      });
     } catch (error) {
       console.error('Error handling map click:', error);
       toast({
@@ -68,6 +88,36 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
       return '';
     }
   };
+
+  const handleMarkerDrag = useCallback(async (e, isPickup) => {
+    try {
+      const { lat, lng } = e.target.getLatLng();
+      const address = await getAddressFromLatLng(lat, lng);
+      if (isPickup) {
+        setPickup([lat, lng]);
+        setPickupAddress(address);
+      } else {
+        setDestination([lat, lng]);
+        setDropOffAddress(address);
+      }
+      toast({
+        title: 'Marker moved',
+        description: `${isPickup ? 'Pickup' : 'Destination'} location updated.`,
+        status: 'info',
+        duration: 2000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error handling marker drag:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update marker position. Please try again.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  }, [setPickupAddress, setDropOffAddress, toast]);
 
   useEffect(() => {
     if (pickup && destination) {
@@ -114,8 +164,24 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
         />
         {mapLoaded && <MapEvents />}
         <Marker position={companyLocation}><Popup>Company Location</Popup></Marker>
-        {pickup && <Marker position={pickup}><Popup>Pickup Location</Popup></Marker>}
-        {destination && <Marker position={destination}><Popup>Drop-off Location</Popup></Marker>}
+        {pickup && (
+          <Marker 
+            position={pickup} 
+            draggable={true} 
+            eventHandlers={{ dragend: (e) => handleMarkerDrag(e, true) }}
+          >
+            <Popup>Pickup Location</Popup>
+          </Marker>
+        )}
+        {destination && (
+          <Marker 
+            position={destination} 
+            draggable={true} 
+            eventHandlers={{ dragend: (e) => handleMarkerDrag(e, false) }}
+          >
+            <Popup>Drop-off Location</Popup>
+          </Marker>
+        )}
       </MapContainer>
     </Box>
   );
