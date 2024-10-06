@@ -45,7 +45,6 @@ export const getBookings = async (page = 1, limit = 10) => {
         id,
         status,
         payment_status,
-        total_cost,
         pickup_datetime,
         user:users!bookings_user_id_fkey (id, email),
         service:services!bookings_service_id_fkey (id, name)
