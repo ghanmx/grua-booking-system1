@@ -33,11 +33,16 @@ export const SupabaseAuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const { session, user } = await dbLogin(email, password);
-      setSession(session);
-      setUser(user);
-      return { session, user };
+      const result = await dbLogin(email, password);
+      if (result && result.session) {
+        setSession(result.session);
+        setUser(result.user);
+        return result;
+      } else {
+        throw new Error('Invalid login response');
+      }
     } catch (error) {
+      console.error('Login error:', error);
       throw error;
     }
   };
