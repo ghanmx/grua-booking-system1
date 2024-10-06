@@ -5,23 +5,32 @@ import ReactGA from "react-ga4";
 export const initializeMonitoring = () => {
   // Initialize Sentry
   Sentry.init({
-    dsn: import.meta.env.VITE_SENTRY_DSN, // Make sure to add this to your .env file
+    dsn: import.meta.env.VITE_SENTRY_DSN,
     integrations: [new BrowserTracing()],
     tracesSampleRate: 1.0,
   });
 
   // Initialize Google Analytics
-  ReactGA.initialize(import.meta.env.VITE_GA_MEASUREMENT_ID); // Make sure to add this to your .env file
+  const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
+  if (GA_MEASUREMENT_ID) {
+    ReactGA.initialize(GA_MEASUREMENT_ID);
+  } else {
+    console.warn('Google Analytics Measurement ID is not set. GA will not be initialized.');
+  }
 };
 
 export const logPageView = (path) => {
-  ReactGA.send({ hitType: "pageview", page: path });
+  if (ReactGA.isInitialized) {
+    ReactGA.send({ hitType: "pageview", page: path });
+  }
 };
 
 export const logEvent = (category, action, label) => {
-  ReactGA.event({
-    category: category,
-    action: action,
-    label: label,
-  });
+  if (ReactGA.isInitialized) {
+    ReactGA.event({
+      category: category,
+      action: action,
+      label: label,
+    });
+  }
 };
