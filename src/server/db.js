@@ -1,6 +1,7 @@
 import { supabase } from '../integrations/supabase/supabase';
 
 const handleSupabaseError = async (operation) => {
+const handleSupabaseError = async (operation) => {
   const maxRetries = 3;
   let retries = 0;
 
@@ -16,6 +17,7 @@ const handleSupabaseError = async (operation) => {
       await new Promise(resolve => setTimeout(resolve, 1000 * retries));
     }
   }
+};
 };
 
 export const getUsers = async () => {
@@ -98,10 +100,8 @@ export const deleteUser = async (id) => {
   });
 };
 
-// New function to create a user account
 export const createAccount = async (email, password, userData) => {
   return handleSupabaseError(async () => {
-    // First, create the user authentication
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
@@ -109,7 +109,6 @@ export const createAccount = async (email, password, userData) => {
 
     if (authError) throw authError;
 
-    // If auth is successful, create the user profile
     if (authData.user) {
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
@@ -117,17 +116,48 @@ export const createAccount = async (email, password, userData) => {
         .select();
 
       if (profileError) {
-        // If profile creation fails, we should delete the auth user to maintain consistency
         await supabase.auth.admin.deleteUser(authData.user.id);
         throw profileError;
       }
 
-      return { user: authData.user, profile: profileData[0] };
+      // Create a new entry in the 'users' table
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .insert([{ id: authData.user.id, email: email, role: 'user' }])
+        .select();
+
+      if (userError) {
+        await supabase.auth.admin.deleteUser(authData.user.id);
+        throw userError;
+      }
+
+      return { user: userData[0], profile: profileData[0] };
     }
   });
 };
 
-// Function to set up real-time updates
+export const login = async (email, password) => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) throw error;
+
+    // Fetch user data from the 'users' table
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', data.user.id)
+      .single();
+
+    if (userError) throw userError;
+
+    return { session: data.session, user: userData };
+  });
+};
+
 export const setupRealtimeSubscription = (table, onUpdate) => {
   return supabase
     .channel(`${table}_changes`)

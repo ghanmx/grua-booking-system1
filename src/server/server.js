@@ -5,6 +5,7 @@ const stripe = require('stripe')(config.stripeSecretKey);
 const bookingRoutes = require('./routes/bookingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const { errorHandler } = require('./middleware/errorHandler');
+const { login, createAccount } = require('./db');
 
 const app = express();
 
@@ -26,6 +27,26 @@ app.post('/api/process-payment', async (req, res) => {
     });
 
     res.json({ success: true, paymentIntentId: paymentIntent.id });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const result = await login(email, password);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/signup', async (req, res) => {
+  try {
+    const { email, password, userData } = req.body;
+    const result = await createAccount(email, password, userData);
+    res.json(result);
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }

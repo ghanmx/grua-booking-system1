@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Box, Container, Heading, VStack, Button, Checkbox, FormControl, FormLabel, Input, useToast } from '@chakra-ui/react';
-import { Auth } from '@supabase/auth-ui-react';
-import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { supabase } from '../integrations/supabase/index.jsx';
+import { Box, Container, Heading, VStack, Button, Checkbox, FormControl, FormLabel, Input, useToast, Tabs, TabList, Tab, TabPanels, TabPanel } from '@chakra-ui/react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const Login = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { session, login } = useSupabaseAuth();
+    const { session, login, signup } = useSupabaseAuth();
     const [isTestMode, setIsTestMode] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [fullName, setFullName] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
     const toast = useToast();
 
     useEffect(() => {
@@ -46,15 +45,20 @@ const Login = () => {
         }
     };
 
-    const handleGoogleLogin = async () => {
+    const handleSignup = async (e) => {
+        e.preventDefault();
         try {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'google'
+            await signup(email, password, { full_name: fullName, phone_number: phoneNumber });
+            toast({
+                title: "Account created",
+                description: "You can now log in with your new account",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
             });
-            if (error) throw error;
         } catch (error) {
             toast({
-                title: "Google login failed",
+                title: "Signup failed",
                 description: error.message,
                 status: "error",
                 duration: 3000,
@@ -69,24 +73,56 @@ const Login = () => {
                 <VStack spacing={8} align="stretch" bg="#EBECF0" p={8} borderRadius="md" boxShadow="md">
                     <Heading as="h1" size="xl" textAlign="center" color="#61677C" textShadow="1px 1px 1px #FFF">Account</Heading>
                     {!isTestMode ? (
-                        <form onSubmit={handleLogin}>
-                            <VStack spacing={4}>
-                                <FormControl>
-                                    <FormLabel>Email</FormLabel>
-                                    <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                                </FormControl>
-                                <FormControl>
-                                    <FormLabel>Password</FormLabel>
-                                    <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                                </FormControl>
-                                <Button type="submit" colorScheme="blue" width="full">
-                                    Login
-                                </Button>
-                                <Button onClick={handleGoogleLogin} colorScheme="red" width="full">
-                                    Sign in with Google
-                                </Button>
-                            </VStack>
-                        </form>
+                        <Tabs isFitted variant="enclosed">
+                            <TabList mb="1em">
+                                <Tab>Login</Tab>
+                                <Tab>Sign Up</Tab>
+                            </TabList>
+                            <TabPanels>
+                                <TabPanel>
+                                    <form onSubmit={handleLogin}>
+                                        <VStack spacing={4}>
+                                            <FormControl>
+                                                <FormLabel>Email</FormLabel>
+                                                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                                            </FormControl>
+                                            <FormControl>
+                                                <FormLabel>Password</FormLabel>
+                                                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                                            </FormControl>
+                                            <Button type="submit" colorScheme="blue" width="full">
+                                                Login
+                                            </Button>
+                                        </VStack>
+                                    </form>
+                                </TabPanel>
+                                <TabPanel>
+                                    <form onSubmit={handleSignup}>
+                                        <VStack spacing={4}>
+                                            <FormControl>
+                                                <FormLabel>Email</FormLabel>
+                                                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                                            </FormControl>
+                                            <FormControl>
+                                                <FormLabel>Password</FormLabel>
+                                                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                                            </FormControl>
+                                            <FormControl>
+                                                <FormLabel>Full Name</FormLabel>
+                                                <Input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                                            </FormControl>
+                                            <FormControl>
+                                                <FormLabel>Phone Number</FormLabel>
+                                                <Input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required />
+                                            </FormControl>
+                                            <Button type="submit" colorScheme="green" width="full">
+                                                Sign Up
+                                            </Button>
+                                        </VStack>
+                                    </form>
+                                </TabPanel>
+                            </TabPanels>
+                        </Tabs>
                     ) : (
                         <Button onClick={handleTestModeLogin} colorScheme="blue">
                             Login (Test Mode)
