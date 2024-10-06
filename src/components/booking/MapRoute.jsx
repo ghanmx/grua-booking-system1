@@ -52,17 +52,17 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
         }
       }
       toast({
-        title: 'Marker placed',
-        description: 'Location marker has been updated.',
+        title: 'Marcador colocado',
+        description: 'La ubicación del marcador ha sido actualizada.',
         status: 'success',
         duration: 2000,
         isClosable: true,
       });
     } catch (error) {
-      console.error('Error handling map click:', error);
+      console.error('Error al manejar el clic en el mapa:', error);
       toast({
         title: 'Error',
-        description: 'Failed to process map click. Please try again.',
+        description: 'No se pudo procesar el clic en el mapa. Por favor, intente de nuevo.',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -73,14 +73,14 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
   const getAddressFromLatLng = async (lat, lng) => {
     try {
       const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-      if (!response.ok) throw new Error('Failed to fetch address');
+      if (!response.ok) throw new Error('No se pudo obtener la dirección');
       const data = await response.json();
       return data.display_name;
     } catch (error) {
-      console.error('Error getting address:', error);
+      console.error('Error al obtener la dirección:', error);
       toast({
-        title: 'Address Error',
-        description: 'Failed to get address. Please try again.',
+        title: 'Error de dirección',
+        description: 'No se pudo obtener la dirección. Por favor, intente de nuevo.',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -101,17 +101,17 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
         setDropOffAddress(address);
       }
       toast({
-        title: 'Marker moved',
-        description: `${isPickup ? 'Pickup' : 'Destination'} location updated.`,
+        title: 'Marcador movido',
+        description: `La ubicación de ${isPickup ? 'recogida' : 'destino'} ha sido actualizada.`,
         status: 'info',
         duration: 2000,
         isClosable: true,
       });
     } catch (error) {
-      console.error('Error handling marker drag:', error);
+      console.error('Error al manejar el arrastre del marcador:', error);
       toast({
         title: 'Error',
-        description: 'Failed to update marker position. Please try again.',
+        description: 'No se pudo actualizar la posición del marcador. Por favor, intente de nuevo.',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -124,7 +124,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
       const calculateRoute = async () => {
         try {
           const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${pickup[1]},${pickup[0]};${destination[1]},${destination[0]}?overview=false`);
-          if (!response.ok) throw new Error('Failed to calculate route');
+          if (!response.ok) throw new Error('No se pudo calcular la ruta');
           const data = await response.json();
           if (data.routes && data.routes.length > 0) {
             const distanceInMeters = data.routes[0].distance;
@@ -135,10 +135,10 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
             setTotalCost(cost);
           }
         } catch (error) {
-          console.error('Error calculating route:', error);
+          console.error('Error al calcular la ruta:', error);
           toast({
-            title: 'Route Error',
-            description: 'Failed to calculate route. Please try again.',
+            title: 'Error de ruta',
+            description: 'No se pudo calcular la ruta. Por favor, intente de nuevo.',
             status: 'error',
             duration: 5000,
             isClosable: true,
@@ -163,23 +163,45 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         {mapLoaded && <MapEvents />}
-        <Marker position={companyLocation}><Popup>Company Location</Popup></Marker>
+        <Marker position={companyLocation}><Popup>Ubicación de la Compañía</Popup></Marker>
         {pickup && (
           <Marker 
             position={pickup} 
             draggable={true} 
-            eventHandlers={{ dragend: (e) => handleMarkerDrag(e, true) }}
+            eventHandlers={{ 
+              dragend: (e) => handleMarkerDrag(e, true),
+              dragstart: () => {
+                toast({
+                  title: 'Moviendo marcador',
+                  description: 'Arrastra el marcador a la nueva ubicación.',
+                  status: 'info',
+                  duration: 2000,
+                  isClosable: true,
+                });
+              }
+            }}
           >
-            <Popup>Pickup Location</Popup>
+            <Popup>Ubicación de Recogida</Popup>
           </Marker>
         )}
         {destination && (
           <Marker 
             position={destination} 
             draggable={true} 
-            eventHandlers={{ dragend: (e) => handleMarkerDrag(e, false) }}
+            eventHandlers={{ 
+              dragend: (e) => handleMarkerDrag(e, false),
+              dragstart: () => {
+                toast({
+                  title: 'Moviendo marcador',
+                  description: 'Arrastra el marcador a la nueva ubicación.',
+                  status: 'info',
+                  duration: 2000,
+                  isClosable: true,
+                });
+              }
+            }}
           >
-            <Popup>Drop-off Location</Popup>
+            <Popup>Ubicación de Destino</Popup>
           </Marker>
         )}
       </MapContainer>

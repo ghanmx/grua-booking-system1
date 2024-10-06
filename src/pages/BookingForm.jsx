@@ -42,10 +42,10 @@ const BookingPage = () => {
     retry: 3,
     retryDelay: (attempt) => Math.min(attempt * 1000, 3000),
     onError: (err) => {
-      console.error('Failed to fetch bookings:', err);
+      console.error('Error al obtener las reservas:', err);
       toast({
-        title: 'Error fetching bookings',
-        description: 'Please try again later.',
+        title: 'Error al obtener las reservas',
+        description: 'Por favor, intente de nuevo más tarde.',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -54,11 +54,11 @@ const BookingPage = () => {
   });
 
   const handleMapError = (error) => {
-    console.error('Map error:', error);
+    console.error('Error del mapa:', error);
     setMapError(true);
     toast({
-      title: 'Error loading map',
-      description: 'Unable to load the map. Please try refreshing the page.',
+      title: 'Error al cargar el mapa',
+      description: 'No se pudo cargar el mapa. Por favor, actualice la página.',
       status: 'error',
       duration: 5000,
       isClosable: true,
@@ -66,7 +66,7 @@ const BookingPage = () => {
   };
 
   if (error) {
-    return <Box p={4}>Error loading bookings. Please try again later.</Box>;
+    return <Box p={4}>Error al cargar las reservas. Por favor, intente de nuevo más tarde.</Box>;
   }
 
   return (
