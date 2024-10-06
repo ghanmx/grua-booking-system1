@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import { initializeMonitoring, logPageView } from './utils/monitoring';
+import { runAccessibilityChecks } from './utils/accessibility';
+import { Helmet } from 'react-helmet';
 import theme from './theme';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -28,6 +30,11 @@ function AppContent() {
 
   return (
     <>
+      <Helmet>
+        <title>M.R. Gruas - Towing Service</title>
+        <meta name="description" content="Professional towing services in your area. Fast, reliable, and affordable." />
+        <meta name="keywords" content="towing, roadside assistance, car towing, emergency towing" />
+      </Helmet>
       <Navbar />
       <Routes>
         <Route path="/" element={<Index />} />
@@ -46,6 +53,7 @@ function AppContent() {
 function App() {
   useEffect(() => {
     initializeMonitoring();
+    runAccessibilityChecks();
   }, []);
 
   return (

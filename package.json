@@ -21,6 +21,7 @@
     "vite": "^5.4.8"
   },
   "dependencies": {
+    "@axe-core/react": "^4.10.0",
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.13.3",
@@ -43,12 +44,15 @@
     "express-validator": "^7.2.0",
     "framer-motion": "^11.9.0",
     "fs": "^0.0.1-security",
+    "globby": "^14.0.2",
+    "k6": "^0.0.0",
     "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
     "react": "^18.3.1",
     "react-datepicker": "^7.4.0",
     "react-dom": "^18.3.1",
     "react-ga4": "^2.1.0",
+    "react-helmet": "^6.1.0",
     "react-hook-form": "^7.53.0",
     "react-icons": "^5.3.0",
     "react-leaflet": "^4.2.1",
