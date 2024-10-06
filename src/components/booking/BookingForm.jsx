@@ -2,24 +2,27 @@ import React, { useMemo } from 'react';
 import { Box, VStack, Heading, Text, Button, useToast } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { renderField, fieldNames } from './BookingFormFields';
-import { getVehicleSize, getTowTruckType, calculateTotalCost } from '../../utils/towTruckSelection';
+import { getVehicleSize, getTowTruckType } from '../../utils/towTruckSelection';
 import BookingFormStepper from './BookingFormStepper';
+import { useBookingForm } from '../../hooks/useBookingForm';
 
-const BookingForm = ({
-  formData,
-  handleChange,
-  handleDateTimeChange,
-  handleBookingProcess,
-  isLoading,
-  totalCost,
-  setTotalCost,
-  distance,
-  vehicleBrands,
-  vehicleModels,
-  setIsPaymentWindowOpen,
-  mapError
-}) => {
-  const { register, handleSubmit, control, watch, formState: { errors, isValid } } = useForm({ mode: 'onChange' });
+const BookingForm = ({ vehicleBrands, vehicleModels, mapError }) => {
+  const {
+    formData,
+    handleChange,
+    handleDateTimeChange,
+    handleBookingProcess,
+    isLoading,
+    totalCost,
+    distance,
+    setIsPaymentWindowOpen,
+  } = useBookingForm();
+
+  const { register, handleSubmit, control, watch, formState: { errors, isValid } } = useForm({
+    mode: 'onChange',
+    defaultValues: formData,
+  });
+
   const toast = useToast();
 
   const watchVehicleModel = watch('vehicleModel');
@@ -35,14 +38,6 @@ const BookingForm = ({
     return 3;
   }, [watchVehicleModel, formData.pickupAddress, formData.dropOffAddress, formData.serviceType]);
 
-  React.useEffect(() => {
-    if (watchVehicleModel && distance) {
-      const requiresManeuver = watchVehiclePosition === 'obstructed';
-      const cost = calculateTotalCost(distance, selectedTowTruckType, requiresManeuver);
-      setTotalCost(cost);
-    }
-  }, [watchVehicleModel, watchVehiclePosition, distance, selectedTowTruckType, setTotalCost]);
-
   const onSubmit = async (data) => {
     if (isValid) {
       try {
@@ -51,7 +46,7 @@ const BookingForm = ({
       } catch (error) {
         toast({
           title: "Error",
-          description: "There was an error processing your request. Please try again.",
+          description: "Hubo un error al procesar su solicitud. Por favor, intente de nuevo.",
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -59,8 +54,8 @@ const BookingForm = ({
       }
     } else {
       toast({
-        title: "Form Error",
-        description: "Please fill in all required fields correctly.",
+        title: "Error en el formulario",
+        description: "Por favor, complete todos los campos requeridos correctamente.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -71,7 +66,7 @@ const BookingForm = ({
   if (isLoading) {
     return (
       <Box textAlign="center" p={4}>
-        <Text mt={4}>Loading booking form...</Text>
+        <Text mt={4}>Cargando formulario de reserva...</Text>
       </Box>
     );
   }
@@ -79,7 +74,7 @@ const BookingForm = ({
   if (mapError) {
     return (
       <Box p={4}>
-        <Text color="red.500">Error loading map. Please refresh the page or contact support.</Text>
+        <Text color="red.500">Error al cargar el mapa. Por favor, actualice la página o contacte con soporte.</Text>
       </Box>
     );
   }
@@ -99,7 +94,7 @@ const BookingForm = ({
       zIndex={1000}
     >
       <VStack spacing={4} align="stretch">
-        <Heading as="h1" size="lg">Towing Service</Heading>
+        <Heading as="h1" size="lg">Formulario de Reserva</Heading>
         <BookingFormStepper currentStep={currentStep} />
         <form onSubmit={handleSubmit(onSubmit)}>
           {fieldNames.map(fieldName => 
@@ -116,12 +111,12 @@ const BookingForm = ({
           )}
           {distance > 0 && (
             <>
-              <Text mt={4} fontWeight="bold">Tow Truck Type: {selectedTowTruckType}</Text>
-              <Text mt={2} fontWeight="bold">Estimated Cost: ${totalCost.toFixed(2)}</Text>
+              <Text mt={4} fontWeight="bold">Tipo de grúa: {selectedTowTruckType}</Text>
+              <Text mt={2} fontWeight="bold">Costo estimado: ${totalCost.toFixed(2)}</Text>
             </>
           )}
           <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading} isDisabled={!isValid}>
-            Request Towing Service
+            Solicitar Servicio de Grúa
           </Button>
         </form>
       </VStack>

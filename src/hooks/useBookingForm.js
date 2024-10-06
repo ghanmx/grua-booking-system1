@@ -35,22 +35,20 @@ export const useBookingForm = () => {
 
   const [distance, setDistance] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
-  const [selectedTowTruck, setSelectedTowTruck] = useState('');
   const [isPaymentWindowOpen, setIsPaymentWindowOpen] = useState(false);
 
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
 
   const createBookingMutation = useMutation({
     mutationFn: createBooking,
     onSuccess: () => {
       queryClient.invalidateQueries('bookings');
       toast({
-        title: 'Booking created.',
-        description: "We've created your booking for you.",
+        title: 'Reserva creada.',
+        description: "Hemos creado su reserva exitosamente.",
         status: 'success',
         duration: 5000,
         isClosable: true,
@@ -59,7 +57,7 @@ export const useBookingForm = () => {
     },
     onError: (error) => {
       toast({
-        title: 'An error occurred.',
+        title: 'Ocurrió un error.',
         description: error.message,
         status: 'error',
         duration: 5000,
@@ -82,27 +80,18 @@ export const useBookingForm = () => {
       }));
     }
 
-    if (name === 'vehicleModel') {
-      const vehicleSize = getVehicleSize(value);
-      const towTruckType = getTowTruckType(vehicleSize);
-      setFormData(prevData => ({
-        ...prevData,
-        vehicleSize: vehicleSize
-      }));
-      updateTotalCost(distance, towTruckType, formData.vehiclePosition === 'obstructed');
+    if (name === 'vehicleModel' || name === 'vehiclePosition') {
+      updateTotalCost();
     }
+  }, []);
 
-    if (name === 'vehiclePosition') {
-      const vehicleSize = getVehicleSize(formData.vehicleModel);
-      const towTruckType = getTowTruckType(vehicleSize);
-      updateTotalCost(distance, towTruckType, value === 'obstructed');
-    }
-  }, [distance, formData]);
-
-  const updateTotalCost = useCallback((distance, towTruckType, requiresManeuver) => {
+  const updateTotalCost = useCallback(() => {
+    const vehicleSize = getVehicleSize(formData.vehicleModel);
+    const towTruckType = getTowTruckType(vehicleSize);
+    const requiresManeuver = formData.vehiclePosition === 'obstructed';
     const cost = calculateTotalCost(distance, towTruckType, requiresManeuver);
     setTotalCost(cost);
-  }, []);
+  }, [formData.vehicleModel, formData.vehiclePosition, distance]);
 
   const handleDateTimeChange = useCallback((date) => {
     setFormData(prevData => ({
@@ -111,22 +100,11 @@ export const useBookingForm = () => {
     }));
   }, []);
 
-  const handleBookingProcess = useCallback(async () => {
-    if (!session && !testModeUser) {
+  const handleBookingProcess = useCallback(async (data) => {
+    if (!session) {
       toast({
-        title: 'Authentication required',
-        description: 'Please log in to create a booking.',
-        status: 'warning',
-        duration: 5000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    if (!formData.serviceType || !formData.userName || !formData.phoneNumber || !formData.vehicleBrand || !formData.vehicleModel) {
-      toast({
-        title: 'Incomplete Form',
-        description: 'Please fill in all required fields.',
+        title: 'Autenticación requerida',
+        description: 'Por favor, inicie sesión para crear una reserva.',
         status: 'warning',
         duration: 5000,
         isClosable: true,
@@ -137,7 +115,7 @@ export const useBookingForm = () => {
     const testResult = await testPayment(totalCost);
     if (!testResult.success) {
       toast({
-        title: 'Payment Test Failed',
+        title: 'Prueba de pago fallida',
         description: testResult.message,
         status: 'error',
         duration: 5000,
@@ -146,8 +124,13 @@ export const useBookingForm = () => {
       return;
     }
 
-    setIsPaymentWindowOpen(true);
-  }, [session, testModeUser, toast, formData, totalCost]);
+    createBookingMutation.mutate({
+      ...data,
+      userId: session.user.id,
+      totalCost,
+      distance,
+    });
+  }, [session, totalCost, distance, createBookingMutation, toast]);
 
   useEffect(() => {
     localStorage.setItem('bookingFormData', JSON.stringify(formData));
@@ -159,13 +142,11 @@ export const useBookingForm = () => {
     distance,
     setDistance,
     totalCost,
-    setTotalCost,
-    selectedTowTruck,
     isPaymentWindowOpen,
     setIsPaymentWindowOpen,
     handleChange,
     handleDateTimeChange,
     handleBookingProcess,
-    createBookingMutation,
+    isLoading: createBookingMutation.isLoading,
   };
 };

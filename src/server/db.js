@@ -43,8 +43,31 @@ export const createBooking = async (bookingData) => {
   return handleSupabaseError(async () => {
     const { data, error } = await supabase
       .from('bookings')
-      .insert(bookingData)
+      .insert({
+        user_id: bookingData.userId,
+        service_type: bookingData.serviceType,
+        pickup_location: bookingData.pickupAddress,
+        dropoff_location: bookingData.dropOffAddress,
+        vehicle_details: {
+          brand: bookingData.vehicleBrand,
+          model: bookingData.vehicleModel,
+          color: bookingData.vehicleColor,
+          license_plate: bookingData.licensePlate,
+          size: bookingData.vehicleSize,
+          position: bookingData.vehiclePosition,
+          in_neutral: bookingData.inNeutral,
+          engine_starts: bookingData.engineStarts,
+          wheels_steer: bookingData.wheelsSteer,
+        },
+        distance: bookingData.distance,
+        total_cost: bookingData.totalCost,
+        pickup_datetime: bookingData.pickupDateTime,
+        additional_details: bookingData.additionalDetails,
+        status: 'pending',
+        payment_status: 'pending',
+      })
       .select();
+    
     if (error) throw error;
     return data[0];
   });
@@ -57,7 +80,9 @@ export const updateBooking = async (id, bookingData) => {
       .update(bookingData)
       .eq('id', id)
       .select();
+    
     if (error) throw error;
+
     return data[0];
   });
 };
