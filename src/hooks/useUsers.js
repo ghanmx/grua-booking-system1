@@ -8,9 +8,8 @@ export const useUsers = () => {
   return useQuery({
     queryKey: ['users'],
     queryFn: getUsers,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    refetchOnWindowFocus: false,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    cacheTime: 30 * 60 * 1000, // 30 minutes
     onError: (error) => {
       console.error('Failed to fetch users:', error);
       toast({

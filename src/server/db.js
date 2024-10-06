@@ -46,9 +46,13 @@ export const getBookings = async (page = 1, limit = 10) => {
     const { data, error, count } = await supabase
       .from('bookings')
       .select(`
-        *,
-        user:users!bookings_user_id_fkey (id, email, profile:profiles (full_name)),
-        service:services!bookings_service_id_fkey (id, name, tow_truck_type)
+        id,
+        status,
+        payment_status,
+        total_cost,
+        pickup_datetime,
+        user:users!bookings_user_id_fkey (id, email),
+        service:services!bookings_service_id_fkey (id, name)
       `, { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(startIndex, startIndex + limit - 1);
