@@ -14,6 +14,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { processPayment } from '../../utils/paymentProcessing';
 
 const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
   const stripe = useStripe();
@@ -41,12 +42,23 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
       });
 
       if (error) {
-        setError(error.message);
-        setIsProcessing(false);
-        return;
+        throw error;
       }
 
-      await onPaymentSubmit(paymentMethod);
+      const paymentResult = await processPayment(totalCost, paymentMethod.id);
+
+      if (paymentResult.success) {
+        await onPaymentSubmit(paymentMethod);
+        toast({
+          title: 'Pago exitoso',
+          description: 'Su pago ha sido procesado correctamente.',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+      } else {
+        throw new Error(paymentResult.error || 'Error al procesar el pago');
+      }
     } catch (err) {
       console.error('Error al procesar el pago:', err);
       setError(err.message || 'Ocurrió un error inesperado');

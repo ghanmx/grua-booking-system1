@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { renderField, fieldNames } from './BookingFormFields';
 import { getVehicleSize, getTowTruckType } from '../../utils/towTruckSelection';
 import { useBookingForm } from '../../hooks/useBookingForm';
+import PaymentWindow from './PaymentWindow';
 
 const BookingFormStepper = lazy(() => import('./BookingFormStepper'));
 
@@ -16,6 +17,7 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     isLoading,
     totalCost,
     distance,
+    isPaymentWindowOpen,
     setIsPaymentWindowOpen,
   } = useBookingForm();
 
@@ -58,6 +60,29 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
       toast({
         title: "Error en el formulario",
         description: "Por favor, complete todos los campos requeridos correctamente.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handlePaymentSubmit = async (paymentMethod) => {
+    try {
+      await handleBookingProcess({ ...formData, paymentMethodId: paymentMethod.id });
+      setIsPaymentWindowOpen(false);
+      toast({
+        title: "Reserva exitosa",
+        description: "Su reserva ha sido procesada correctamente.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error al finalizar la reserva:', error);
+      toast({
+        title: "Error",
+        description: "Hubo un error al finalizar su reserva. Por favor, contacte con soporte.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -125,6 +150,12 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
           </Button>
         </form>
       </VStack>
+      <PaymentWindow
+        isOpen={isPaymentWindowOpen}
+        onClose={() => setIsPaymentWindowOpen(false)}
+        onPaymentSubmit={handlePaymentSubmit}
+        totalCost={totalCost}
+      />
     </Box>
   );
 });
