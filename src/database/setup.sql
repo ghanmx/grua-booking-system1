@@ -60,10 +60,8 @@ CREATE TABLE IF NOT EXISTS public.bookings (
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
-CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON public.bookings(user_id);
-CREATE INDEX IF NOT EXISTS idx_bookings_service_id ON public.bookings(service_id);
-CREATE INDEX IF NOT EXISTS idx_bookings_status ON public.bookings(status);
-CREATE INDEX IF NOT EXISTS idx_bookings_payment_status ON public.bookings(payment_status);
+
+-- Removed unused indexes on bookings table
 
 -- Triggers for updating 'updated_at' columns
 CREATE OR REPLACE FUNCTION update_updated_at()
@@ -72,7 +70,7 @@ BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 CREATE TRIGGER update_users_timestamp
 BEFORE UPDATE ON public.users
