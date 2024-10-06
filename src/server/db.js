@@ -1,22 +1,17 @@
-import supabase from '../config/supabase.config';
+import { createClient } from '@supabase/supabase-js';
+import { supabaseUrl, supabaseKey } from '../config/supabase.config';
 
-const logger = {
-  error: (...args) => console.error(...args),
-  warn: (...args) => console.warn(...args),
-  info: (...args) => console.info(...args),
-  debug: (...args) => console.debug(...args),
-};
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-const handleSupabaseError = async (operation, entityName) => {
+const handleSupabaseError = async (operation) => {
   const maxRetries = 3;
   let retries = 0;
 
   while (retries < maxRetries) {
     try {
-      const result = await operation();
-      return result;
+      return await operation();
     } catch (error) {
-      logger.error(`Supabase error (${entityName}):`, error);
+      console.error('Supabase error:', error);
       retries++;
       if (retries === maxRetries) {
         throw new Error(`Failed after ${maxRetries} attempts: ${error.message}`);
@@ -26,44 +21,22 @@ const handleSupabaseError = async (operation, entityName) => {
   }
 };
 
-export const getUsers = async () => {
-  return handleSupabaseError(async () => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*');
-    if (error) throw new Error(`Failed to fetch users: ${error.message}`);
-    return data;
-  }, 'users');
-};
-
 export const getBookings = async (page = 1, limit = 10) => {
   return handleSupabaseError(async () => {
     const startIndex = (page - 1) * limit;
     const { data, error, count } = await supabase
       .from('bookings')
       .select(`
-        id,
-        status,
-        payment_status,
-        pickup_datetime,
-        user:users!bookings_user_id_fkey (id, email),
-        service:services!bookings_service_id_fkey (id, name)
+        *,
+        user:users(id, email),
+        service:services(id, name)
       `, { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(startIndex, startIndex + limit - 1);
     
-    if (error) {
-      logger.error('Error fetching bookings:', error);
-      throw new Error(`Failed to fetch bookings: ${error.message}`);
-    }
-    
-    if (!data) {
-      logger.warn('No bookings data returned from Supabase');
-      return { data: [], count: 0, totalPages: 0 };
-    }
-    
+    if (error) throw error;
     return { data, count, totalPages: Math.ceil(count / limit) };
-  }, 'bookings');
+  });
 };
 
 export const createBooking = async (bookingData) => {
@@ -72,9 +45,9 @@ export const createBooking = async (bookingData) => {
       .from('bookings')
       .insert(bookingData)
       .select();
-    if (error) throw new Error(`Failed to create booking: ${error.message}`);
+    if (error) throw error;
     return data[0];
-  }, 'bookings');
+  });
 };
 
 export const updateBooking = async (id, bookingData) => {
@@ -84,9 +57,9 @@ export const updateBooking = async (id, bookingData) => {
       .update(bookingData)
       .eq('id', id)
       .select();
-    if (error) throw new Error(`Failed to update booking: ${error.message}`);
+    if (error) throw error;
     return data[0];
-  }, 'bookings');
+  });
 };
 
 export const deleteBooking = async (id) => {
@@ -95,18 +68,7 @@ export const deleteBooking = async (id) => {
       .from('bookings')
       .delete()
       .eq('id', id);
-    if (error) throw new Error(`Failed to delete booking: ${error.message}`);
+    if (error) throw error;
     return { success: true };
-  }, 'bookings');
-};
-
-export const deleteUser = async (id) => {
-  return handleSupabaseError(async () => {
-    const { error } = await supabase
-      .from('users')
-      .delete()
-      .eq('id', id);
-    if (error) throw new Error(`Failed to delete user: ${error.message}`);
-    return { success: true };
-  }, 'users');
+  });
 };
