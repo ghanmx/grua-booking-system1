@@ -101,7 +101,7 @@ export const deleteUser = async (id) => {
 // Implementación de suscripciones en tiempo real
 
 export const subscribeToBookings = (callback) => {
-  const subscription = supabase
+  const channel = supabase
     .channel('bookings_changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, payload => {
       callback(payload);
@@ -109,7 +109,7 @@ export const subscribeToBookings = (callback) => {
     .subscribe();
 
   return () => {
-    supabase.removeChannel(subscription);
+    supabase.removeChannel(channel);
   };
 };
 

@@ -7,10 +7,10 @@ import { useBookings } from '../../hooks/useBookings';
 const BookingManagement = ({ showNotification }) => {
   const queryClient = useQueryClient();
   const toast = useToast();
-  const { bookings, isLoading, error } = useBookings();
+  const { data: bookings, isLoading, error } = useBookings();
 
   useEffect(() => {
-    const subscription = subscribeToBookings((payload) => {
+    const unsubscribe = subscribeToBookings((payload) => {
       queryClient.invalidateQueries('bookings');
       toast({
         title: 'Actualización de reserva',
@@ -22,7 +22,9 @@ const BookingManagement = ({ showNotification }) => {
     });
 
     return () => {
-      subscription.unsubscribe();
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
     };
   }, [queryClient, toast]);
 
