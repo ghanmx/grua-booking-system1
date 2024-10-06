@@ -1,5 +1,4 @@
 import { supabase } from '../config/supabase.config';
-import { Booking, User, Service } from '../types/booking';
 
 const handleSupabaseError = async (operation) => {
   const maxRetries = 3;
@@ -19,7 +18,7 @@ const handleSupabaseError = async (operation) => {
   }
 };
 
-export const getUsers = async (): Promise<User[]> => {
+export const getUsers = async () => {
   return handleSupabaseError(async () => {
     const { data, error } = await supabase
       .from('users')
@@ -27,11 +26,11 @@ export const getUsers = async (): Promise<User[]> => {
       .order('email');
     
     if (error) throw error;
-    return data as User[];
+    return data;
   });
 };
 
-export const getBookings = async (page = 1, limit = 10): Promise<{ data: Booking[], count: number, totalPages: number }> => {
+export const getBookings = async (page = 1, limit = 10) => {
   return handleSupabaseError(async () => {
     const startIndex = (page - 1) * limit;
     const { data, error, count } = await supabase
@@ -48,11 +47,11 @@ export const getBookings = async (page = 1, limit = 10): Promise<{ data: Booking
       .range(startIndex, startIndex + limit - 1);
     
     if (error) throw error;
-    return { data: data as Booking[], count: count || 0, totalPages: Math.ceil((count || 0) / limit) };
+    return { data, count: count || 0, totalPages: Math.ceil((count || 0) / limit) };
   });
 };
 
-export const createBooking = async (bookingData: Partial<Booking>): Promise<Booking> => {
+export const createBooking = async (bookingData) => {
   return handleSupabaseError(async () => {
     const { data, error } = await supabase
       .from('bookings')
@@ -60,7 +59,7 @@ export const createBooking = async (bookingData: Partial<Booking>): Promise<Book
       .select();
     
     if (error) throw error;
-    return data[0] as Booking;
+    return data[0];
   });
 };
 
