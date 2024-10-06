@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast } from "@chakra-ui/react";
+import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast, Text } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateBooking, deleteBooking, subscribeToBookings } from '../../server/db';
 import { useBookings } from '../../hooks/useBookings';
@@ -7,7 +7,7 @@ import { useBookings } from '../../hooks/useBookings';
 const BookingManagement = ({ showNotification }) => {
   const queryClient = useQueryClient();
   const toast = useToast();
-  const { data: bookings, isLoading, error } = useBookings();
+  const { data: bookingsData, isLoading, error } = useBookings();
 
   useEffect(() => {
     const unsubscribe = subscribeToBookings((payload) => {
@@ -56,7 +56,12 @@ const BookingManagement = ({ showNotification }) => {
 
   if (isLoading) return <Box>Cargando reservas...</Box>;
   if (error) return <Box>Error al cargar las reservas: {error.message}</Box>;
-  if (!bookings || bookings.length === 0) return <Box>No se encontraron reservas.</Box>;
+
+  const bookings = bookingsData?.data || [];
+
+  if (bookings.length === 0) {
+    return <Box>No se encontraron reservas.</Box>;
+  }
 
   return (
     <Box>
@@ -75,8 +80,8 @@ const BookingManagement = ({ showNotification }) => {
           {bookings.map((booking) => (
             <Tr key={booking.id}>
               <Td>{booking.id}</Td>
-              <Td>{booking.profiles?.full_name || booking.users?.full_name}</Td>
-              <Td>{booking.services?.name}</Td>
+              <Td>{booking.user?.email || 'N/A'}</Td>
+              <Td>{booking.service?.name || 'N/A'}</Td>
               <Td>
                 <Select
                   value={booking.status}
