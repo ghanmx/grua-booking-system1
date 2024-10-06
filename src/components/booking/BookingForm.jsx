@@ -13,6 +13,8 @@ import {
 import TowTruckSelection from './TowTruckSelection';
 import { getVehicleSize, getTowTruckType, calculateTotalCost } from '../../utils/towTruckSelection';
 
+// ... keep existing code
+
 const BookingForm = ({
   formData,
   handleChange,
