@@ -3,45 +3,8 @@ import { FormControl, FormLabel, Input, Select, Textarea, Radio, RadioGroup, Sta
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Controller } from "react-hook-form";
-
-const FormField = ({ label, children, error, id }) => (
-  <FormControl isInvalid={error} id={id}>
-    <FormLabel htmlFor={id}>{label}</FormLabel>
-    {children}
-    <FormErrorMessage>{error && error.message}</FormErrorMessage>
-  </FormControl>
-);
-
-const SelectField = ({ label, name, options = [], register, errors, value, onChange, disabled = false }) => (
-  <FormField label={label} error={errors[name]} id={name}>
-    <Select
-      {...register(name, { required: `${label} es requerido` })}
-      value={value}
-      onChange={onChange}
-      name={name}
-      disabled={disabled}
-      autoComplete={name}
-    >
-      <option value="">Seleccione {label.toLowerCase()}</option>
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>{option.label}</option>
-      ))}
-    </Select>
-  </FormField>
-);
-
-const InputField = ({ label, name, register, errors, value, onChange, type = "text", validation = {} }) => (
-  <FormField label={label} error={errors[name]} id={name}>
-    <Input
-      {...register(name, { required: `${label} es requerido`, ...validation })}
-      value={value}
-      onChange={onChange}
-      name={name}
-      type={type}
-      autoComplete={name}
-    />
-  </FormField>
-);
+import { FormField, SelectField, InputField, DateTimeField } from './FormComponents';
+import { VehicleConditionField, VehiclePositionField } from './VehicleFields';
 
 const fields = {
   serviceType: (props) => (
@@ -56,13 +19,7 @@ const fields = {
       {...props}
     />
   ),
-  userName: (props) => (
-    <InputField
-      label="Nombre"
-      name="userName"
-      {...props}
-    />
-  ),
+  userName: (props) => <InputField label="Nombre" name="userName" {...props} />,
   phoneNumber: (props) => (
     <InputField
       label="Número de Teléfono"
@@ -77,7 +34,6 @@ const fields = {
       {...props}
     />
   ),
-
   vehicleBrand: (props) => (
     <SelectField
       label="Marca del Vehículo"
@@ -97,57 +53,10 @@ const fields = {
       {...props}
     />
   ),
-
-  vehicleColor: (props) => (
-    <InputField
-      label="Color del Vehículo"
-      name="vehicleColor"
-      {...props}
-    />
-  ),
-  licensePlate: (props) => (
-    <InputField
-      label="Placa del Vehículo"
-      name="licensePlate"
-      {...props}
-    />
-  ),
-  vehicleCondition: ({ control, errors }) => (
-    <FormField label="Condición del Vehículo" error={errors.vehicleCondition} id="vehicleCondition">
-      <Stack spacing={2}>
-        {['inNeutral', 'engineStarts', 'wheelsSteer'].map((field) => (
-          <Controller
-            key={field}
-            name={field}
-            control={control}
-            render={({ field: { onChange, value, ref } }) => (
-              <Checkbox onChange={onChange} isChecked={value} ref={ref} id={field}>
-                {field === 'inNeutral' ? 'Se puede poner en neutral' :
-                 field === 'engineStarts' ? 'El motor enciende' : 'Las ruedas giran'}
-              </Checkbox>
-            )}
-          />
-        ))}
-      </Stack>
-    </FormField>
-  ),
-  vehiclePosition: ({ control, errors }) => (
-    <FormField label="Posición del Vehículo" error={errors.vehiclePosition} id="vehiclePosition">
-      <Controller
-        name="vehiclePosition"
-        control={control}
-        rules={{ required: "La posición del vehículo es requerida" }}
-        render={({ field }) => (
-          <RadioGroup {...field}>
-            <Stack direction="column">
-              <Radio value="roadside" id="roadside">Al lado de la pista/carretera</Radio>
-              <Radio value="obstructed" id="obstructed">Obstruido/Requiere maniobra</Radio>
-            </Stack>
-          </RadioGroup>
-        )}
-      />
-    </FormField>
-  ),
+  vehicleColor: (props) => <InputField label="Color del Vehículo" name="vehicleColor" {...props} />,
+  licensePlate: (props) => <InputField label="Placa del Vehículo" name="licensePlate" {...props} />,
+  vehicleCondition: VehicleConditionField,
+  vehiclePosition: VehiclePositionField,
   additionalDetails: (props) => (
     <FormField label="Detalles Adicionales" error={props.errors.additionalDetails} id="additionalDetails">
       <Textarea
@@ -160,27 +69,7 @@ const fields = {
       />
     </FormField>
   ),
-  pickupDateTime: ({ control, errors, handleDateTimeChange }) => (
-    <FormField label="Fecha y Hora de Recogida" error={errors.pickupDateTime} id="pickupDateTime">
-      <Controller
-        control={control}
-        name="pickupDateTime"
-        rules={{ required: "La fecha y hora de recogida son requeridas" }}
-        render={({ field }) => (
-          <DatePicker
-            selected={field.value}
-            onChange={(date) => {
-              field.onChange(date);
-              handleDateTimeChange(date);
-            }}
-            showTimeSelect
-            dateFormat="Pp"
-            customInput={<Input autoComplete="off" />}
-          />
-        )}
-      />
-    </FormField>
-  ),
+  pickupDateTime: DateTimeField,
   paymentMethod: (props) => (
     <SelectField
       label="Método de Pago"
