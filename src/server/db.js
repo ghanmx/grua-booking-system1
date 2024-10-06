@@ -1,7 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
-import { supabaseUrl, supabaseKey } from '../config/supabase.config';
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabase } from '../config/supabase.config';
 
 const handleSupabaseError = async (operation) => {
   const maxRetries = 3;
