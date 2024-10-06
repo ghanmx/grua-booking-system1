@@ -1,14 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Box, VStack, Heading, Text, Button, useToast } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
-import {
-  UserInfoFields,
-  VehicleInfoFields,
-  VehicleConditionFields,
-  AdditionalDetailsField,
-  PickupDateTimeField,
-  PaymentMethodField
-} from './BookingFormFields';
+import { renderField, fieldNames } from './BookingFormFields';
 import TowTruckSelection from './TowTruckSelection';
 import { getVehicleSize, getTowTruckType, calculateTotalCost } from '../../utils/towTruckSelection';
 
@@ -33,10 +26,7 @@ const BookingForm = ({
   const watchVehiclePosition = watch('vehiclePosition');
 
   const selectedVehicleSize = useMemo(() => {
-    if (watchVehicleModel) {
-      return getVehicleSize(watchVehicleModel);
-    }
-    return '';
+    return watchVehicleModel ? getVehicleSize(watchVehicleModel) : '';
   }, [watchVehicleModel]);
 
   useEffect(() => {
@@ -98,25 +88,23 @@ const BookingForm = ({
       <VStack spacing={4} align="stretch">
         <Heading as="h1" size="lg">Servicio de Grúa</Heading>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <UserInfoFields register={register} errors={errors} formData={formData} handleChange={handleChange} />
-          <VehicleInfoFields 
-            register={register} 
-            errors={errors} 
-            formData={formData} 
-            handleChange={handleChange}
-            vehicleBrands={vehicleBrands}
-            vehicleModels={vehicleModels}
-          />
-          <VehicleConditionFields control={control} errors={errors} register={register} />
+          {fieldNames.map(fieldName => 
+            renderField(fieldName, { 
+              register, 
+              errors, 
+              formData, 
+              handleChange, 
+              control, 
+              handleDateTimeChange,
+              vehicleBrands,
+              vehicleModels
+            })
+          )}
           <TowTruckSelection 
             onSelect={handleTowTruckSelect} 
             selectedVehicleSize={selectedVehicleSize}
             pricesCalculated={pricesCalculated}
           />
-          <AdditionalDetailsField register={register} errors={errors} formData={formData} handleChange={handleChange} />
-          <PickupDateTimeField control={control} errors={errors} handleDateTimeChange={handleDateTimeChange} />
-          <PaymentMethodField register={register} errors={errors} formData={formData} handleChange={handleChange} />
-          
           {pricesCalculated && (
             <>
               <Text mt={4} fontWeight="bold">Tipo de Grúa: {getTowTruckType(selectedVehicleSize)}</Text>
