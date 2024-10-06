@@ -1,79 +1,65 @@
-import React from "react";
-import { ChakraProvider, Box, ColorModeScript } from "@chakra-ui/react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { ChakraProvider } from '@chakra-ui/react';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { SupabaseProvider } from './integrations/supabase/index.jsx';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
-import { Elements } from "@stripe/react-stripe-js";
-import stripePromise from './config/stripe';
-import Navbar from "./components/layout/Navbar";
-import Footer from "./components/layout/Footer";
-import Index from "./pages/Index";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import BookingForm from "./pages/BookingForm";
-import Confirmation from "./pages/Confirmation";
-import Login from "./pages/Login";
-import AdminPanel from "./pages/AdminPanel";
-import ProtectedRoute from "./components/common/ProtectedRoute";
-import theme from "./theme";
-import ErrorBoundary from "./components/common/ErrorBoundary";
+import { initializeMonitoring, logPageView } from './utils/monitoring';
+import theme from './theme';
+import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
+import Index from './pages/Index';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import Login from './pages/Login';
+import BookingForm from './pages/BookingForm';
+import AdminPanel from './pages/AdminPanel';
+import Confirmation from './pages/Confirmation';
+import ErrorBoundary from './components/ErrorBoundary';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
+const queryClient = new QueryClient();
+
+function AppContent() {
+  const location = useLocation();
+
+  useEffect(() => {
+    logPageView(location.pathname);
+  }, [location]);
+
+  return (
+    <>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/booking" element={<BookingForm />} />
+        <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/confirmation" element={<Confirmation />} />
+      </Routes>
+      <Footer />
+    </>
+  );
+}
 
 function App() {
+  useEffect(() => {
+    initializeMonitoring();
+  }, []);
+
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <SupabaseProvider>
-          <SupabaseAuthProvider>
-            <ChakraProvider theme={theme}>
-              <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-              <Router>
-                <Box minHeight="100vh" display="flex" flexDirection="column">
-                  <Navbar />
-                  <Box flex="1">
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/about" element={<About />} />
-                      <Route path="/contact" element={<Contact />} />
-                      <Route path="/booking" element={
-                        <ProtectedRoute>
-                          <Elements stripe={stripePromise}>
-                            <BookingForm />
-                          </Elements>
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/confirmation" element={
-                        <ProtectedRoute>
-                          <Confirmation />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/admin" element={
-                        <ProtectedRoute adminOnly>
-                          <AdminPanel />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/login" element={<Login />} />
-                      <Route path="*" element={<Navigate to="/" replace />} />
-                    </Routes>
-                  </Box>
-                  <Footer />
-                </Box>
-              </Router>
-            </ChakraProvider>
-          </SupabaseAuthProvider>
-        </SupabaseProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
+      <ChakraProvider theme={theme}>
+        <SupabaseAuthProvider>
+          <QueryClientProvider client={queryClient}>
+            <Router>
+              <AppContent />
+            </Router>
+            <ReactQueryDevtools initialIsOpen={false} />
+          </QueryClientProvider>
+        </SupabaseAuthProvider>
+      </ChakraProvider>
     </ErrorBoundary>
   );
 }

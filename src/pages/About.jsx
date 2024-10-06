@@ -1,30 +1,24 @@
-import { Box, Text, Heading, VStack, Flex } from '@chakra-ui/react';
-import { FaCheckCircle } from 'react-icons/fa';
+import React from 'react';
+import { Box, VStack, Heading, Text } from "@chakra-ui/react";
+import FeedbackForm from '../components/FeedbackForm';
 
-const About = () => (
-  <Box p={4}>
-    <Flex direction="column" align="center" justify="center" p={10}>
-      <Heading mb={4}>About Our Tow Service</Heading>
-      <Text fontSize="lg" mb={6}>We provide reliable and efficient tow services to get you back on the road quickly.</Text>
-    </Flex>
-    <Box bg="gray.100" p={10}>
-      <Heading size="lg" textAlign="center" mb={4}>Our Features</Heading>
-      <VStack spacing={5}>
-        <Flex align="center">
-          <FaCheckCircle size="24px" />
-          <Text ml={2}>24/7 Availability</Text>
-        </Flex>
-        <Flex align="center">
-          <FaCheckCircle size="24px" />
-          <Text ml={2}>Professional Staff</Text>
-        </Flex>
-        <Flex align="center">
-          <FaCheckCircle size="24px" />
-          <Text ml={2}>Affordable Pricing</Text>
-        </Flex>
+const About = () => {
+  return (
+    <Box p={4}>
+      <VStack spacing={8} align="stretch">
+        <Heading as="h1" size="xl">About Our Towing Service</Heading>
+        <Text>
+          We are a reliable and efficient towing service dedicated to helping you in your time of need. 
+          Our team of experienced professionals is available 24/7 to provide quick and safe towing solutions.
+        </Text>
+        <Text>
+          With state-of-the-art equipment and a commitment to customer satisfaction, we ensure that your 
+          vehicle is handled with the utmost care and delivered to its destination safely.
+        </Text>
+        <FeedbackForm />
       </VStack>
     </Box>
-  </Box>
-);
+  );
+};
 
 export default About;
