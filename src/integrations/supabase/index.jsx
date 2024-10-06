@@ -1,5 +1,15 @@
 import React, { createContext, useContext } from 'react';
-import supabase from '../../config/supabase.config';
+import { createClient } from '@supabase/supabase-js';
+import { SupabaseAuthProvider, useSupabaseAuth } from './auth';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_API_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error('Missing Supabase environment variables. Please check your .env file.');
+}
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Add error handling for Supabase operations
 export const handleSupabaseError = (error) => {
@@ -25,4 +35,4 @@ export const useSupabase = () => {
   return context;
 };
 
-export { supabase };
+export { SupabaseAuthProvider, useSupabaseAuth };

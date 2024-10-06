@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast, Text } from "@chakra-ui/react";
+import React from 'react';
+import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getPaidBookings, updateBooking, deleteBooking } from '../../server/db';
+import { getBookings, updateBooking, deleteBooking } from '../../server/db';
 import { useBookings } from '../../hooks/useBookings';
 
 const BookingManagement = ({ showNotification }) => {
   const queryClient = useQueryClient();
+  const toast = useToast();
   const { bookings, isLoading, error } = useBookings();
 
   const updateBookingMutation = useMutation({
     mutationFn: ({ id, status }) => updateBooking(id, { status }),
     onSuccess: () => {
-      queryClient.invalidateQueries('paidBookings');
+      queryClient.invalidateQueries('bookings');
       showNotification('Booking Updated', 'The booking status has been updated successfully.', 'success');
     },
   });
@@ -19,7 +20,7 @@ const BookingManagement = ({ showNotification }) => {
   const deleteBookingMutation = useMutation({
     mutationFn: deleteBooking,
     onSuccess: () => {
-      queryClient.invalidateQueries('paidBookings');
+      queryClient.invalidateQueries('bookings');
       showNotification('Booking Deleted', 'The booking has been deleted successfully.', 'success');
     },
   });
@@ -36,7 +37,7 @@ const BookingManagement = ({ showNotification }) => {
 
   if (isLoading) return <Box>Loading bookings...</Box>;
   if (error) return <Box>Error loading bookings: {error.message}</Box>;
-  if (!bookings || bookings.length === 0) return <Box>No paid bookings found.</Box>;
+  if (!bookings || bookings.length === 0) return <Box>No bookings found.</Box>;
 
   return (
     <Box>
@@ -55,7 +56,7 @@ const BookingManagement = ({ showNotification }) => {
           {bookings.map((booking) => (
             <Tr key={booking.id}>
               <Td>{booking.id}</Td>
-              <Td>{booking.profiles?.full_name}</Td>
+              <Td>{booking.profiles?.full_name || booking.users?.full_name}</Td>
               <Td>{booking.services?.name}</Td>
               <Td>
                 <Select

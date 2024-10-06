@@ -1,6 +1,7 @@
 import React from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Box, Button, VStack, Text, useToast } from '@chakra-ui/react';
+import { processPayment } from '../utils/paymentProcessing';
 
 const StripePaymentForm = ({ amount, onPaymentSuccess, onPaymentError }) => {
   const stripe = useStripe();
@@ -26,7 +27,14 @@ const StripePaymentForm = ({ amount, onPaymentSuccess, onPaymentError }) => {
         throw error;
       }
 
-      onPaymentSuccess(paymentMethod);
+      // Simulate or handle real payment processing using the processPayment function
+      const result = await processPayment(amount, false, { cardNumber: paymentMethod.id });
+
+      if (result.success) {
+        onPaymentSuccess(paymentMethod);
+      } else {
+        throw new Error(result.error || 'An unexpected error occurred.');
+      }
     } catch (error) {
       console.error('[Stripe Error]', error);
       onPaymentError(error.message);
