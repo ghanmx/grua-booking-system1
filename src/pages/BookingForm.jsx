@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState } from 'react';
+import React, { lazy, Suspense, useState, useEffect } from 'react';
 import { Box, Spinner, useToast, Alert, AlertIcon, AlertTitle, AlertDescription } from "@chakra-ui/react";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
@@ -17,6 +17,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 const BookingPage = () => {
   const toast = useToast();
   const [mapError, setMapError] = useState(false);
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
 
   const {
     formData,
@@ -53,6 +54,14 @@ const BookingPage = () => {
     },
   });
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsPageLoaded(true);
+    }, 5000); // Espera 5 segundos antes de considerar la página como cargada
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleMapError = (error) => {
     console.error('Error del mapa:', error);
     setMapError(true);
@@ -65,7 +74,7 @@ const BookingPage = () => {
     });
   };
 
-  if (isLoading) {
+  if (isLoading || !isPageLoaded) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
         <Spinner size="xl" />
