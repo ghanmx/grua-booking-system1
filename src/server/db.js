@@ -1,4 +1,4 @@
-import { supabase } from '../config/supabase.config';
+import { supabase } from '../integrations/supabase/supabase';
 
 const handleSupabaseError = async (operation) => {
   const maxRetries = 3;
@@ -99,11 +99,18 @@ export const deleteUser = async (id) => {
 };
 
 // Implementación de suscripciones en tiempo real
+
 export const subscribeToBookings = (callback) => {
-  return supabase
-    .from('bookings')
-    .on('*', payload => {
+  const subscription = supabase
+    .channel('bookings_changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, payload => {
       callback(payload);
     })
     .subscribe();
+
+  return () => {
+    supabase.removeChannel(subscription);
+  };
 };
+
+// ... keep existing code
