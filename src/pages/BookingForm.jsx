@@ -57,7 +57,7 @@ const BookingPage = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsPageLoaded(true);
-    }, 5000); // Espera 5 segundos antes de considerar la página como cargada
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -111,7 +111,7 @@ const BookingPage = () => {
           handleChange={handleChange}
           handleDateTimeChange={handleDateTimeChange}
           handleBookingProcess={handleBookingProcess}
-          isLoading={createBookingMutation.isLoading}
+          isLoading={createBookingMutation?.isLoading || false}
           selectedTowTruck={selectedTowTruck}
           totalCost={totalCost}
           setTotalCost={setTotalCost}
