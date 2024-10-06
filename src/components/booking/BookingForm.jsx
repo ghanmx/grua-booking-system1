@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Box, VStack, Heading, Text, Button, useToast } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import {
-  ServiceTypeField,
   UserInfoFields,
   VehicleInfoFields,
   VehicleConditionFields,
@@ -12,8 +11,6 @@ import {
 } from './BookingFormFields';
 import TowTruckSelection from './TowTruckSelection';
 import { getVehicleSize, getTowTruckType, calculateTotalCost } from '../../utils/towTruckSelection';
-
-// ... keep existing code
 
 const BookingForm = ({
   formData,
@@ -30,14 +27,14 @@ const BookingForm = ({
 }) => {
   const { register, handleSubmit, control, watch, formState: { errors } } = useForm();
   const toast = useToast();
+  const [pricesCalculated, setPricesCalculated] = useState(false);
 
   const watchVehicleModel = watch('vehicleModel');
   const watchVehiclePosition = watch('vehiclePosition');
 
-  const selectedTowTruck = useMemo(() => {
+  const selectedVehicleSize = useMemo(() => {
     if (watchVehicleModel) {
-      const vehicleSize = getVehicleSize(watchVehicleModel);
-      return getTowTruckType(vehicleSize);
+      return getVehicleSize(watchVehicleModel);
     }
     return '';
   }, [watchVehicleModel]);
@@ -49,6 +46,9 @@ const BookingForm = ({
       const requiresManeuver = watchVehiclePosition === 'obstructed';
       const cost = calculateTotalCost(distance, towTruckType, requiresManeuver);
       setTotalCost(cost);
+      setPricesCalculated(true);
+    } else {
+      setPricesCalculated(false);
     }
   }, [watchVehicleModel, watchVehiclePosition, distance, setTotalCost]);
 
@@ -98,7 +98,6 @@ const BookingForm = ({
       <VStack spacing={4} align="stretch">
         <Heading as="h1" size="lg">Servicio de Grúa</Heading>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <TowTruckSelection onSelect={handleTowTruckSelect} />
           <UserInfoFields register={register} errors={errors} formData={formData} handleChange={handleChange} />
           <VehicleInfoFields 
             register={register} 
@@ -109,12 +108,21 @@ const BookingForm = ({
             vehicleModels={vehicleModels}
           />
           <VehicleConditionFields control={control} errors={errors} register={register} />
+          <TowTruckSelection 
+            onSelect={handleTowTruckSelect} 
+            selectedVehicleSize={selectedVehicleSize}
+            pricesCalculated={pricesCalculated}
+          />
           <AdditionalDetailsField register={register} errors={errors} formData={formData} handleChange={handleChange} />
           <PickupDateTimeField control={control} errors={errors} handleDateTimeChange={handleDateTimeChange} />
           <PaymentMethodField register={register} errors={errors} formData={formData} handleChange={handleChange} />
           
-          <Text mt={4} fontWeight="bold">Tipo de Grúa: {selectedTowTruck}</Text>
-          <Text mt={2} fontWeight="bold">Costo Estimado: ${totalCost.toFixed(2)}</Text>
+          {pricesCalculated && (
+            <>
+              <Text mt={4} fontWeight="bold">Tipo de Grúa: {getTowTruckType(selectedVehicleSize)}</Text>
+              <Text mt={2} fontWeight="bold">Costo Estimado: ${totalCost.toFixed(2)}</Text>
+            </>
+          )}
           <Button colorScheme="blue" type="submit" mt={4} isLoading={isLoading}>
             Solicitar Servicio de Grúa
           </Button>
