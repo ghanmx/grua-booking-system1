@@ -26,9 +26,7 @@ const SupabaseContext = createContext();
 export const SupabaseProvider = ({ children }) => {
   return (
     <SupabaseContext.Provider value={supabase}>
-      <SupabaseAuthProvider>
-        {children}
-      </SupabaseAuthProvider>
+      {children}
     </SupabaseContext.Provider>
   );
 };
@@ -41,4 +39,4 @@ export const useSupabase = () => {
   return context;
 };
 
-export { useSupabaseAuth };
+export { useSupabaseAuth, SupabaseAuthProvider };
