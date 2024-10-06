@@ -3,16 +3,19 @@ import { BrowserTracing } from "@sentry/tracing";
 import ReactGA from "react-ga4";
 
 export const initializeMonitoring = () => {
-  // Initialize Sentry
-  Sentry.init({
-    dsn: import.meta.env.VITE_SENTRY_DSN,
-    integrations: [new BrowserTracing()],
-    tracesSampleRate: 1.0,
-  });
+  const sentryDsn = import.meta.env.VITE_SENTRY_DSN;
+  if (sentryDsn && sentryDsn !== 'YOUR_SENTRY_DSN_HERE') {
+    Sentry.init({
+      dsn: sentryDsn,
+      integrations: [new BrowserTracing()],
+      tracesSampleRate: 1.0,
+    });
+  } else {
+    console.warn('Sentry DSN is not properly configured. Sentry will not be initialized.');
+  }
 
-  // Initialize Google Analytics
   const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
-  if (GA_MEASUREMENT_ID) {
+  if (GA_MEASUREMENT_ID && GA_MEASUREMENT_ID !== 'YOUR_GA_MEASUREMENT_ID_HERE') {
     ReactGA.initialize(GA_MEASUREMENT_ID);
   } else {
     console.warn('Google Analytics Measurement ID is not set. GA will not be initialized.');

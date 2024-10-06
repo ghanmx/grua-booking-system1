@@ -51,8 +51,8 @@ export const getBookings = async (page = 1, limit = 10) => {
         payment_status,
         total_cost,
         pickup_datetime,
-        user:users!bookings_user_id_fkey (id, email),
-        service:services!bookings_service_id_fkey (id, name)
+        user:user_id (id, email),
+        service:service_id (id, name)
       `, { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(startIndex, startIndex + limit - 1);

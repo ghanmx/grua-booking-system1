@@ -12,7 +12,7 @@ const FormField = ({ label, children, error, id }) => (
   </FormControl>
 );
 
-const SelectField = ({ label, name, options, register, errors, value, onChange, disabled = false }) => (
+const SelectField = ({ label, name, options = [], register, errors, value, onChange, disabled = false }) => (
   <FormField label={label} error={errors[name]} id={name}>
     <Select
       {...register(name, { required: `${label} es requerido` })}
@@ -77,10 +77,12 @@ const fields = {
       {...props}
     />
   ),
+
   vehicleBrand: (props) => (
     <SelectField
       label="Marca del Vehículo"
       name="vehicleBrand"
+      options={props.vehicleBrands ? props.vehicleBrands.map(brand => ({ value: brand, label: brand })) : []}
       {...props}
     />
   ),
@@ -88,9 +90,14 @@ const fields = {
     <SelectField
       label="Modelo del Vehículo"
       name="vehicleModel"
+      options={props.vehicleModels && props.formData.vehicleBrand
+        ? (props.vehicleModels[props.formData.vehicleBrand] || []).map(model => ({ value: model, label: model }))
+        : []
+      }
       {...props}
     />
   ),
+
   vehicleColor: (props) => (
     <InputField
       label="Color del Vehículo"
