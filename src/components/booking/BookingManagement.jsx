@@ -112,7 +112,7 @@ const BookingManagement = () => {
           {bookingsData && bookingsData.data && bookingsData.data.map((booking) => (
             <Tr key={booking.id}>
               <Td>{booking.id}</Td>
-              <Td>{booking.user?.profile?.full_name || booking.user?.email}</Td>
+              <Td>{booking.user?.email}</Td>
               <Td>{booking.service?.name}</Td>
               <Td>
                 <Select

@@ -26,20 +26,6 @@ const handleSupabaseError = async (operation, entityName) => {
   }
 };
 
-export const getUsers = async (page = 1, limit = 10) => {
-  return handleSupabaseError(async () => {
-    const startIndex = (page - 1) * limit;
-    const { data, error, count } = await supabase
-      .from('users')
-      .select('*, profiles(*)', { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range(startIndex, startIndex + limit - 1);
-    
-    if (error) throw new Error(`Failed to fetch users: ${error.message}`);
-    return { data, count, totalPages: Math.ceil(count / limit) };
-  }, 'users');
-};
-
 export const getBookings = async (page = 1, limit = 10) => {
   return handleSupabaseError(async () => {
     const startIndex = (page - 1) * limit;
@@ -51,8 +37,8 @@ export const getBookings = async (page = 1, limit = 10) => {
         payment_status,
         total_cost,
         pickup_datetime,
-        user:users!bookings_user_id_fkey (id, email),
-        service:services!bookings_service_id_fkey (id, name)
+        user:user_id (id, email),
+        service:service_id (id, name)
       `, { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(startIndex, startIndex + limit - 1);
