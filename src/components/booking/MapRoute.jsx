@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Box, useToast, Button, VStack } from '@chakra-ui/react';
 import { calculateTotalCost, getTowTruckType } from '../../utils/towTruckSelection';
+import MapEvents from './MapEvents';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -12,22 +13,30 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, vehicleSize, onError }) => {
+const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, vehicleSize }) => {
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
   const [map, setMap] = useState(null);
   const companyLocation = [26.509672, -100.0095504];
   const toast = useToast();
 
-  const MapEvents = () => {
-    const map = useMapEvents({
-      click: handleMapClick,
-    });
-    useEffect(() => {
-      setMap(map);
-    }, [map]);
-    return null;
+  const getAddressFromLatLng = async (lat, lng) => {
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+      if (!response.ok) throw new Error('No se pudo obtener la dirección');
+      const data = await response.json();
+      return data.display_name;
+    } catch (error) {
+      console.error('Error al obtener la dirección:', error);
+      toast({
+        title: 'Error de dirección',
+        description: 'No se pudo obtener la dirección. Por favor, intente de nuevo.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      return '';
+    }
   };
 
   const handleMapClick = useCallback(async (e) => {
@@ -67,25 +76,6 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
       });
     }
   }, [pickup, destination, setPickupAddress, setDropOffAddress, toast]);
-
-  const getAddressFromLatLng = async (lat, lng) => {
-    try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-      if (!response.ok) throw new Error('No se pudo obtener la dirección');
-      const data = await response.json();
-      return data.display_name;
-    } catch (error) {
-      console.error('Error al obtener la dirección:', error);
-      toast({
-        title: 'Error de dirección',
-        description: 'No se pudo obtener la dirección. Por favor, intente de nuevo.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
-      return '';
-    }
-  };
 
   const handleMarkerDrag = useCallback(async (e, isPickup) => {
     try {
@@ -179,14 +169,12 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
         center={companyLocation} 
         zoom={10} 
         style={{ height: "100%", width: "100%" }}
-        whenCreated={() => setMapLoaded(true)}
-        whenReady={() => setMapLoaded(true)}
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        {mapLoaded && <MapEvents />}
+        <MapEvents onMapClick={handleMapClick} setMap={setMap} />
         <Marker position={companyLocation}><Popup>Ubicación de la Compañía</Popup></Marker>
         {pickup && (
           <Marker 
