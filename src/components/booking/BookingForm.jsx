@@ -1,29 +1,30 @@
 import React, { useMemo, lazy, Suspense } from 'react';
-import { Box, VStack, Heading, Text, Button, useToast, Spinner } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, Button, useToast, Spinner, useMediaQuery } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { renderField, fieldNames } from './BookingFormFields';
 import { getVehicleSize, getTowTruckType } from '../../utils/towTruckSelection';
 import { useBookingForm } from '../../hooks/useBookingForm';
-import PaymentWindow from './PaymentWindow';
 
 const BookingFormStepper = lazy(() => import('./BookingFormStepper'));
 const BookingFormFields = lazy(() => import('./BookingFormFields'));
+const PaymentWindow = lazy(() => import('./PaymentWindow'));
 
 const schema = yup.object().shape({
-  userName: yup.string().required('Name is required'),
+  userName: yup.string().required('Name is required').min(2, 'Name must be at least 2 characters'),
   phoneNumber: yup.string().matches(/^\d{10}$/, 'Phone number must be 10 digits').required('Phone number is required'),
   vehicleBrand: yup.string().required('Vehicle brand is required'),
   vehicleModel: yup.string().required('Vehicle model is required'),
   vehicleColor: yup.string().required('Vehicle color is required'),
-  licensePlate: yup.string().required('License plate is required'),
-  pickupAddress: yup.string().required('Pickup address is required'),
-  dropOffAddress: yup.string().required('Drop-off address is required'),
+  licensePlate: yup.string().required('License plate is required').min(2, 'License plate must be at least 2 characters'),
+  pickupAddress: yup.string().required('Pickup address is required').min(5, 'Address must be at least 5 characters'),
+  dropOffAddress: yup.string().required('Drop-off address is required').min(5, 'Address must be at least 5 characters'),
   pickupDateTime: yup.date().required('Pickup date and time is required').min(new Date(), 'Pickup time must be in the future'),
 });
 
 const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
+  const [isMobile] = useMediaQuery("(max-width: 48em)");
   const {
     formData,
     handleChange,
@@ -136,26 +137,26 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
 
   return (
     <Box 
-      position="fixed" 
-      top="20px" 
-      right="20px" 
-      width={{ base: "90%", md: "400px" }}
-      maxHeight="calc(100vh - 40px)" 
-      overflowY="auto" 
-      bg="white" 
-      p={4} 
-      borderRadius="md" 
-      boxShadow="xl" 
+      position={isMobile ? "static" : "fixed"}
+      top={isMobile ? "auto" : "20px"}
+      right={isMobile ? "auto" : "20px"}
+      width={isMobile ? "100%" : "400px"}
+      maxHeight={isMobile ? "auto" : "calc(100vh - 40px)"}
+      overflowY={isMobile ? "visible" : "auto"}
+      bg="white"
+      p={4}
+      borderRadius="md"
+      boxShadow="xl"
       zIndex={1000}
       role="form"
       aria-label="Tow Truck Booking Form"
     >
       <VStack spacing={4} align="stretch">
-        <Heading as="h1" size="lg">Booking Form</Heading>
+        <Heading as="h1" size="lg" tabIndex={0}>Booking Form</Heading>
         <Suspense fallback={<Spinner />}>
           <BookingFormStepper currentStep={currentStep} />
         </Suspense>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <Suspense fallback={<Spinner />}>
             <BookingFormFields
               fieldNames={fieldNames}
@@ -172,8 +173,8 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
           </Suspense>
           {distance > 0 && (
             <>
-              <Text mt={4} fontWeight="bold">Tow truck type: {selectedTowTruckType}</Text>
-              <Text mt={2} fontWeight="bold">Estimated cost: ${totalCost.toFixed(2)}</Text>
+              <Text mt={4} fontWeight="bold" tabIndex={0}>Tow truck type: {selectedTowTruckType}</Text>
+              <Text mt={2} fontWeight="bold" tabIndex={0}>Estimated cost: ${totalCost.toFixed(2)}</Text>
             </>
           )}
           <Button 
@@ -189,12 +190,14 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
           </Button>
         </form>
       </VStack>
-      <PaymentWindow
-        isOpen={isPaymentWindowOpen}
-        onClose={() => setIsPaymentWindowOpen(false)}
-        onPaymentSubmit={handlePaymentSubmit}
-        totalCost={totalCost}
-      />
+      <Suspense fallback={<Spinner />}>
+        <PaymentWindow
+          isOpen={isPaymentWindowOpen}
+          onClose={() => setIsPaymentWindowOpen(false)}
+          onPaymentSubmit={handlePaymentSubmit}
+          totalCost={totalCost}
+        />
+      </Suspense>
     </Box>
   );
 });

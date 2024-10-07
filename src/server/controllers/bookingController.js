@@ -4,15 +4,15 @@ const { logger } = require('../middleware/errorHandler');
 const { body, validationResult } = require('express-validator');
 
 exports.validateBookingInput = [
-  body('userName').notEmpty().withMessage('User name is required'),
+  body('userName').notEmpty().withMessage('User name is required').isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
   body('phoneNumber').matches(/^\d{10}$/).withMessage('Phone number must be 10 digits'),
   body('serviceType').notEmpty().withMessage('Service type is required'),
-  body('pickupAddress').notEmpty().withMessage('Pickup address is required'),
-  body('dropOffAddress').notEmpty().withMessage('Drop off address is required'),
+  body('pickupAddress').notEmpty().withMessage('Pickup address is required').isLength({ min: 5 }).withMessage('Address must be at least 5 characters'),
+  body('dropOffAddress').notEmpty().withMessage('Drop off address is required').isLength({ min: 5 }).withMessage('Address must be at least 5 characters'),
   body('vehicleBrand').notEmpty().withMessage('Vehicle brand is required'),
   body('vehicleModel').notEmpty().withMessage('Vehicle model is required'),
   body('vehicleColor').notEmpty().withMessage('Vehicle color is required'),
-  body('licensePlate').notEmpty().withMessage('License plate is required'),
+  body('licensePlate').notEmpty().withMessage('License plate is required').isLength({ min: 2 }).withMessage('License plate must be at least 2 characters'),
   body('pickupDateTime').isISO8601().toDate().withMessage('Invalid pickup date and time'),
   (req, res, next) => {
     const errors = validationResult(req);

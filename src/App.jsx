@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from "react";
-import { ChakraProvider, Box, ColorModeScript } from "@chakra-ui/react";
+import { ChakraProvider, Box, ColorModeScript, Spinner } from "@chakra-ui/react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -8,7 +8,6 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
-import LoadingSpinner from "./components/LoadingSpinner";
 import ErrorBoundary from "./components/common/ErrorBoundary";
 import theme from "./theme";
 
@@ -45,7 +44,7 @@ function App() {
                 <Box minHeight="100vh" display="flex" flexDirection="column">
                   <Navbar />
                   <Box flex="1">
-                    <Suspense fallback={<LoadingSpinner />}>
+                    <Suspense fallback={<Box display="flex" justifyContent="center" alignItems="center" height="100vh"><Spinner size="xl" /></Box>}>
                       <Routes>
                         <Route path="/" element={<Index />} />
                         <Route path="/about" element={<About />} />
