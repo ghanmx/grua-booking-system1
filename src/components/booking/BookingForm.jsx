@@ -48,34 +48,14 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
   const watchVehicleModel = watch('vehicleModel');
   const watchVehiclePosition = watch('vehiclePosition');
 
-  const selectedVehicleSize = useMemo(() => {
-    try {
-      return watchVehicleModel ? getVehicleSize(watchVehicleModel) : '';
-    } catch (error) {
-      console.error('Error in getVehicleSize:', error);
-      return '';
-    }
-  }, [watchVehicleModel]);
-
-  const selectedTowTruckType = useMemo(() => {
-    try {
-      return getTowTruckType(selectedVehicleSize);
-    } catch (error) {
-      console.error('Error in getTowTruckType:', error);
-      return '';
-    }
-  }, [selectedVehicleSize]);
+  const selectedVehicleSize = useMemo(() => getVehicleSize(watchVehicleModel), [watchVehicleModel]);
+  const selectedTowTruckType = useMemo(() => getTowTruckType(selectedVehicleSize), [selectedVehicleSize]);
 
   const currentStep = useMemo(() => {
-    try {
-      if (!watchVehicleModel) return 0;
-      if (!formData.pickupAddress || !formData.dropOffAddress) return 1;
-      if (!formData.serviceType) return 2;
-      return 3;
-    } catch (error) {
-      console.error('Error in currentStep calculation:', error);
-      return 0;
-    }
+    if (!watchVehicleModel) return 0;
+    if (!formData.pickupAddress || !formData.dropOffAddress) return 1;
+    if (!formData.serviceType) return 2;
+    return 3;
   }, [watchVehicleModel, formData.pickupAddress, formData.dropOffAddress, formData.serviceType]);
 
   const onSubmit = async (data) => {
@@ -109,17 +89,17 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
       await handleBookingProcess({ ...formData, paymentMethodId: paymentMethod.id });
       setIsPaymentWindowOpen(false);
       toast({
-        title: "Reserva exitosa",
-        description: "Su reserva ha sido procesada correctamente.",
+        title: "Booking Successful",
+        description: "Your booking has been processed successfully.",
         status: "success",
         duration: 5000,
         isClosable: true,
       });
     } catch (error) {
-      console.error('Error al finalizar la reserva:', error);
+      console.error('Error finalizing booking:', error);
       toast({
         title: "Error",
-        description: "Hubo un error al finalizar su reserva. Por favor, contacte con soporte.",
+        description: "There was an error finalizing your booking. Please contact support.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -148,15 +128,13 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
       borderRadius="md"
       boxShadow="xl"
       zIndex={1000}
-      role="form"
-      aria-label="Tow Truck Booking Form"
     >
       <VStack spacing={4} align="stretch">
-        <Heading as="h1" size="lg" tabIndex={0}>Booking Form</Heading>
+        <Heading as="h1" size="lg">Booking Form</Heading>
         <Suspense fallback={<Spinner />}>
           <BookingFormStepper currentStep={currentStep} />
         </Suspense>
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <Suspense fallback={<Spinner />}>
             <BookingFormFields
               fieldNames={fieldNames}
@@ -173,8 +151,8 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
           </Suspense>
           {distance > 0 && (
             <>
-              <Text mt={4} fontWeight="bold" tabIndex={0}>Tow truck type: {selectedTowTruckType}</Text>
-              <Text mt={2} fontWeight="bold" tabIndex={0}>Estimated cost: ${totalCost.toFixed(2)}</Text>
+              <Text mt={4} fontWeight="bold">Tow truck type: {selectedTowTruckType}</Text>
+              <Text mt={2} fontWeight="bold">Estimated cost: ${totalCost.toFixed(2)}</Text>
             </>
           )}
           <Button 
@@ -183,7 +161,6 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
             mt={4} 
             isLoading={isLoading} 
             isDisabled={!isValid}
-            aria-label="Request Tow Truck Service"
             width="100%"
           >
             Request Tow Truck Service
