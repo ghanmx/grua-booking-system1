@@ -1,16 +1,24 @@
 const express = require('express');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 const config = require('./config/config');
 const stripe = require('stripe')(config.stripeSecretKey);
 const bookingRoutes = require('./routes/bookingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const { errorHandler } = require('./middleware/errorHandler');
-const { login, createAccount, authLimiter } = require('./db');
+const { login, createAccount } = require('./db');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Rate limiting middleware
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 requests per windowMs
+  message: 'Too many authentication attempts, please try again later.',
+});
 
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
