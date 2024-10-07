@@ -27,6 +27,7 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
   const [isMobile] = useMediaQuery("(max-width: 48em)");
   const {
     formData,
+    setFormData,
     handleChange,
     handleDateTimeChange,
     handleBookingProcess,
@@ -37,7 +38,7 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     setIsPaymentWindowOpen,
   } = useBookingForm();
 
-  const { register, handleSubmit, control, watch, formState: { errors, isValid } } = useForm({
+  const { register, handleSubmit, control, watch, setValue, formState: { errors, isValid } } = useForm({
     mode: 'onChange',
     defaultValues: formData,
     resolver: yupResolver(schema)
@@ -106,6 +107,12 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
       });
     }
   };
+
+  // Update form when addresses change
+  React.useEffect(() => {
+    setValue('pickupAddress', formData.pickupAddress);
+    setValue('dropOffAddress', formData.dropOffAddress);
+  }, [formData.pickupAddress, formData.dropOffAddress, setValue]);
 
   if (isLoading) {
     return <Box textAlign="center" p={4}><Spinner size="xl" /><Text mt={4}>Loading booking form...</Text></Box>;
