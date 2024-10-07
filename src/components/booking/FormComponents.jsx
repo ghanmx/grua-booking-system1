@@ -1,10 +1,10 @@
 import React from 'react';
-import { FormControl, FormLabel, Input, Select, FormErrorMessage } from "@chakra-ui/react";
+import { FormControl, FormLabel, Input, Select, FormErrorMessage, VisuallyHidden } from "@chakra-ui/react";
 import DatePicker from "react-datepicker";
 import { Controller } from "react-hook-form";
 
 export const FormField = ({ label, children, error, id }) => (
-  <FormControl isInvalid={error} id={id}>
+  <FormControl isInvalid={error} id={id} mb={4}>
     <FormLabel htmlFor={id}>{label}</FormLabel>
     {children}
     <FormErrorMessage>{error && error.message}</FormErrorMessage>
@@ -14,14 +14,15 @@ export const FormField = ({ label, children, error, id }) => (
 export const SelectField = ({ label, name, options = [], register, errors, value, onChange, disabled = false }) => (
   <FormField label={label} error={errors[name]} id={name}>
     <Select
-      {...register(name, { required: `${label} es requerido` })}
+      {...register(name)}
       value={value}
       onChange={onChange}
       name={name}
       disabled={disabled}
       autoComplete={name}
+      aria-label={label}
     >
-      <option value="">Seleccione {label.toLowerCase()}</option>
+      <option value="">Select {label.toLowerCase()}</option>
       {options.map((option) => (
         <option key={option.value} value={option.value}>{option.label}</option>
       ))}
@@ -32,12 +33,13 @@ export const SelectField = ({ label, name, options = [], register, errors, value
 export const InputField = ({ label, name, register, errors, value, onChange, type = "text", validation = {} }) => (
   <FormField label={label} error={errors[name]} id={name}>
     <Input
-      {...register(name, { required: `${label} es requerido`, ...validation })}
+      {...register(name, validation)}
       value={value}
       onChange={onChange}
       name={name}
       type={type}
       autoComplete={name}
+      aria-label={label}
     />
   </FormField>
 );
@@ -47,7 +49,6 @@ export const DateTimeField = ({ label, name, control, errors, value, onChange })
     <Controller
       control={control}
       name={name}
-      rules={{ required: "La fecha y hora de recogida son requeridas" }}
       render={({ field }) => (
         <DatePicker
           selected={field.value}
@@ -57,9 +58,15 @@ export const DateTimeField = ({ label, name, control, errors, value, onChange })
           }}
           showTimeSelect
           dateFormat="Pp"
-          customInput={<Input autoComplete="off" />}
+          customInput={<Input autoComplete="off" aria-label={label} />}
         />
       )}
     />
   </FormField>
+);
+
+export const HiddenLabel = ({ children, htmlFor }) => (
+  <VisuallyHidden as="label" htmlFor={htmlFor}>
+    {children}
+  </VisuallyHidden>
 );

@@ -1,6 +1,27 @@
 const supabase = require('../config/database');
 const { sendAdminNotification } = require('../../utils/adminNotification');
 const { logger } = require('../middleware/errorHandler');
+const { body, validationResult } = require('express-validator');
+
+exports.validateBookingInput = [
+  body('userName').notEmpty().withMessage('User name is required'),
+  body('phoneNumber').matches(/^\d{10}$/).withMessage('Phone number must be 10 digits'),
+  body('serviceType').notEmpty().withMessage('Service type is required'),
+  body('pickupAddress').notEmpty().withMessage('Pickup address is required'),
+  body('dropOffAddress').notEmpty().withMessage('Drop off address is required'),
+  body('vehicleBrand').notEmpty().withMessage('Vehicle brand is required'),
+  body('vehicleModel').notEmpty().withMessage('Vehicle model is required'),
+  body('vehicleColor').notEmpty().withMessage('Vehicle color is required'),
+  body('licensePlate').notEmpty().withMessage('License plate is required'),
+  body('pickupDateTime').isISO8601().toDate().withMessage('Invalid pickup date and time'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
 
 exports.createBooking = async (req, res, next) => {
   try {
@@ -10,8 +31,8 @@ exports.createBooking = async (req, res, next) => {
       status: 'pending',
       total_cost: req.body.totalCost,
       payment_status: 'pending',
-      pickup_location: req.body.pickupLocation,
-      dropoff_location: req.body.dropoffLocation,
+      pickup_location: req.body.pickupAddress,
+      dropoff_location: req.body.dropOffAddress,
       vehicle_brand: req.body.vehicleBrand,
       vehicle_model: req.body.vehicleModel,
       vehicle_color: req.body.vehicleColor,

@@ -26,6 +26,7 @@
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
+    "@hookform/resolvers": "^3.9.0",
     "@react-google-maps/api": "^2.19.3",
     "@sentry/react": "^7.119.1",
     "@sentry/tracing": "^7.108.0",
@@ -60,7 +61,8 @@
     "react-router-dom": "^6.26.2",
     "stripe": "^17.0.0",
     "uuid": "^10.0.0",
-    "winston": "^3.14.2"
+    "winston": "^3.14.2",
+    "yup": "^1.4.0"
   },
   "prettier": {
     "printWidth": 100

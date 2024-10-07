@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, lazy } from "react";
 import { ChakraProvider, Box, ColorModeScript } from "@chakra-ui/react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -13,14 +13,14 @@ import ErrorBoundary from "./components/common/ErrorBoundary";
 import theme from "./theme";
 
 // Lazy load components
-const Index = React.lazy(() => import("./pages/Index"));
-const About = React.lazy(() => import("./pages/About"));
-const Contact = React.lazy(() => import("./pages/Contact"));
-const BookingForm = React.lazy(() => import("./pages/BookingForm"));
-const Confirmation = React.lazy(() => import("./pages/Confirmation"));
-const Login = React.lazy(() => import("./pages/Login"));
-const AdminPanel = React.lazy(() => import("./pages/AdminPanel"));
-const ProtectedRoute = React.lazy(() => import("./components/common/ProtectedRoute"));
+const Index = lazy(() => import("./pages/Index"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const BookingForm = lazy(() => import("./pages/BookingForm"));
+const Confirmation = lazy(() => import("./pages/Confirmation"));
+const Login = lazy(() => import("./pages/Login"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const ProtectedRoute = lazy(() => import("./components/common/ProtectedRoute"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
