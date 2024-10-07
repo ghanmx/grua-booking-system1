@@ -126,7 +126,11 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
           setDistance(distanceInKm);
           const towTruckType = getTowTruckType(vehicleSize);
           const cost = calculateTotalCost(distanceInKm, towTruckType);
-          setTotalCost(cost);
+          if (typeof setTotalCost === 'function') {
+            setTotalCost(cost);
+          } else {
+            console.error('setTotalCost is not a function', setTotalCost);
+          }
         }
       } catch (error) {
         console.error('Error calculating route:', error);

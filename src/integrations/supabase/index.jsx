@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { SupabaseAuthProvider, useSupabaseAuth } from './auth';
 
@@ -14,6 +14,11 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10
+    }
   }
 });
 
@@ -24,6 +29,18 @@ export const handleSupabaseError = (error) => {
 const SupabaseContext = createContext();
 
 export const SupabaseProvider = ({ children }) => {
+  useEffect(() => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        supabase.removeAllChannels();
+      }
+    });
+
+    return () => {
+      listener?.unsubscribe();
+    };
+  }, []);
+
   return (
     <SupabaseContext.Provider value={supabase}>
       {children}
