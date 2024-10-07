@@ -1,32 +1,29 @@
 import React, { useEffect } from 'react';
 import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast, Text } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { updateBooking, deleteBooking, subscribeToBookings } from '../../server/db';
+import { updateBooking, deleteBooking } from '../../server/db';
 import { useBookings } from '../../hooks/useBookings';
+import { useSupabase } from '../../integrations/supabase';
 
 const BookingManagement = ({ showNotification }) => {
   const queryClient = useQueryClient();
   const toast = useToast();
   const { data: bookingsData, isLoading, error } = useBookings();
+  const supabase = useSupabase();
 
   useEffect(() => {
-    const subscription = subscribeToBookings((payload) => {
-      queryClient.invalidateQueries('bookings');
-      toast({
-        title: 'Booking Update',
-        description: `Booking ${payload.new.id} has been updated.`,
-        status: 'info',
-        duration: 3000,
-        isClosable: true,
-      });
-    });
+    const bookingsSubscription = supabase
+      .channel('public:bookings')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, (payload) => {
+        console.log('Received real-time update:', payload);
+        queryClient.invalidateQueries('bookings');
+      })
+      .subscribe();
 
     return () => {
-      if (subscription && subscription.unsubscribe) {
-        subscription.unsubscribe();
-      }
+      supabase.removeChannel(bookingsSubscription);
     };
-  }, [queryClient, toast]);
+  }, [supabase, queryClient]);
 
   const updateBookingMutation = useMutation({
     mutationFn: ({ id, status }) => updateBooking(id, { status }),

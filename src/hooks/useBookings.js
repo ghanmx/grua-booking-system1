@@ -8,8 +8,9 @@ export const useBookings = (page = 1, limit = 10) => {
   return useQuery({
     queryKey: ['bookings', page, limit],
     queryFn: () => getBookings(Number(page) || 1, Number(limit) || 10),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 15 * 60 * 1000, // 15 minutes
+    staleTime: 0, // Always fetch fresh data
+    cacheTime: 5 * 60 * 1000, // 5 minutes
+    refetchInterval: 30000, // Refetch every 30 seconds
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     onError: (error) => {
