@@ -53,6 +53,9 @@ export const SupabaseAuthProvider = ({ children }) => {
       setUser(user);
       return { user, profile };
     } catch (error) {
+      if (error.message.includes('For security purposes, you can only request this after')) {
+        throw new Error('Too many signup attempts. Please try again later.');
+      }
       throw error;
     }
   };

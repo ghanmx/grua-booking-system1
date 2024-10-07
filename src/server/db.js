@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import config from './config/config.js';
+import rateLimit from 'express-rate-limit';
 
 const supabase = createClient(config.supabaseUrl, config.supabaseKey);
 
@@ -114,6 +115,7 @@ export const deleteUser = async (id) => {
   });
 };
 
+
 export const createAccount = async (email, password, userData) => {
   return handleSupabaseError(async () => {
     const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -121,7 +123,12 @@ export const createAccount = async (email, password, userData) => {
       password,
     });
 
-    if (authError) throw authError;
+    if (authError) {
+      if (authError.message.includes('For security purposes, you can only request this after')) {
+        throw new Error('Too many signup attempts. Please try again later.');
+      }
+      throw authError;
+    }
 
     if (authData.user) {
       const { data: profileData, error: profileError } = await supabase
@@ -152,14 +159,15 @@ export const createAccount = async (email, password, userData) => {
 
 export const login = async (email, password) => {
   return handleSupabaseError(async () => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) throw error;
+    if (error) {
+      if (error.message.includes('Invalid login credentials')) {
+        throw new Error('Invalid email or password. Please try again.');
+      }
+      throw error;
+    }
 
-    // Fetch user data from the 'users' table
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('*')
@@ -168,9 +176,17 @@ export const login = async (email, password) => {
 
     if (userError) throw userError;
 
+
     return { session: data.session, user: userData };
   });
 };
+
+// Rate limiting middleware
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 requests per windowMs
+  message: 'Too many authentication attempts, please try again later.',
+});
 
 export const setupRealtimeSubscription = (table, onUpdate) => {
   return supabase

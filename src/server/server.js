@@ -5,7 +5,7 @@ const stripe = require('stripe')(config.stripeSecretKey);
 const bookingRoutes = require('./routes/bookingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const { errorHandler } = require('./middleware/errorHandler');
-const { login, createAccount } = require('./db');
+const { login, createAccount, authLimiter } = require('./db');
 
 const app = express();
 
@@ -32,7 +32,7 @@ app.post('/api/process-payment', async (req, res) => {
   }
 });
 
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
     const result = await login(email, password);
@@ -42,7 +42,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-app.post('/api/signup', async (req, res) => {
+app.post('/api/signup', authLimiter, async (req, res) => {
   try {
     const { email, password, userData } = req.body;
     const result = await createAccount(email, password, userData);

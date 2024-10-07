@@ -85,7 +85,7 @@ const Login = () => {
         title: "Login failed",
         description: error.message,
         status: "error",
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
       });
     } finally {
@@ -116,7 +116,7 @@ const Login = () => {
         title: "Signup failed",
         description: error.message,
         status: "error",
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
       });
     } finally {
