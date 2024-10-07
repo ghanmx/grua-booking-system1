@@ -167,7 +167,7 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
             type="submit" 
             mt={4} 
             isLoading={isLoading} 
-            isDisabled={!isValid}
+            isDisabled={!isValid || isLoading}
             width="100%"
           >
             Request Tow Truck Service

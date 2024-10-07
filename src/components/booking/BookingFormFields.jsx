@@ -1,5 +1,5 @@
 import React from 'react';
-import { VStack } from "@chakra-ui/react";
+import { VStack, Box } from "@chakra-ui/react";
 import { SelectField, InputField, DateTimeField } from './FloatingFormFields';
 
 export const fieldNames = [
@@ -64,8 +64,8 @@ export const renderField = (fieldName, props) => {
           name={fieldName}
           control={control}
           errors={errors}
-          value={formData[fieldName]}
-          onChange={handleDateTimeChange}
+          value={formData[fieldName] ? new Date(formData[fieldName]) : null}
+          onChange={(date) => handleDateTimeChange(date)}
         />
       );
     case 'serviceType':
@@ -104,18 +104,33 @@ export const renderField = (fieldName, props) => {
 const BookingFormFields = ({ fieldNames, renderField, register, errors, formData, handleChange, control, handleDateTimeChange, vehicleBrands, vehicleModels }) => {
   return (
     <VStack spacing={4} align="stretch">
-      {fieldNames.map((fieldName) =>
-        renderField(fieldName, {
-          register,
-          errors,
-          formData,
-          handleChange,
-          control,
-          handleDateTimeChange,
-          vehicleBrands,
-          vehicleModels,
-        })
-      )}
+      <Box borderWidth={1} borderRadius="md" p={4} mb={4}>
+        <VStack spacing={4} align="stretch">
+          {renderField('userName', { register, errors, formData, handleChange })}
+          {renderField('phoneNumber', { register, errors, formData, handleChange })}
+        </VStack>
+      </Box>
+      <Box borderWidth={1} borderRadius="md" p={4} mb={4}>
+        <VStack spacing={4} align="stretch">
+          {renderField('vehicleBrand', { register, errors, formData, handleChange, vehicleBrands })}
+          {renderField('vehicleModel', { register, errors, formData, handleChange, vehicleModels })}
+          {renderField('vehicleColor', { register, errors, formData, handleChange })}
+          {renderField('licensePlate', { register, errors, formData, handleChange })}
+        </VStack>
+      </Box>
+      <Box borderWidth={1} borderRadius="md" p={4} mb={4}>
+        <VStack spacing={4} align="stretch">
+          {renderField('pickupAddress', { register, errors, formData, handleChange })}
+          {renderField('dropOffAddress', { register, errors, formData, handleChange })}
+        </VStack>
+      </Box>
+      <Box borderWidth={1} borderRadius="md" p={4} mb={4}>
+        <VStack spacing={4} align="stretch">
+          {renderField('serviceType', { register, errors, formData, handleChange })}
+          {renderField('pickupDateTime', { control, errors, formData, handleDateTimeChange })}
+          {renderField('additionalDetails', { register, errors, formData, handleChange })}
+        </VStack>
+      </Box>
     </VStack>
   );
 };
