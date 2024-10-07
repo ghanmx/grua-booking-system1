@@ -11,7 +11,6 @@ import { usePaymentSubmit } from '../hooks/usePaymentSubmit';
 const MapRoute = lazy(() => import('../components/booking/MapRoute'));
 const BookingForm = lazy(() => import('../components/booking/BookingForm'));
 const PaymentWindow = lazy(() => import('../components/booking/PaymentWindow'));
-const MapComponent = lazy(() => import('../components/booking/MapComponent'));
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -19,6 +18,7 @@ const BookingPage = () => {
   const toast = useToast();
   const [mapError, setMapError] = useState(false);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const [key, setKey] = useState(0);
 
   const {
     formData,
@@ -75,6 +75,11 @@ const BookingPage = () => {
     });
   };
 
+  // Function to force re-render of MapRoute
+  const refreshMap = () => {
+    setKey(prevKey => prevKey + 1);
+  };
+
   if (isLoading || !isPageLoaded) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
@@ -99,6 +104,7 @@ const BookingPage = () => {
     <Box position="relative" height="100vh" width="100vw">
       <Suspense fallback={<Spinner />}>
         <MapRoute
+          key={key}
           setPickupAddress={(address) => setFormData(prev => ({ ...prev, pickupAddress: address }))}
           setDropOffAddress={(address) => setFormData(prev => ({ ...prev, dropOffAddress: address }))}
           setDistance={setDistance}
@@ -121,6 +127,7 @@ const BookingPage = () => {
           vehicleModels={vehicleModels}
           setIsPaymentWindowOpen={setIsPaymentWindowOpen}
           mapError={mapError}
+          refreshMap={refreshMap}
         />
         {isPaymentWindowOpen && (
           <Elements stripe={stripePromise}>
