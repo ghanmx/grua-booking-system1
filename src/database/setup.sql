@@ -16,8 +16,13 @@ CREATE TABLE IF NOT EXISTS public.users (
   encrypted_password TEXT NOT NULL,
   role user_role NOT NULL DEFAULT 'user',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT email_format CHECK (email ~* '^[A-Za-z0-9._+%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$')
 );
+
+COMMENT ON TABLE public.users IS 'Stores user account information';
+COMMENT ON COLUMN public.users.email IS 'User''s email address, used for login';
+COMMENT ON COLUMN public.users.role IS 'User''s role in the system';
 
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -26,8 +31,13 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   phone_number TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  CONSTRAINT unique_user_profile UNIQUE(user_id)
+  CONSTRAINT unique_user_profile UNIQUE(user_id),
+  CONSTRAINT phone_number_format CHECK (phone_number ~ '^\+?[1-9]\d{1,14}$')
 );
+
+COMMENT ON TABLE public.profiles IS 'Stores additional user profile information';
+COMMENT ON COLUMN public.profiles.user_id IS 'Reference to the user account';
+COMMENT ON COLUMN public.profiles.phone_number IS 'User''s contact phone number';
 
 CREATE TABLE IF NOT EXISTS public.services (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -40,6 +50,11 @@ CREATE TABLE IF NOT EXISTS public.services (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.services IS 'Stores information about available towing services';
+COMMENT ON COLUMN public.services.base_price IS 'Base price for the service';
+COMMENT ON COLUMN public.services.price_per_km IS 'Additional charge per kilometer';
+COMMENT ON COLUMN public.services.maneuver_charge IS 'Extra charge for difficult maneuvers';
 
 CREATE TABLE IF NOT EXISTS public.bookings (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -58,8 +73,17 @@ CREATE TABLE IF NOT EXISTS public.bookings (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+COMMENT ON TABLE public.bookings IS 'Stores information about tow truck service bookings';
+COMMENT ON COLUMN public.bookings.user_id IS 'Reference to the user who made the booking';
+COMMENT ON COLUMN public.bookings.service_id IS 'Reference to the service requested';
+COMMENT ON COLUMN public.bookings.vehicle_details IS 'JSON object containing vehicle information';
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
+CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON public.bookings(user_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_service_id ON public.bookings(service_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_status ON public.bookings(status);
+CREATE INDEX IF NOT EXISTS idx_bookings_pickup_datetime ON public.bookings(pickup_datetime);
 
 -- Triggers for updating 'updated_at' columns
 CREATE OR REPLACE FUNCTION update_updated_at()
@@ -103,6 +127,6 @@ VALUES (
   (SELECT id FROM public.users WHERE email = 'user@example.com'),
   (SELECT id FROM public.services WHERE name = 'Standard Towing'),
   'pending', 'pending', '123 Main St', '456 Elm St', 
-  '{"brand": "Toyota", "model": "Corolla", "year": 2020, "color": "Silver", "license_plate": "ABC123", "size": "medium"}',
+  '{"brand": "Toyota", "model": "Corolla", "year": 2020, "color": "Silver", "license_plate": "ABC123", "size": "medium"}'::jsonb,
   15.5, 81.00, NOW() + INTERVAL '2 hours'
 );
