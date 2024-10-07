@@ -11,6 +11,7 @@ import { usePaymentSubmit } from '../hooks/usePaymentSubmit';
 const MapRoute = lazy(() => import('../components/booking/MapRoute'));
 const BookingForm = lazy(() => import('../components/booking/BookingForm'));
 const PaymentWindow = lazy(() => import('../components/booking/PaymentWindow'));
+const MapComponent = lazy(() => import('../components/booking/MapComponent'));
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
