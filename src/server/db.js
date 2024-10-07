@@ -33,6 +33,19 @@ export const getUsers = async () => {
   });
 };
 
+export const updateUser = async (id, userData) => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase
+      .from('users')
+      .update(userData)
+      .eq('id', id)
+      .select();
+    
+    if (error) throw error;
+    return data[0];
+  });
+};
+
 export const getBookings = async (page = 1, limit = 10) => {
   return handleSupabaseError(async () => {
     const startIndex = (page - 1) * limit;
