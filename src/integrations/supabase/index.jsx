@@ -30,14 +30,16 @@ const SupabaseContext = createContext();
 
 export const SupabaseProvider = ({ children }) => {
   useEffect(() => {
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
         supabase.removeAllChannels();
       }
     });
 
     return () => {
-      listener?.unsubscribe();
+      if (authListener && typeof authListener.unsubscribe === 'function') {
+        authListener.unsubscribe();
+      }
     };
   }, []);
 
