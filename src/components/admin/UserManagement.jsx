@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getUsers, updateUser, deleteUser } from '../server/db';
-import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { ROLES } from '../constants/roles';
+import { getUsers, updateUser, deleteUser } from '../../server/db';
+import { useSupabaseAuth } from '../../integrations/supabase/auth';
+import { ROLES } from '../../constants/roles';
 
 const UserManagement = ({ showNotification, userRole }) => {
   const queryClient = useQueryClient();
