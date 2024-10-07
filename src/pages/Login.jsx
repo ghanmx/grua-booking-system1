@@ -54,6 +54,7 @@ const Login = () => {
   const [isTestMode, setIsTestMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [signupAttempts, setSignupAttempts] = useState(0);
+  const [lastAttemptTime, setLastAttemptTime] = useState(null);
   const toast = useToast();
 
   useEffect(() => {
@@ -109,6 +110,19 @@ const Login = () => {
     const fullName = formData.get('fullName');
     const phoneNumber = formData.get('phoneNumber');
 
+    const now = new Date();
+    if (lastAttemptTime && now - lastAttemptTime < 60000) { // 1 minute cooldown
+      toast({
+        title: "Signup attempt limit",
+        description: "Please wait for 1 minute before trying again.",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+      });
+      setIsLoading(false);
+      return;
+    }
+
     try {
       await signup(email, password, { fullName, phoneNumber });
       toast({
@@ -119,12 +133,15 @@ const Login = () => {
         isClosable: true,
       });
       setSignupAttempts(0);
+      setLastAttemptTime(null);
     } catch (error) {
       setSignupAttempts(prev => prev + 1);
+      setLastAttemptTime(now);
       if (error.message.includes('Too many signup attempts')) {
+        const waitTime = Math.min(Math.pow(2, signupAttempts), 30); // Max wait time of 30 minutes
         toast({
           title: "Signup failed",
-          description: `${error.message} Please wait for ${Math.pow(2, signupAttempts)} minutes before trying again.`,
+          description: `Too many attempts. Please wait for ${waitTime} minutes before trying again.`,
           status: "error",
           duration: 10000,
           isClosable: true,
@@ -162,7 +179,9 @@ const Login = () => {
                   <SignupForm onSubmit={handleSignup} isLoading={isLoading} />
                   {signupAttempts > 0 && (
                     <Text color="red.500" mt={2}>
-                      Too many attempts. Please wait before trying again.
+                      {signupAttempts === 1
+                        ? "First attempt failed. Please try again."
+                        : `${signupAttempts} attempts made. Please wait before trying again.`}
                     </Text>
                   )}
                 </TabPanel>
