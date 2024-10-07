@@ -79,6 +79,12 @@ const Login = () => {
         handleTestModeLogin();
       } else {
         await login(email, password);
+        toast({
+          title: "Login successful",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
       }
     } catch (error) {
       toast({
@@ -103,7 +109,7 @@ const Login = () => {
     const phoneNumber = formData.get('phoneNumber');
 
     try {
-      await signup(email, password, { full_name: fullName, phone_number: phoneNumber });
+      await signup(email, password, { fullName, phoneNumber });
       toast({
         title: "Account created",
         description: "You can now log in with your new account",

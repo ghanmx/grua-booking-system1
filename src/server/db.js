@@ -52,7 +52,16 @@ export const deleteUser = (id) => executeQuery(() => supabase.from('users').dele
 
 export const createAccount = async (email, password, userData) => {
   return handleSupabaseError(async () => {
-    const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: userData.fullName,
+          phone_number: userData.phoneNumber,
+        },
+      },
+    });
     if (authError) throw authError;
 
     if (authData.user) {
@@ -94,9 +103,47 @@ export const login = async (email, password) => {
 
     if (userError) throw userError;
 
-    return { session: data.session, user: userData };
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', data.user.id)
+      .single();
+
+    if (profileError) throw profileError;
+
+    return { session: data.session, user: userData, profile: profileData };
   });
 };
+
+export const logout = () => {
+  return handleSupabaseError(() => supabase.auth.signOut());
+};
+
+export const getCurrentUser = async () => {
+  return handleSupabaseError(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (userError) throw userError;
+
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+
+    if (profileError) throw profileError;
+
+    return { user: userData, profile: profileData };
+  });
+};
+
 
 export const setupRealtimeSubscription = (table, onUpdate) => {
   return supabase

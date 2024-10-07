@@ -6,7 +6,7 @@ const stripe = require('stripe')(config.stripeSecretKey);
 const bookingRoutes = require('./routes/bookingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const { errorHandler } = require('./middleware/errorHandler');
-const { login, createAccount } = require('./db');
+const { login, createAccount, getCurrentUser } = require('./db');
 
 const app = express();
 
@@ -55,6 +55,19 @@ app.post('/api/signup', authLimiter, async (req, res) => {
     const { email, password, userData } = req.body;
     const result = await createAccount(email, password, userData);
     res.json(result);
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+app.get('/api/current-user', async (req, res) => {
+  try {
+    const user = await getCurrentUser();
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(401).json({ success: false, error: 'Not authenticated' });
+    }
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
