@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select } from "@chakra-ui/react";
+import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, Alert, AlertIcon } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUsers, updateUser, deleteUser } from '../../server/db';
 import { useSupabaseAuth } from '../../integrations/supabase/auth';
@@ -16,10 +16,13 @@ const UserManagement = ({ showNotification, userRole }) => {
   });
 
   useEffect(() => {
-    if (usersData) {
+    if (usersData && Array.isArray(usersData)) {
       setUsers(usersData);
+    } else if (usersData) {
+      console.error('Users data is not an array:', usersData);
+      showNotification('Error', 'Invalid user data format', 'error');
     }
-  }, [usersData]);
+  }, [usersData, showNotification]);
 
   const updateUserMutation = useMutation({
     mutationFn: ({ id, userData }) => updateUser(id, userData),
@@ -53,47 +56,57 @@ const UserManagement = ({ showNotification, userRole }) => {
   return (
     <Box>
       <Heading as="h2" size="lg" mb={4}>User Management</Heading>
-      <Table variant="simple">
-        <Thead>
-          <Tr>
-            <Th>ID</Th>
-            <Th>Email</Th>
-            <Th>Full Name</Th>
-            <Th>Role</Th>
-            <Th>Actions</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {users.map((user) => (
-            <Tr key={user.id}>
-              <Td>{user.id}</Td>
-              <Td>{user.email}</Td>
-              <Td>{user.full_name}</Td>
-              <Td>
-                <Select
-                  value={user.role}
-                  onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                  isDisabled={userRole !== ROLES.SUPER_ADMIN || user.id === session?.user?.id}
-                >
-                  <option value={ROLES.USER}>User</option>
-                  <option value={ROLES.ADMIN}>Admin</option>
-                  <option value={ROLES.SUPER_ADMIN}>Super Admin</option>
-                </Select>
-              </Td>
-              <Td>
-                <Button
-                  colorScheme="red"
-                  size="sm"
-                  onClick={() => handleDeleteUser(user.id)}
-                  isDisabled={user.id === session?.user?.id}
-                >
-                  Delete
-                </Button>
-              </Td>
+      {!Array.isArray(users) ? (
+        <Alert status="error">
+          <AlertIcon />
+          Error: User data is not in the expected format. Please contact support.
+        </Alert>
+      ) : users.length === 0 ? (
+        <Alert status="info">
+          <AlertIcon />
+          No users found.
+        </Alert>
+      ) : (
+        <Table variant="simple">
+          <Thead>
+            <Tr>
+              <Th>ID</Th>
+              <Th>Email</Th>
+              <Th>Role</Th>
+              <Th>Actions</Th>
             </Tr>
-          ))}
-        </Tbody>
-      </Table>
+          </Thead>
+          <Tbody>
+            {users.map((user) => (
+              <Tr key={user.id}>
+                <Td>{user.id}</Td>
+                <Td>{user.email}</Td>
+                <Td>
+                  <Select
+                    value={user.role}
+                    onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                    isDisabled={userRole !== ROLES.SUPER_ADMIN || user.id === session?.user?.id}
+                  >
+                    <option value={ROLES.USER}>User</option>
+                    <option value={ROLES.ADMIN}>Admin</option>
+                    <option value={ROLES.SUPER_ADMIN}>Super Admin</option>
+                  </Select>
+                </Td>
+                <Td>
+                  <Button
+                    colorScheme="red"
+                    size="sm"
+                    onClick={() => handleDeleteUser(user.id)}
+                    isDisabled={user.id === session?.user?.id}
+                  >
+                    Delete
+                  </Button>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      )}
     </Box>
   );
 };

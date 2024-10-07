@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Box, Container, Heading, VStack, Button, Checkbox, FormControl, FormLabel, Input, useToast, Tabs, TabList, Tab, TabPanels, TabPanel } from '@chakra-ui/react';
+import { Box, Container, Heading, VStack, Button, Checkbox, FormControl, FormLabel, Input, useToast, Tabs, TabList, Tab, TabPanels, TabPanel, Text } from '@chakra-ui/react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const LoginForm = ({ onSubmit, isLoading }) => (
@@ -53,6 +53,7 @@ const Login = () => {
   const { session, login, signup } = useSupabaseAuth();
   const [isTestMode, setIsTestMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [signupAttempts, setSignupAttempts] = useState(0);
   const toast = useToast();
 
   useEffect(() => {
@@ -117,14 +118,26 @@ const Login = () => {
         duration: 3000,
         isClosable: true,
       });
+      setSignupAttempts(0);
     } catch (error) {
-      toast({
-        title: "Signup failed",
-        description: error.message,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
+      setSignupAttempts(prev => prev + 1);
+      if (error.message.includes('Too many signup attempts')) {
+        toast({
+          title: "Signup failed",
+          description: `${error.message} Please wait for ${Math.pow(2, signupAttempts)} minutes before trying again.`,
+          status: "error",
+          duration: 10000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: "Signup failed",
+          description: error.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -147,6 +160,11 @@ const Login = () => {
                 </TabPanel>
                 <TabPanel>
                   <SignupForm onSubmit={handleSignup} isLoading={isLoading} />
+                  {signupAttempts > 0 && (
+                    <Text color="red.500" mt={2}>
+                      Too many attempts. Please wait before trying again.
+                    </Text>
+                  )}
                 </TabPanel>
               </TabPanels>
             </Tabs>
