@@ -10,11 +10,11 @@ const BookingManagement = ({ showNotification }) => {
   const { data: bookingsData, isLoading, error } = useBookings();
 
   useEffect(() => {
-    const unsubscribe = subscribeToBookings((payload) => {
+    const subscription = subscribeToBookings((payload) => {
       queryClient.invalidateQueries('bookings');
       toast({
-        title: 'Actualización de reserva',
-        description: `La reserva ${payload.new.id} ha sido actualizada.`,
+        title: 'Booking Update',
+        description: `Booking ${payload.new.id} has been updated.`,
         status: 'info',
         duration: 3000,
         isClosable: true,
@@ -22,8 +22,8 @@ const BookingManagement = ({ showNotification }) => {
     });
 
     return () => {
-      if (typeof unsubscribe === 'function') {
-        unsubscribe();
+      if (subscription && subscription.unsubscribe) {
+        subscription.unsubscribe();
       }
     };
   }, [queryClient, toast]);
@@ -32,7 +32,7 @@ const BookingManagement = ({ showNotification }) => {
     mutationFn: ({ id, status }) => updateBooking(id, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries('bookings');
-      showNotification('Reserva actualizada', 'El estado de la reserva ha sido actualizado con éxito.', 'success');
+      showNotification('Booking Updated', 'The booking status has been updated successfully.', 'success');
     },
   });
 
@@ -40,7 +40,7 @@ const BookingManagement = ({ showNotification }) => {
     mutationFn: deleteBooking,
     onSuccess: () => {
       queryClient.invalidateQueries('bookings');
-      showNotification('Reserva eliminada', 'La reserva ha sido eliminada con éxito.', 'success');
+      showNotification('Booking Deleted', 'The booking has been deleted successfully.', 'success');
     },
   });
 
@@ -49,63 +49,63 @@ const BookingManagement = ({ showNotification }) => {
   };
 
   const handleDeleteBooking = (bookingId) => {
-    if (window.confirm('¿Está seguro de que desea eliminar esta reserva?')) {
+    if (window.confirm('Are you sure you want to delete this booking?')) {
       deleteBookingMutation.mutate(bookingId);
     }
   };
 
-  if (isLoading) return <Box>Cargando reservas...</Box>;
-  if (error) return <Box>Error al cargar las reservas: {error.message}</Box>;
+  if (isLoading) return <Box>Loading bookings...</Box>;
+  if (error) return <Box>Error loading bookings: {error.message}</Box>;
 
   const bookings = bookingsData?.data || [];
 
-  if (bookings.length === 0) {
-    return <Box>No se encontraron reservas.</Box>;
-  }
-
   return (
     <Box>
-      <Heading as="h2" size="lg" mb={4}>Gestión de Reservas</Heading>
-      <Table variant="simple">
-        <Thead>
-          <Tr>
-            <Th>ID</Th>
-            <Th>Usuario</Th>
-            <Th>Servicio</Th>
-            <Th>Estado</Th>
-            <Th>Acciones</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {bookings.map((booking) => (
-            <Tr key={booking.id}>
-              <Td>{booking.id}</Td>
-              <Td>{booking.user?.email || 'N/A'}</Td>
-              <Td>{booking.service?.name || 'N/A'}</Td>
-              <Td>
-                <Select
-                  value={booking.status}
-                  onChange={(e) => handleStatusChange(booking.id, e.target.value)}
-                >
-                  <option value="pending">Pendiente</option>
-                  <option value="confirmed">Confirmado</option>
-                  <option value="completed">Completado</option>
-                  <option value="cancelled">Cancelado</option>
-                </Select>
-              </Td>
-              <Td>
-                <Button
-                  colorScheme="red"
-                  size="sm"
-                  onClick={() => handleDeleteBooking(booking.id)}
-                >
-                  Eliminar
-                </Button>
-              </Td>
+      <Heading as="h2" size="lg" mb={4}>Booking Management</Heading>
+      {bookings.length === 0 ? (
+        <Text>No bookings found.</Text>
+      ) : (
+        <Table variant="simple">
+          <Thead>
+            <Tr>
+              <Th>ID</Th>
+              <Th>User</Th>
+              <Th>Service</Th>
+              <Th>Status</Th>
+              <Th>Actions</Th>
             </Tr>
-          ))}
-        </Tbody>
-      </Table>
+          </Thead>
+          <Tbody>
+            {bookings.map((booking) => (
+              <Tr key={booking.id}>
+                <Td>{booking.id}</Td>
+                <Td>{booking.user?.email || 'N/A'}</Td>
+                <Td>{booking.service?.name || 'N/A'}</Td>
+                <Td>
+                  <Select
+                    value={booking.status}
+                    onChange={(e) => handleStatusChange(booking.id, e.target.value)}
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </Select>
+                </Td>
+                <Td>
+                  <Button
+                    colorScheme="red"
+                    size="sm"
+                    onClick={() => handleDeleteBooking(booking.id)}
+                  >
+                    Delete
+                  </Button>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      )}
     </Box>
   );
 };

@@ -54,4 +54,7 @@ app.post('/api/signup', async (req, res) => {
 
 app.use(errorHandler);
 
-app.listen(config.port, () => console.log(`Server running on port ${config.port}`));
+const PORT = config.port || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+module.exports = app; // Export for testing purposes

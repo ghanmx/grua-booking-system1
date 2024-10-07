@@ -1,6 +1,8 @@
-import { supabase } from '../integrations/supabase/supabase';
+import { createClient } from '@supabase/supabase-js';
+import config from './config/config';
 
-const handleSupabaseError = async (operation) => {
+const supabase = createClient(config.supabaseUrl, config.supabaseKey);
+
 const handleSupabaseError = async (operation) => {
   const maxRetries = 3;
   let retries = 0;
@@ -17,7 +19,6 @@ const handleSupabaseError = async (operation) => {
       await new Promise(resolve => setTimeout(resolve, 1000 * retries));
     }
   }
-};
 };
 
 export const getUsers = async () => {
@@ -167,12 +168,10 @@ export const setupRealtimeSubscription = (table, onUpdate) => {
     .subscribe();
 };
 
-// Existing subscribeToBookings function
 export const subscribeToBookings = (callback) => {
   return setupRealtimeSubscription('bookings', callback);
 };
 
-// You can add more subscription functions for other tables as needed
 export const subscribeToUsers = (callback) => {
   return setupRealtimeSubscription('users', callback);
 };
