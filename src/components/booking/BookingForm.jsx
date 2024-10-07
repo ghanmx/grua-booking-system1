@@ -20,7 +20,7 @@ const schema = yup.object().shape({
   licensePlate: yup.string().required('License plate is required').min(2, 'License plate must be at least 2 characters'),
   pickupAddress: yup.string().required('Pickup address is required').min(5, 'Address must be at least 5 characters'),
   dropOffAddress: yup.string().required('Drop-off address is required').min(5, 'Address must be at least 5 characters'),
-  pickupDateTime: yup.date().required('Pickup date and time is required').min(new Date(), 'Pickup time must be in the future'),
+  pickupDateTime: yup.date().nullable().required('Pickup date and time is required').min(new Date(), 'Pickup time must be in the future'),
 });
 
 const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
@@ -40,7 +40,10 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
 
   const { register, handleSubmit, control, watch, setValue, formState: { errors, isValid } } = useForm({
     mode: 'onChange',
-    defaultValues: formData,
+    defaultValues: {
+      ...formData,
+      pickupDateTime: formData.pickupDateTime ? new Date(formData.pickupDateTime) : null,
+    },
     resolver: yupResolver(schema)
   });
 
