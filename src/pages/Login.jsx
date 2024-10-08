@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Box, Container, Heading, VStack, Button, Checkbox, FormControl, FormLabel, Input, useToast, Tabs, TabList, Tab, TabPanels, TabPanel, Text } from '@chakra-ui/react';
+import { Box, Container, Heading, VStack, Button, FormControl, FormLabel, Input, useToast, Tabs, TabList, Tab, TabPanels, TabPanel } from '@chakra-ui/react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 
 const AuthForm = ({ isLogin, onSubmit, isLoading }) => (
@@ -43,8 +43,8 @@ const Login = () => {
 
   useEffect(() => {
     if (session) {
-      const from = location.state?.from || '/booking';
-      navigate(from);
+      const from = location.state?.from?.pathname || '/booking';
+      navigate(from, { replace: true });
     }
   }, [session, navigate, location]);
 
