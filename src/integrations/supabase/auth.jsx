@@ -1,6 +1,8 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { supabase } from './supabase';
 import { useQueryClient } from '@tanstack/react-query';
+import { Auth } from '@supabase/auth-ui-react';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
 
 const SupabaseAuthContext = createContext();
 
@@ -69,3 +71,13 @@ export const SupabaseAuthProvider = ({ children }) => {
 export const useSupabaseAuth = () => {
   return useContext(SupabaseAuthContext);
 };
+
+export const SupabaseAuthUI = ({ redirectTo }) => (
+  <Auth
+    supabaseClient={supabase}
+    appearance={{ theme: ThemeSupa }}
+    theme="dark"
+    providers={['google', 'github']}
+    redirectTo={redirectTo}
+  />
+);
