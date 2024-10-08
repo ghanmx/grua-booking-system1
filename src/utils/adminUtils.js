@@ -1,4 +1,4 @@
-import { supabase } from '../config/supabase.config';
+import { supabase } from '../integrations/supabase/supabase';
 
 export const ROLES = {
   USER: 'user',
