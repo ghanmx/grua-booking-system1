@@ -189,16 +189,15 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
         </form>
       </VStack>
       <Suspense fallback={<Spinner aria-label="Loading payment window" />}>
-          <Suspense fallback={<Spinner aria-label="Loading payment window" />}>
-            <PaymentWindow
-              isOpen={isPaymentWindowOpen}
-              onClose={() => setIsPaymentWindowOpen(false)}
-              onPaymentSubmit={handlePaymentSubmit}
-              totalCost={totalCost}
-            />
-          </Suspense>
-        </Box>
-      );
-    });
-    
-    export default BookingForm;
+        <PaymentWindow
+          isOpen={isPaymentWindowOpen}
+          onClose={() => setIsPaymentWindowOpen(false)}
+          onPaymentSubmit={handlePaymentSubmit}
+          totalCost={totalCost}
+        />
+      </Suspense>
+    </Box>
+  );
+});
+
+export default BookingForm;
