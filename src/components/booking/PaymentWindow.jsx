@@ -50,6 +50,7 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
 
       if (paymentResult.success) {
         await onPaymentSubmit({ success: true, paymentMethodId: paymentMethod.id });
+        onClose();
       } else {
         throw new Error(paymentResult.error || 'Payment processing failed');
       }
@@ -65,7 +66,7 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false}>
       <ModalOverlay />
-      <ModalContent aria-label="Payment information form">
+      <ModalContent>
         <ModalHeader>Payment Information</ModalHeader>
         {!isProcessing && <ModalCloseButton />}
         <ModalBody>
@@ -86,11 +87,10 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
                     },
                   },
                 }}
-                aria-label="Credit card input field"
               />
             </Box>
             <Text fontWeight="bold">Total Cost: ${totalCost.toFixed(2)}</Text>
-            {error && <Text color="red.500" role="alert">{error}</Text>}
+            {error && <Text color="red.500">{error}</Text>}
           </VStack>
         </ModalBody>
         <ModalFooter>
@@ -101,12 +101,11 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
             isLoading={isProcessing} 
             loadingText="Processing Payment"
             disabled={isProcessing || !stripe}
-            aria-label="Process payment"
           >
             Process Payment
           </Button>
           {!isProcessing && (
-            <Button variant="ghost" onClick={onClose} aria-label="Cancel payment">Cancel</Button>
+            <Button variant="ghost" onClick={onClose}>Cancel</Button>
           )}
         </ModalFooter>
       </ModalContent>
