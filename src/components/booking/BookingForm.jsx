@@ -3,13 +3,13 @@ import { Box, VStack, Heading, Text, Button, useToast, Spinner, useMediaQuery } 
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { renderField, fieldNames } from './BookingFormFields';
-import { getVehicleSize, getTowTruckType } from '../../utils/towTruckSelection';
-import { useBookingForm } from '../../hooks/useBookingForm';
 import { useNavigate } from 'react-router-dom';
+import { useBookingForm } from '../../hooks/useBookingForm';
+import { usePaymentProcessing } from '../../hooks/usePaymentProcessing';
+import { BookingFormFields } from './BookingFormFields';
+import { BookingFormSummary } from './BookingFormSummary';
 
 const BookingFormStepper = lazy(() => import('./BookingFormStepper'));
-const BookingFormFields = lazy(() => import('./BookingFormFields'));
 const PaymentWindow = lazy(() => import('./PaymentWindow'));
 
 const schema = yup.object().shape({
@@ -23,10 +23,13 @@ const schema = yup.object().shape({
   dropOffAddress: yup.string().required('Drop-off address is required').min(5, 'Address must be at least 5 characters'),
   pickupDateTime: yup.date().nullable().required('Pickup date and time is required').min(new Date(), 'Pickup time must be in the future'),
 });
+});
 
 const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
   const [isMobile] = useMediaQuery("(max-width: 48em)");
   const navigate = useNavigate();
+  const toast = useToast();
+  
   const {
     formData,
     setFormData,
@@ -35,11 +38,12 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     handleBookingProcess,
     isLoading,
     totalCost,
-    setTotalCost,
     distance,
     isPaymentWindowOpen,
     setIsPaymentWindowOpen,
   } = useBookingForm();
+
+  const { handlePaymentSubmit } = usePaymentProcessing(formData, totalCost, setIsPaymentWindowOpen, navigate);
 
   const { register, handleSubmit, control, watch, setValue, formState: { errors, isValid } } = useForm({
     mode: 'onChange',
@@ -50,19 +54,15 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     resolver: yupResolver(schema)
   });
 
-  const toast = useToast();
-
   const watchVehicleModel = watch('vehicleModel');
   const watchVehiclePosition = watch('vehiclePosition');
-
-  const selectedVehicleSize = useMemo(() => getVehicleSize(watchVehicleModel), [watchVehicleModel]);
-  const selectedTowTruckType = useMemo(() => getTowTruckType(selectedVehicleSize), [selectedVehicleSize]);
 
   const currentStep = useMemo(() => {
     if (!watchVehicleModel) return 0;
     if (!formData.pickupAddress || !formData.dropOffAddress) return 1;
     if (!formData.serviceType) return 2;
     return 3;
+  }, [watchVehicleModel, formData.pickupAddress, formData.dropOffAddress, formData.serviceType]);
   }, [watchVehicleModel, formData.pickupAddress, formData.dropOffAddress, formData.serviceType]);
 
   const onSubmit = async (data) => {
@@ -85,34 +85,6 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
       toast({
         title: "Form Error",
         description: "Please complete all required fields correctly.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  };
-
-  const handlePaymentSubmit = async (paymentResult) => {
-    try {
-      if (paymentResult.success) {
-        await handleBookingProcess({ ...formData, paymentMethodId: paymentResult.paymentMethodId, paymentStatus: 'paid' });
-        setIsPaymentWindowOpen(false);
-        toast({
-          title: "Payment Successful",
-          description: "Your payment has been processed successfully.",
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-        });
-        navigate('/confirmation', { state: { bookingData: formData } });
-      } else {
-        throw new Error(paymentResult.error || 'Payment processing failed');
-      }
-    } catch (error) {
-      console.error('Error finalizing booking:', error);
-      toast({
-        title: "Payment Error",
-        description: error.message || "There was an error processing your payment. Please try again.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -154,26 +126,17 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
           <BookingFormStepper currentStep={currentStep} />
         </Suspense>
         <form onSubmit={handleSubmit(onSubmit)} aria-label="Tow truck service booking form">
-          <Suspense fallback={<Spinner aria-label="Loading form fields" />}>
-            <BookingFormFields
-              fieldNames={fieldNames}
-              renderField={renderField}
-              register={register}
-              errors={errors}
-              formData={formData}
-              handleChange={handleChange}
-              control={control}
-              handleDateTimeChange={handleDateTimeChange}
-              vehicleBrands={vehicleBrands}
-              vehicleModels={vehicleModels}
-            />
-          </Suspense>
-          {distance > 0 && (
-            <>
-              <Text mt={4} fontWeight="bold">Tow truck type: {selectedTowTruckType}</Text>
-              <Text mt={2} fontWeight="bold">Estimated cost: ${totalCost.toFixed(2)}</Text>
-            </>
-          )}
+          <BookingFormFields
+            register={register}
+            errors={errors}
+            control={control}
+            formData={formData}
+            handleChange={handleChange}
+            handleDateTimeChange={handleDateTimeChange}
+            vehicleBrands={vehicleBrands}
+            vehicleModels={vehicleModels}
+          />
+          <BookingFormSummary distance={distance} totalCost={totalCost} />
           <Button 
             colorScheme="blue" 
             type="submit" 
