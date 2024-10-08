@@ -63,23 +63,9 @@ const Login = () => {
 
     try {
       if (isLogin) {
-        const { user, error } = await login(email, password);
+        const { error } = await login(email, password);
         if (error) throw error;
         
-        // Fetch user role after successful login
-        const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-        
-        if (userError) throw userError;
-        
-        // Update the session with the user's role
-        await supabase.auth.updateUser({
-          data: { role: userData.role }
-        });
-
         toast({
           title: "Login successful",
           status: "success",
@@ -89,7 +75,9 @@ const Login = () => {
       } else {
         const fullName = formData.get('fullName');
         const phoneNumber = formData.get('phoneNumber');
-        await signup(email, password, { fullName, phoneNumber });
+        const { error } = await signup(email, password, { fullName, phoneNumber });
+        if (error) throw error;
+        
         toast({
           title: "Account created",
           description: "You can now log in with your new account",
@@ -99,6 +87,7 @@ const Login = () => {
         });
       }
     } catch (error) {
+      console.error('Authentication error:', error);
       toast({
         title: isLogin ? "Login failed" : "Signup failed",
         description: error.message,

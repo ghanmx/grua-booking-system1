@@ -15,7 +15,7 @@ export const SupabaseAuthProvider = ({ children }) => {
   useEffect(() => {
     const setData = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) throw error;
+      if (error) console.error('Error fetching session:', error);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -51,9 +51,15 @@ export const SupabaseAuthProvider = ({ children }) => {
     if (error) throw error;
     
     if (data.user) {
-      await supabase.from('profiles').insert([
-        { user_id: data.user.id, ...userData }
-      ]);
+      try {
+        const { error: profileError } = await supabase.from('profiles').insert([
+          { user_id: data.user.id, ...userData }
+        ]);
+        if (profileError) throw profileError;
+      } catch (profileError) {
+        console.error('Error creating profile:', profileError);
+        // Consider handling this error, possibly by deleting the created user
+      }
     }
     
     return data;
