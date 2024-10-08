@@ -1,14 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Flex, Link, Button, Image, useDisclosure } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useSupabaseAuth } from '../../integrations/supabase/auth';
+import { isAdmin, isSuperAdmin } from '../../utils/adminUtils';
 
 const Navbar = () => {
   const { session, logout } = useSupabaseAuth();
   const navigate = useNavigate();
   const { isOpen, onToggle } = useDisclosure();
+  const [hasAdminAccess, setHasAdminAccess] = useState(false);
   const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
+
+  useEffect(() => {
+    const checkAdminAccess = async () => {
+      if (session?.user?.id) {
+        const adminStatus = await isAdmin(session.user.id);
+        const superAdminStatus = await isSuperAdmin(session.user.id);
+        setHasAdminAccess(adminStatus || superAdminStatus);
+      }
+    };
+    checkAdminAccess();
+  }, [session]);
 
   const handleLogout = async () => {
     if (testModeUser) {
@@ -49,7 +62,7 @@ const Navbar = () => {
         </Flex>
 
         <Flex alignItems={'center'}>
-          {(session || testModeUser) && (testModeUser?.isAdmin || session?.user?.email === 'admin@example.com') && (
+          {(hasAdminAccess || testModeUser?.isAdmin) && (
             <NavLink to="/admin">Admin Panel</NavLink>
           )}
           {session || testModeUser ? (
@@ -70,7 +83,7 @@ const Navbar = () => {
           <NavLink to="/about">About</NavLink>
           <NavLink to="/contact">Contact</NavLink>
           <NavLink to="/booking">Book Now</NavLink>
-          {(session || testModeUser) && (testModeUser?.isAdmin || session?.user?.email === 'admin@example.com') && (
+          {(hasAdminAccess || testModeUser?.isAdmin) && (
             <NavLink to="/admin">Admin Panel</NavLink>
           )}
         </Box>

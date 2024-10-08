@@ -12,18 +12,37 @@ const AdminPanel = () => {
   const { session } = useSupabaseAuth();
   const toast = useToast();
   const [hasAdminAccess, setHasAdminAccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
 
   useEffect(() => {
     const checkAdminAccess = async () => {
+      setIsLoading(true);
       if (session?.user?.id) {
-        const adminStatus = await isAdmin(session.user.id);
-        const superAdminStatus = await isSuperAdmin(session.user.id);
-        setHasAdminAccess(adminStatus || superAdminStatus);
+        try {
+          const adminStatus = await isAdmin(session.user.id);
+          const superAdminStatus = await isSuperAdmin(session.user.id);
+          console.log('Admin status:', adminStatus, 'Super admin status:', superAdminStatus);
+          setHasAdminAccess(adminStatus || superAdminStatus);
+        } catch (error) {
+          console.error('Error checking admin status:', error);
+          toast({
+            title: 'Error',
+            description: 'Failed to verify admin status. Please try again.',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+        }
       }
+      setIsLoading(false);
     };
     checkAdminAccess();
-  }, [session]);
+  }, [session, toast]);
+
+  if (isLoading) {
+    return <Box p={4}><Heading as="h2" size="lg">Loading...</Heading></Box>;
+  }
 
   if (!hasAdminAccess && !testModeUser?.isAdmin) {
     return <Box p={4}><Heading as="h2" size="lg">You do not have admin privileges.</Heading></Box>;

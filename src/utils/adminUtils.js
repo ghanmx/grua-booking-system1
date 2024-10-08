@@ -1,4 +1,4 @@
-import supabase from '../config/supabase.config';
+import { supabase } from '../config/supabase.config';
 
 export const ROLES = {
   USER: 'user',
@@ -7,33 +7,39 @@ export const ROLES = {
 };
 
 export const isAdmin = async (userId) => {
-  const { data, error } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', userId)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', userId)
+      .single();
 
-  if (error) {
+    if (error) throw error;
+
+    console.log('User role:', data?.role);
+    return data?.role === ROLES.ADMIN || data?.role === ROLES.SUPER_ADMIN;
+  } catch (error) {
     console.error('Error checking admin status:', error);
     return false;
   }
-
-  return data?.role === ROLES.ADMIN || data?.role === ROLES.SUPER_ADMIN;
 };
 
 export const isSuperAdmin = async (userId) => {
-  const { data, error } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', userId)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', userId)
+      .single();
 
-  if (error) {
+    if (error) throw error;
+
+    console.log('User role:', data?.role);
+    return data?.role === ROLES.SUPER_ADMIN;
+  } catch (error) {
     console.error('Error checking super admin status:', error);
     return false;
   }
-
-  return data?.role === ROLES.SUPER_ADMIN;
 };
 
 export const getAdminUsers = async () => {

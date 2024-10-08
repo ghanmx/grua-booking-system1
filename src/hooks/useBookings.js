@@ -7,10 +7,14 @@ export const useBookings = (page = 1, limit = 10) => {
 
   return useQuery({
     queryKey: ['bookings', page, limit],
-    queryFn: () => getBookings(Number(page) || 1, Number(limit) || 10),
-    staleTime: 0, // Always fetch fresh data
-    cacheTime: 5 * 60 * 1000, // 5 minutes
-    refetchInterval: 30000, // Refetch every 30 seconds
+    queryFn: async () => {
+      const result = await getBookings(Number(page) || 1, Number(limit) || 10);
+      console.log('Bookings query result:', result);
+      return result;
+    },
+    staleTime: 0,
+    cacheTime: 5 * 60 * 1000,
+    refetchInterval: 30000,
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     onError: (error) => {
