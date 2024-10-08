@@ -50,8 +50,8 @@ export const useBookingForm = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('bookings');
       toast({
-        title: 'Reserva creada.',
-        description: "Hemos creado su reserva exitosamente.",
+        title: 'Booking created.',
+        description: "Your booking has been created successfully.",
         status: 'success',
         duration: 5000,
         isClosable: true,
@@ -59,10 +59,10 @@ export const useBookingForm = () => {
       navigate('/confirmation');
     },
     onError: (error) => {
-      console.error('Error al crear la reserva:', error);
+      console.error('Error creating booking:', error);
       toast({
-        title: 'Ocurrió un error.',
-        description: error.message,
+        title: 'An error occurred.',
+        description: error.message || 'There was an error processing your request. Please try again.',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -107,8 +107,8 @@ export const useBookingForm = () => {
   const handleBookingProcess = useCallback(async (data) => {
     if (!session) {
       toast({
-        title: 'Autenticación requerida',
-        description: 'Por favor, inicie sesión para crear una reserva.',
+        title: 'Authentication required',
+        description: 'Please log in to create a booking.',
         status: 'warning',
         duration: 5000,
         isClosable: true,
@@ -116,24 +116,28 @@ export const useBookingForm = () => {
       return;
     }
 
-    const testResult = await testPayment(totalCost);
-    if (!testResult.success) {
+    try {
+      const testResult = await testPayment(totalCost);
+      if (!testResult.success) {
+        throw new Error(testResult.message || 'Payment test failed');
+      }
+
+      await createBookingMutation.mutateAsync({
+        ...data,
+        userId: session.user.id,
+        totalCost,
+        distance,
+      });
+    } catch (error) {
+      console.error('Error processing booking:', error);
       toast({
-        title: 'Prueba de pago fallida',
-        description: testResult.message,
+        title: 'Booking Error',
+        description: error.message || 'There was an error processing your request. Please try again.',
         status: 'error',
         duration: 5000,
         isClosable: true,
       });
-      return;
     }
-
-    createBookingMutation.mutate({
-      ...data,
-      userId: session.user.id,
-      totalCost,
-      distance,
-    });
   }, [session, totalCost, distance, createBookingMutation, toast]);
 
   useEffect(() => {
@@ -146,7 +150,7 @@ export const useBookingForm = () => {
     distance,
     setDistance,
     totalCost,
-    setTotalCost,  // Make sure this is included
+    setTotalCost,
     isPaymentWindowOpen,
     setIsPaymentWindowOpen,
     handleChange,
