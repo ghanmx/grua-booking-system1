@@ -3,11 +3,13 @@ import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import { Box, Button, FormControl, FormLabel, Input, Switch, VStack, useToast } from '@chakra-ui/react';
 import { saveSMTPSettings } from '../../utils/api';
+import { useSupabaseAuth } from '../../integrations/supabase/auth';
 
 const SMTPSettingsForm = () => {
   const [isCustomSMTP, setIsCustomSMTP] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm();
   const toast = useToast();
+  const { session } = useSupabaseAuth();
 
   const mutation = useMutation({
     mutationFn: saveSMTPSettings,
@@ -32,7 +34,17 @@ const SMTPSettingsForm = () => {
   });
 
   const onSubmit = (data) => {
-    mutation.mutate({ ...data, isCustomSMTP });
+    if (!session?.user?.id) {
+      toast({
+        title: 'Error',
+        description: 'User not authenticated',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+    mutation.mutate({ ...data, isCustomSMTP, user_id: session.user.id });
   };
 
   return (
@@ -83,7 +95,7 @@ const SMTPSettingsForm = () => {
 
             <FormControl isRequired>
               <FormLabel>Password</FormLabel>
-              <Input {...register('password', { required: 'Password is required' })} type="password" />
+              <Input {...register('password', { required: 'Password is required' })} type="password" autoComplete="current-password" />
             </FormControl>
           </>
         )}
