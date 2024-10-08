@@ -2,19 +2,19 @@ import { useQuery } from '@tanstack/react-query';
 import { getBookings } from '../server/db';
 import { useToast } from '@chakra-ui/react';
 
-export const useBookings = (page = 1, limit = 10) => {
+export const useBookings = (page = 1, limit = 50) => {
   const toast = useToast();
 
   return useQuery({
     queryKey: ['bookings', page, limit],
     queryFn: async () => {
-      const result = await getBookings(Number(page) || 1, Number(limit) || 10);
+      const result = await getBookings(Number(page), Number(limit));
       console.log('Bookings query result:', result);
       return result;
     },
-    staleTime: 0,
-    cacheTime: 5 * 60 * 1000,
-    refetchInterval: 30000,
+    staleTime: 60000, // 1 minute
+    cacheTime: 5 * 60 * 1000, // 5 minutes
+    refetchInterval: 300000, // 5 minutes
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     onError: (error) => {

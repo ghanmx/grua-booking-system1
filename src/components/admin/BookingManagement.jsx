@@ -1,58 +1,21 @@
-import React, { useEffect } from 'react';
-import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, useToast, Text } from "@chakra-ui/react";
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { updateBooking, deleteBooking } from '../../server/db';
+import React from 'react';
+import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Text, Alert, AlertIcon } from "@chakra-ui/react";
+import { useQuery } from '@tanstack/react-query';
 import { useBookings } from '../../hooks/useBookings';
-import { useSupabase } from '../../integrations/supabase';
 
 const BookingManagement = ({ showNotification }) => {
-  const queryClient = useQueryClient();
-  const toast = useToast();
   const { data: bookingsData, isLoading, error } = useBookings();
-  const supabase = useSupabase();
-
-  useEffect(() => {
-    const bookingsSubscription = supabase
-      .channel('public:bookings')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, (payload) => {
-        console.log('Received real-time update:', payload);
-        queryClient.invalidateQueries('bookings');
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(bookingsSubscription);
-    };
-  }, [supabase, queryClient]);
-
-  const updateBookingMutation = useMutation({
-    mutationFn: ({ id, status }) => updateBooking(id, { status }),
-    onSuccess: () => {
-      queryClient.invalidateQueries('bookings');
-      showNotification('Booking Updated', 'The booking status has been updated successfully.', 'success');
-    },
-  });
-
-  const deleteBookingMutation = useMutation({
-    mutationFn: deleteBooking,
-    onSuccess: () => {
-      queryClient.invalidateQueries('bookings');
-      showNotification('Booking Deleted', 'The booking has been deleted successfully.', 'success');
-    },
-  });
-
-  const handleStatusChange = (bookingId, newStatus) => {
-    updateBookingMutation.mutate({ id: bookingId, status: newStatus });
-  };
-
-  const handleDeleteBooking = (bookingId) => {
-    if (window.confirm('Are you sure you want to delete this booking?')) {
-      deleteBookingMutation.mutate(bookingId);
-    }
-  };
 
   if (isLoading) return <Box>Loading bookings...</Box>;
-  if (error) return <Box>Error loading bookings: {error.message}</Box>;
+  if (error) {
+    showNotification('Error', `Failed to load bookings: ${error.message}`, 'error');
+    return (
+      <Alert status="error">
+        <AlertIcon />
+        Error loading bookings. Please try again later.
+      </Alert>
+    );
+  }
 
   const bookings = bookingsData?.data || [];
 
@@ -65,11 +28,13 @@ const BookingManagement = ({ showNotification }) => {
         <Table variant="simple">
           <Thead>
             <Tr>
-              <Th>ID</Th>
-              <Th>User</Th>
-              <Th>Service</Th>
+              <Th>Booking ID</Th>
+              <Th>User Email</Th>
+              <Th>Service Name</Th>
               <Th>Status</Th>
-              <Th>Actions</Th>
+              <Th>Payment Status</Th>
+              <Th>Total Cost</Th>
+              <Th>Created At</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -78,26 +43,10 @@ const BookingManagement = ({ showNotification }) => {
                 <Td>{booking.id}</Td>
                 <Td>{booking.user?.email || 'N/A'}</Td>
                 <Td>{booking.service?.name || 'N/A'}</Td>
-                <Td>
-                  <Select
-                    value={booking.status}
-                    onChange={(e) => handleStatusChange(booking.id, e.target.value)}
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </Select>
-                </Td>
-                <Td>
-                  <Button
-                    colorScheme="red"
-                    size="sm"
-                    onClick={() => handleDeleteBooking(booking.id)}
-                  >
-                    Delete
-                  </Button>
-                </Td>
+                <Td>{booking.status}</Td>
+                <Td>{booking.payment_status}</Td>
+                <Td>${booking.total_cost}</Td>
+                <Td>{new Date(booking.created_at).toLocaleString()}</Td>
               </Tr>
             ))}
           </Tbody>
@@ -107,4 +56,4 @@ const BookingManagement = ({ showNotification }) => {
   );
 };
 
-export default React.memo(BookingManagement);
+export default BookingManagement;

@@ -27,20 +27,24 @@ export const getUsers = () => executeQuery(() => supabase.from('users').select('
 
 export const updateUser = (id, userData) => executeQuery(() => supabase.from('users').update(userData).eq('id', id).select());
 
-export const getBookings = (page = 1, limit = 10) => executeQuery(async () => {
+
+export const getBookings = (page = 1, limit = 50) => executeQuery(async () => {
   const startIndex = (page - 1) * limit;
-  const { data, count } = await supabase
+  const { data, count, error } = await supabase
     .from('bookings')
     .select(`
-      id, created_at, status, total_cost,
+      id, created_at, status, total_cost, payment_status,
       user:users(id, email),
       service:services(id, name)
     `, { count: 'exact' })
     .order('created_at', { ascending: false })
     .range(startIndex, startIndex + limit - 1);
   
+  if (error) throw error;
+  
   return { data, count: count || 0, totalPages: Math.ceil((count || 0) / limit) };
 });
+
 
 export const createBooking = (bookingData) => executeQuery(() => supabase.from('bookings').insert([bookingData]).select());
 
@@ -155,3 +159,4 @@ export const setupRealtimeSubscription = (table, onUpdate) => {
 export const subscribeToBookings = setupRealtimeSubscription.bind(null, 'bookings');
 export const subscribeToUsers = setupRealtimeSubscription.bind(null, 'users');
 export const subscribeToProfiles = setupRealtimeSubscription.bind(null, 'profiles');
+
