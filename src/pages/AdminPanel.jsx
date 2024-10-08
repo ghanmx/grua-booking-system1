@@ -22,7 +22,7 @@ const AdminPanel = () => {
         try {
           const adminStatus = await isAdmin(session.user.id);
           const superAdminStatus = await isSuperAdmin(session.user.id);
-          setHasAdminAccess(adminStatus || superAdminStatus);
+          setHasAdminAccess(adminStatus);
           setIsSuperAdminUser(superAdminStatus);
         } catch (error) {
           console.error('Error checking admin status:', error);

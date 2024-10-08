@@ -1,8 +1,6 @@
-import { useState, useEffect, createContext, useContext } from 'react';
-import { supabase } from './supabase';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Auth } from '@supabase/auth-ui-react';
-import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { supabase } from './supabase';
 
 const SupabaseAuthContext = createContext();
 
@@ -49,41 +47,31 @@ export const SupabaseAuthProvider = ({ children }) => {
       },
     });
     if (error) throw error;
-    
-    if (data.user) {
-      try {
-        const { error: profileError } = await supabase.from('profiles').insert([
-          { user_id: data.user.id, ...userData }
-        ]);
-        if (profileError) throw profileError;
-      } catch (profileError) {
-        console.error('Error creating profile:', profileError);
-        // Consider handling this error, possibly by deleting the created user
-      }
-    }
-    
     return data;
   };
 
   const logout = () => supabase.auth.signOut();
 
+  const value = {
+    session,
+    user,
+    loading,
+    login,
+    signup,
+    logout,
+  };
+
   return (
-    <SupabaseAuthContext.Provider value={{ session, user, loading, login, signup, logout }}>
+    <SupabaseAuthContext.Provider value={value}>
       {children}
     </SupabaseAuthContext.Provider>
   );
 };
 
 export const useSupabaseAuth = () => {
-  return useContext(SupabaseAuthContext);
+  const context = useContext(SupabaseAuthContext);
+  if (context === undefined) {
+    throw new Error('useSupabaseAuth must be used within a SupabaseAuthProvider');
+  }
+  return context;
 };
-
-export const SupabaseAuthUI = ({ redirectTo }) => (
-  <Auth
-    supabaseClient={supabase}
-    appearance={{ theme: ThemeSupa }}
-    theme="dark"
-    providers={['google', 'github']}
-    redirectTo={redirectTo}
-  />
-);
