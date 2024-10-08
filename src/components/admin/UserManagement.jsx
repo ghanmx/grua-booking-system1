@@ -1,14 +1,17 @@
 import React from 'react';
-import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, Alert, AlertIcon } from "@chakra-ui/react";
+import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, Alert, AlertIcon, useDisclosure } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSupabaseAuth } from '../../integrations/supabase/auth';
 import { ROLES } from '../../constants/roles';
 import { useUsers, useUpdateUser, useDeleteUser } from '../../integrations/supabase/hooks/users';
+import { AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay } from "@chakra-ui/react";
 
 const UserManagement = ({ showNotification, userRole }) => {
   const queryClient = useQueryClient();
   const { session } = useSupabaseAuth();
   const { data: users, isLoading, error } = useUsers();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = React.useRef();
 
   const updateUserMutation = useUpdateUser();
   const deleteUserMutation = useDeleteUser();
@@ -25,16 +28,23 @@ const UserManagement = ({ showNotification, userRole }) => {
   };
 
   const handleDeleteUser = (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      deleteUserMutation.mutate(userId, {
-        onSuccess: () => {
-          showNotification('User Deleted', 'The user has been deleted successfully.', 'success');
-        },
-        onError: (error) => {
-          showNotification('Delete Failed', `Failed to delete user: ${error.message}`, 'error');
-        }
-      });
-    }
+    onOpen();
+    // Store the userId to be deleted when confirmed
+    handleDeleteUser.userId = userId;
+  };
+
+  const confirmDelete = () => {
+    const userId = handleDeleteUser.userId;
+    deleteUserMutation.mutate(userId, {
+      onSuccess: () => {
+        showNotification('User Deleted', 'The user has been deleted successfully.', 'success');
+        onClose();
+      },
+      onError: (error) => {
+        showNotification('Delete Failed', `Failed to delete user: ${error.message}`, 'error');
+        onClose();
+      }
+    });
   };
 
   if (isLoading) return <Box>Loading users...</Box>;
@@ -94,6 +104,33 @@ const UserManagement = ({ showNotification, userRole }) => {
           </Tbody>
         </Table>
       )}
+
+      <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete User
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to delete this user? This action cannot be undone.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onClose}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={confirmDelete} ml={3}>
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Box>
   );
 };
