@@ -1,42 +1,39 @@
 import React from 'react';
 import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, Alert, AlertIcon } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getUsers, updateUser, deleteUser } from '../../server/db';
 import { useSupabaseAuth } from '../../integrations/supabase/auth';
 import { ROLES } from '../../constants/roles';
+import { useUsers, useUpdateUser, useDeleteUser } from '../../integrations/supabase/hooks/users';
 
 const UserManagement = ({ showNotification, userRole }) => {
   const queryClient = useQueryClient();
   const { session } = useSupabaseAuth();
+  const { data: users, isLoading, error } = useUsers();
 
-  const { data: users, isLoading, error } = useQuery({
-    queryKey: ['users'],
-    queryFn: getUsers,
-  });
-
-  const updateUserMutation = useMutation({
-    mutationFn: ({ id, userData }) => updateUser(id, userData),
-    onSuccess: () => {
-      queryClient.invalidateQueries('users');
-      showNotification('User Updated', 'The user has been updated successfully.', 'success');
-    },
-  });
-
-  const deleteUserMutation = useMutation({
-    mutationFn: deleteUser,
-    onSuccess: () => {
-      queryClient.invalidateQueries('users');
-      showNotification('User Deleted', 'The user has been deleted successfully.', 'success');
-    },
-  });
+  const updateUserMutation = useUpdateUser();
+  const deleteUserMutation = useDeleteUser();
 
   const handleRoleChange = (userId, newRole) => {
-    updateUserMutation.mutate({ id: userId, userData: { role: newRole } });
+    updateUserMutation.mutate({ id: userId, role: newRole }, {
+      onSuccess: () => {
+        showNotification('User Updated', 'The user role has been updated successfully.', 'success');
+      },
+      onError: (error) => {
+        showNotification('Update Failed', `Failed to update user role: ${error.message}`, 'error');
+      }
+    });
   };
 
   const handleDeleteUser = (userId) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
-      deleteUserMutation.mutate(userId);
+      deleteUserMutation.mutate(userId, {
+        onSuccess: () => {
+          showNotification('User Deleted', 'The user has been deleted successfully.', 'success');
+        },
+        onError: (error) => {
+          showNotification('Delete Failed', `Failed to delete user: ${error.message}`, 'error');
+        }
+      });
     }
   };
 

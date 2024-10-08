@@ -1,27 +1,19 @@
-import { createClient } from '@supabase/supabase-js';
-import config from './config/config.js';
-
-const supabase = createClient(config.supabaseUrl, config.supabaseKey);
+import supabase from '../config/supabaseClient.js';
 
 const handleSupabaseError = async (operation) => {
   const maxRetries = 3;
-  let retries = 0;
-
-  while (retries < maxRetries) {
+  for (let i = 0; i < maxRetries; i++) {
     try {
       return await operation();
     } catch (error) {
       console.error('Supabase error:', error);
-      retries++;
-      if (retries === maxRetries) {
-        throw new Error(`Failed after ${maxRetries} attempts: ${error.message}`);
-      }
-      await new Promise(resolve => setTimeout(resolve, 1000 * retries));
+      if (i === maxRetries - 1) throw new Error(`Failed after ${maxRetries} attempts: ${error.message}`);
+      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
     }
   }
 };
 
-const executeQuery = async (query) => handleSupabaseError(() => query());
+const executeQuery = (query) => handleSupabaseError(() => query());
 
 export const getUsers = () => executeQuery(() => supabase.from('users').select('id, email, role').order('email'));
 
@@ -29,7 +21,7 @@ export const updateUser = (id, userData) => executeQuery(() => supabase.from('us
 
 export const getBookings = (page = 1, limit = 50) => executeQuery(async () => {
   const startIndex = (page - 1) * limit;
-  const { data, count, error } = await supabase
+  const { data, count } = await supabase
     .from('bookings')
     .select(`
       id, created_at, status, total_cost, payment_status,
@@ -38,11 +30,6 @@ export const getBookings = (page = 1, limit = 50) => executeQuery(async () => {
     `, { count: 'exact' })
     .order('created_at', { ascending: false })
     .range(startIndex, startIndex + limit - 1);
-  
-  if (error) {
-    console.error('Error fetching bookings:', error);
-    throw error;
-  }
   
   return { data, count: count || 0, totalPages: Math.ceil((count || 0) / limit) };
 });
@@ -60,37 +47,22 @@ export const createAccount = async (email, password, userData) => {
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: {
-          full_name: userData.fullName,
-          phone_number: userData.phoneNumber,
-        },
-      },
+      options: { data: { full_name: userData.fullName, phone_number: userData.phoneNumber } },
     });
     if (authError) throw authError;
 
     if (authData.user) {
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .insert([{ ...userData, user_id: authData.user.id }])
-        .select();
+      const [profileData, userData] = await Promise.all([
+        supabase.from('profiles').insert([{ ...userData, user_id: authData.user.id }]).select(),
+        supabase.from('users').insert([{ id: authData.user.id, email: email, role: 'user' }]).select()
+      ]);
 
-      if (profileError) {
+      if (profileData.error || userData.error) {
         await supabase.auth.admin.deleteUser(authData.user.id);
-        throw profileError;
+        throw profileData.error || userData.error;
       }
 
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .insert([{ id: authData.user.id, email: email, role: 'user' }])
-        .select();
-
-      if (userError) {
-        await supabase.auth.admin.deleteUser(authData.user.id);
-        throw userError;
-      }
-
-      return { user: userData[0], profile: profileData[0] };
+      return { user: userData.data[0], profile: profileData.data[0] };
     }
   });
 };
@@ -100,52 +72,34 @@ export const login = async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
 
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', data.user.id)
-      .single();
+    const [userData, profileData] = await Promise.all([
+      supabase.from('users').select('*').eq('id', data.user.id).single(),
+      supabase.from('profiles').select('*').eq('user_id', data.user.id).single()
+    ]);
 
-    if (userError) throw userError;
+    if (userData.error) throw userData.error;
+    if (profileData.error) throw profileData.error;
 
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', data.user.id)
-      .single();
-
-    if (profileError) throw profileError;
-
-    return { session: data.session, user: userData, profile: profileData };
+    return { session: data.session, user: userData.data, profile: profileData.data };
   });
 };
 
-export const logout = () => {
-  return handleSupabaseError(() => supabase.auth.signOut());
-};
+export const logout = () => handleSupabaseError(() => supabase.auth.signOut());
 
 export const getCurrentUser = async () => {
   return handleSupabaseError(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
 
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', user.id)
-      .single();
+    const [userData, profileData] = await Promise.all([
+      supabase.from('users').select('*').eq('id', user.id).single(),
+      supabase.from('profiles').select('*').eq('user_id', user.id).single()
+    ]);
 
-    if (userError) throw userError;
+    if (userData.error) throw userData.error;
+    if (profileData.error) throw profileData.error;
 
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', user.id)
-      .single();
-
-    if (profileError) throw profileError;
-
-    return { user: userData, profile: profileData };
+    return { user: userData.data, profile: profileData.data };
   });
 };
 
