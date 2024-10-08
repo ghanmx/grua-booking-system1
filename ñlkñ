@@ -1,0 +1,154 @@
+[33mcommit 786846d553db4555819fefa20de8603697f39d1b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 7 01:35:19 2024 +0000
+
+    Fix authentication process
+    
+    Updated login and signup functionalities to ensure proper database updates on the server side. Adjustments made to the Supabase configuration are required for seamless integration.
+    [skip gpt_engineer]
+
+[33mcommit 0c097aa085007476e4ff5f1171453dd9ab23ccd1[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 7 01:31:50 2024 +0000
+
+    Fix signup account creation error
+    
+    Resolved an issue where users were unable to create an account on the signup page due to an error message indicating "Too many attempts. Please wait before trying again." This fix ensures that the signup process functions correctly without unnecessary restrictions.
+    [skip gpt_engineer]
+
+[33mcommit ee13f8a7fe3ffa0a4448d5bd5753ddc8467bef90[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 7 01:27:53 2024 +0000
+
+    Fix signup and user mapping errors
+    
+    Addressed issues related to signup failures due to excessive attempts and resolved a TypeError occurring when mapping over users in test mode. Ensured proper handling of user data to prevent runtime errors.
+    [skip gpt_engineer]
+
+[33mcommit 93a18c5add0c553d876fd458dffdbebccc16fd42[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 7 01:23:43 2024 +0000
+
+    Enhance authentication process
+    
+    Improved the authentication workflow, including login, user creation, and signup functionalities. Updated server-side database configurations and modified relevant files to reflect these changes.
+    [skip gpt_engineer]
+
+[33mcommit ab86624de0560fc1804490af9d0ca2b226bbd6ee[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 7 01:21:54 2024 +0000
+
+    Fix build error with express-rate-limit
+    
+    Updated the express-rate-limit package to resolve the build error related to the "isIP" import from the net module. This change ensures compatibility with the Vite build process.
+    [skip gpt_engineer]
+
+[33mcommit bcb6ed9f788ca46dfe417858bfc58463f0d1e0dd[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 7 01:20:58 2024 +0000
+
+    Fix signup and login error handling
+    
+    Updated error handling for signup and login processes to provide clearer feedback to users when requests fail due to security restrictions. Improved messaging for failed attempts to enhance user experience.
+    [skip gpt_engineer]
+
+[33mcommit 2ae1d7011ff0114fb297911d4d0b566e1c6ec8f2[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 7 01:12:36 2024 +0000
+
+    Fix TypeError in date handling
+    
+    Resolved a TypeError related to date handling where `d.getFullYear` was called on a non-date object. This change ensures that the date is properly formatted and handled throughout the application to prevent similar errors.
+    [skip gpt_engineer]
+
+[33mcommit 4d84fc279bf8807bb91500ddc8e1b16ff59818e3[m[33m ([m[1;31morigin/funcionañ[m[33m, [m[1;32mfuncionañ[m[33m)[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 7 01:10:02 2024 +0000
+
+    Fix booking form issues
+    
+    - Adjust the layout of the User Name field for better visibility.
+    - Ensure the "Request Tow Truck Service" button is selectable when the form is filled out.
+    - Resolve TypeError related to date handling that occurs when clicking the timer.
+    [skip gpt_engineer]
+
+[33mcommit 5fdc50f8f99659aa63106b2c39fdae8996c738a9[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 7 01:06:13 2024 +0000
+
+    Fix address autofill for markers
+    
+    Ensure that the Pickup and Drop Off Address fields in the form are automatically filled when markers are placed or changed on the map. Alternatively, consider removing these fields from the form if autofill is not implemented.
+    [skip gpt_engineer]
+
+[33mcommit 382f559803422636fa4a04e548f51afc686b9ce9[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 7 01:03:27 2024 +0000
+
+    Fix unsubscribe error in Supabase listener
+    
+    Updated the Supabase provider to ensure that the unsubscribe method is called correctly on the auth state change listener, preventing potential TypeErrors when the listener is not defined.
+    [skip gpt_engineer]
+
+[33mcommit 3623d020dbbfe8c27d44d6968148477bf3fb749e[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 7 01:02:51 2024 +0000
+
+    Fix WebSocket and route calculation errors
+    
+    Addressed issues with WebSocket connection failures and multiple GoTrueClient instances. Resolved TypeError related to setTotalCost function in MapRoute component to ensure proper route calculations.
+    [skip gpt_engineer]
+
+[33mcommit 3bc1b05c8c4ec2d0fcfb9cf7db1b2d83705b8146[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 7 00:58:01 2024 +0000
+
+    Fix map initialization error
+    
+    Addressed the issue causing the "Map container is already initialized" error when opening the BookingForm. Ensure proper handling of map initialization to prevent conflicts.
+    [skip gpt_engineer]
+
+[33mcommit 31533250634edc694b6d7a622cdcf8db576d7d50[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 7 00:54:54 2024 +0000
+
+    Fix data model issues
+    
+    - Addressed missing export in BookingFormFields component.
+    - Updated data models to ensure proper relationships between bookings, users, and services.
+    - Added appropriate indexes on frequently queried columns for improved performance.
+    - Resolved security issue with the update_updated_at function by setting an explicit search_path.
+    - Implemented data validation and constraints on relevant tables.
+    - Enhanced table and column descriptions for better documentation.
+    [skip gpt_engineer]
+
+[33mcommit ec05787f1211c2cc14f1b8906464e58bea7c3d2b[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 7 00:41:48 2024 +0000
+
+    Fix errors in BookingForm and AdminPanel
+    
+    Resolved TypeError in BookingForm when entering the page. Investigated and fixed issues causing the AdminPanel to not display database information correctly.
+    [skip gpt_engineer]
+
+[33mcommit 39125ac74f3cdf8d030a8ed83176bc3c1a3371df[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 7 00:39:05 2024 +0000
+
+    Enhance validation and responsiveness
+    
+    - Implement client-side and server-side validation for forms in BookingForm and other input components.
+    - Ensure all components are fully responsive across different screen sizes and test layouts for mobile devices.
+    - Conduct an accessibility audit, adding proper ARIA labels and roles, and ensure keyboard navigation works correctly.
+    - Optimize performance through code splitting, lazy loading for images, and review of database queries for better efficiency.
+    [skip gpt_engineer]
+
+[33mcommit b38b2b090b22cdd5d11282766d0c4344ea3576cc[m
+Author: gpt-engineer-app[bot] <159125892+gpt-engineer-app[bot]@users.noreply.github.com>
+Date:   Mon Oct 7 00:37:30 2024 +0000
+
+    Enhance form validation and responsiveness
+    
+    - Implement client-side and server-side validation in BookingForm and input components to ensure data integrity.
+    - Ensure all components are fully responsive across various screen sizes and optimize layouts for mobile devices.
+    - Conduct an accessibility audit, adding ARIA labels and roles, and en
