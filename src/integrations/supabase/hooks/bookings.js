@@ -10,22 +10,22 @@ const fromSupabase = async (query) => {
 /*
 ### bookings
 
-| name              | type                     | format    | required |
-|-------------------|--------------------------|-----------|----------|
-| id                | uuid                     | string    | true     |
-| user_id           | uuid                     | string    | true     |
-| service_id        | uuid                     | string    | true     |
-| status            | public.booking_status    | string    | true     |
-| payment_status    | public.payment_status    | string    | true     |
-| pickup_location   | text                     | string    | true     |
-| dropoff_location  | text                     | string    | true     |
-| vehicle_details   | jsonb                    | object    | true     |
-| distance          | numeric                  | number    | true     |
-| total_cost        | numeric                  | number    | true     |
-| pickup_datetime   | timestamp with time zone | string    | true     |
-| additional_details| text                     | string    | false    |
-| created_at        | timestamp with time zone | string    | true     |
-| updated_at        | timestamp with time zone | string    | true     |
+| name               | type                     | format | required |
+|--------------------|--------------------------|--------|----------|
+| id                 | uuid                     | string | true     |
+| user_id            | uuid                     | string | true     |
+| service_id         | uuid                     | string | true     |
+| status             | public.booking_status    | string | true     |
+| payment_status     | public.payment_status    | string | true     |
+| pickup_location    | text                     | string | true     |
+| dropoff_location   | text                     | string | true     |
+| vehicle_details    | jsonb                    | object | true     |
+| distance           | numeric                  | number | true     |
+| total_cost         | numeric                  | number | true     |
+| pickup_datetime    | timestamp with time zone | string | true     |
+| additional_details | text                     | string | false    |
+| created_at         | timestamp with time zone | string | true     |
+| updated_at         | timestamp with time zone | string | true     |
 
 Foreign Key Relationships:
 - user_id references users.id

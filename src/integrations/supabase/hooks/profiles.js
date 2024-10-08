@@ -10,14 +10,13 @@ const fromSupabase = async (query) => {
 /*
 ### profiles
 
-| name         | type                     | format    | required |
-|--------------|--------------------------|-----------|----------|
-| id           | uuid                     | string    | true     |
-| user_id      | uuid                     | string    | true     |
-| full_name    | text                     | string    | true     |
-| phone_number | text                     | string    | false    |
-| created_at   | timestamp with time zone | string    | true     |
-| updated_at   | timestamp with time zone | string    | true     |
+| name         | type                     | format | required |
+|--------------|--------------------------|--------|----------|
+| id           | uuid                     | string | true     |
+| user_id      | uuid                     | string | true     |
+| full_name    | text                     | string | true     |
+| phone_number | text                     | string | false    |
+| created_at   | timestamp with time zone | string | true     |
 
 Foreign Key Relationships:
 - user_id references users.id

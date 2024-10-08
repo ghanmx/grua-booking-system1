@@ -10,14 +10,14 @@ const fromSupabase = async (query) => {
 /*
 ### users
 
-| name               | type                     | format    | required |
-|--------------------|--------------------------|-----------|----------|
-| id                 | uuid                     | string    | true     |
-| email              | text                     | string    | true     |
-| encrypted_password | text                     | string    | true     |
-| role               | public.user_role         | string    | true     |
-| created_at         | timestamp with time zone | string    | true     |
-| updated_at         | timestamp with time zone | string    | true     |
+| name               | type                     | format | required |
+|--------------------|--------------------------|--------|----------|
+| id                 | uuid                     | string | true     |
+| email              | text                     | string | true     |
+| encrypted_password | text                     | string | true     |
+| role               | public.user_role         | string | true     |
+| created_at         | timestamp with time zone | string | true     |
+| updated_at         | timestamp with time zone | string | true     |
 */
 
 export const useUser = (id) => useQuery({

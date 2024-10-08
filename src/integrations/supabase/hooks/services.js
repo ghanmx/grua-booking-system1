@@ -10,17 +10,17 @@ const fromSupabase = async (query) => {
 /*
 ### services
 
-| name            | type                     | format    | required |
-|-----------------|--------------------------|-----------|----------|
-| id              | uuid                     | string    | true     |
-| name            | text                     | string    | true     |
-| description     | text                     | string    | false    |
-| base_price      | numeric                  | number    | true     |
-| price_per_km    | numeric                  | number    | true     |
-| maneuver_charge | numeric                  | number    | true     |
-| tow_truck_type  | public.tow_truck_type    | string    | true     |
-| created_at      | timestamp with time zone | string    | true     |
-| updated_at      | timestamp with time zone | string    | true     |
+| name            | type                     | format | required |
+|-----------------|--------------------------|--------|----------|
+| id              | uuid                     | string | true     |
+| name            | text                     | string | true     |
+| description     | text                     | string | false    |
+| base_price      | numeric                  | number | true     |
+| price_per_km    | numeric                  | number | true     |
+| maneuver_charge | numeric                  | number | true     |
+| tow_truck_type  | public.tow_truck_type    | string | true     |
+| created_at      | timestamp with time zone | string | true     |
+| updated_at      | timestamp with time zone | string | true     |
 */
 
 export const useService = (id) => useQuery({
