@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useNavigate } from 'react-router-dom';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 import { useBookingForm } from '../../hooks/useBookingForm';
 import { usePaymentProcessing } from '../../hooks/usePaymentProcessing';
 import { BookingFormFields } from './BookingFormFields';
@@ -11,6 +13,8 @@ import { BookingFormSummary } from './BookingFormSummary';
 
 const BookingFormStepper = lazy(() => import('./BookingFormStepper'));
 const PaymentWindow = lazy(() => import('./PaymentWindow'));
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const schema = yup.object().shape({
   userName: yup.string().required('Name is required').min(2, 'Name must be at least 2 characters'),
@@ -149,12 +153,14 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
         </form>
       </VStack>
       <Suspense fallback={<Spinner aria-label="Loading payment window" />}>
-        <PaymentWindow
-          isOpen={isPaymentWindowOpen}
-          onClose={() => setIsPaymentWindowOpen(false)}
-          onPaymentSubmit={handlePaymentSubmit}
-          totalCost={totalCost}
-        />
+        <Elements stripe={stripePromise}>
+          <PaymentWindow
+            isOpen={isPaymentWindowOpen}
+            onClose={() => setIsPaymentWindowOpen(false)}
+            onPaymentSubmit={handlePaymentSubmit}
+            totalCost={totalCost}
+          />
+        </Elements>
       </Suspense>
     </Box>
   );

@@ -50,6 +50,13 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
 
       if (paymentResult.success) {
         await onPaymentSubmit({ success: true, paymentMethodId: paymentMethod.id });
+        toast({
+          title: "Payment Successful",
+          description: "Your payment has been processed successfully.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
         onClose();
       } else {
         throw new Error(paymentResult.error || 'Payment processing failed');
@@ -57,6 +64,13 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
     } catch (err) {
       console.error('Error processing payment:', err);
       setError(err.message || 'An unexpected error occurred');
+      toast({
+        title: "Payment Error",
+        description: err.message || "There was an error processing your payment. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
       await onPaymentSubmit({ success: false, error: err.message });
     } finally {
       setIsProcessing(false);
