@@ -95,7 +95,6 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
   const handlePaymentSubmit = async (paymentResult) => {
     try {
       if (paymentResult.success) {
-        // Update the booking with payment information
         await handleBookingProcess({ ...formData, paymentMethodId: paymentResult.paymentMethodId, paymentStatus: 'paid' });
         setIsPaymentWindowOpen(false);
         toast({
@@ -121,7 +120,6 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     }
   };
 
-  // Update form when addresses change
   React.useEffect(() => {
     setValue('pickupAddress', formData.pickupAddress);
     setValue('dropOffAddress', formData.dropOffAddress);
