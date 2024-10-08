@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Container, Heading, VStack, Button, FormControl, FormLabel, Input, useToast, Tabs, TabList, Tab, TabPanels, TabPanel } from '@chakra-ui/react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { supabase } from '../integrations/supabase/supabase'; // Import the Supabase client
 
 const AuthForm = ({ isLogin, onSubmit, isLoading }) => (
   <form onSubmit={onSubmit}>
