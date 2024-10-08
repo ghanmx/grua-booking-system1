@@ -14,7 +14,6 @@ const AdminPanel = () => {
   const [hasAdminAccess, setHasAdminAccess] = useState(false);
   const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
 
   useEffect(() => {
     const checkAdminAccess = async () => {
@@ -23,7 +22,6 @@ const AdminPanel = () => {
         try {
           const adminStatus = await isAdmin(session.user.id);
           const superAdminStatus = await isSuperAdmin(session.user.id);
-          console.log('Admin status:', adminStatus, 'Super admin status:', superAdminStatus);
           setHasAdminAccess(adminStatus || superAdminStatus);
           setIsSuperAdminUser(superAdminStatus);
         } catch (error) {
@@ -46,7 +44,7 @@ const AdminPanel = () => {
     return <Box p={4}><Heading as="h2" size="lg">Loading...</Heading></Box>;
   }
 
-  if (!hasAdminAccess && !testModeUser?.isAdmin) {
+  if (!hasAdminAccess) {
     return <Box p={4}><Heading as="h2" size="lg">You do not have admin privileges.</Heading></Box>;
   }
 

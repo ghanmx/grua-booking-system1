@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, Alert, AlertIcon } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUsers, updateUser, deleteUser } from '../../server/db';
@@ -8,21 +8,11 @@ import { ROLES } from '../../constants/roles';
 const UserManagement = ({ showNotification, userRole }) => {
   const queryClient = useQueryClient();
   const { session } = useSupabaseAuth();
-  const [users, setUsers] = useState([]);
 
-  const { data: usersData, isLoading, error } = useQuery({
+  const { data: users, isLoading, error } = useQuery({
     queryKey: ['users'],
     queryFn: getUsers,
   });
-
-  useEffect(() => {
-    if (usersData && Array.isArray(usersData)) {
-      setUsers(usersData);
-    } else if (usersData) {
-      console.error('Users data is not an array:', usersData);
-      showNotification('Error', 'Invalid user data format', 'error');
-    }
-  }, [usersData, showNotification]);
 
   const updateUserMutation = useMutation({
     mutationFn: ({ id, userData }) => updateUser(id, userData),
