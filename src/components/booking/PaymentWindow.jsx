@@ -100,7 +100,7 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
             onClick={handleSubmit} 
             isLoading={isProcessing} 
             loadingText="Processing Payment"
-            disabled={isProcessing}
+            disabled={isProcessing || !stripe}
             aria-label="Process payment"
           >
             Process Payment
