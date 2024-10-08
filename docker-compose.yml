@@ -11,6 +11,8 @@ services:
     ports:
       - "8080:8080"
     command: "sh run.sh"
+    networks:
+      - backend
 
   notifications:
     build:
@@ -18,10 +20,13 @@ services:
       dockerfile: Dockerfile
     environment:
       - NODE_ENV=development
+      - REDIS_URL=redis://redis:6379
     ports:
       - "3000:3000"
     depends_on:
       - redis
+    networks:
+      - backend
 
   smtp:
     image: namshi/smtp
@@ -32,8 +37,16 @@ services:
       - RELAY_PASSWORD=your_password
     ports:
       - "25:25"
+    networks:
+      - backend
 
   redis:
     image: "redis:alpine"
     ports:
       - "6379:6379"
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

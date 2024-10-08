@@ -1,6 +1,8 @@
 import React from 'react';
 import { FormControl, FormLabel, Input, Select } from "@chakra-ui/react";
 import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { Controller } from "react-hook-form";
 
 export const BookingFormFields = ({
   register,
@@ -89,17 +91,30 @@ export const BookingFormFields = ({
           placeholder="Drop-off Address"
         />
       </FormControl>
+      
       <FormControl isInvalid={errors.pickupDateTime}>
         <FormLabel htmlFor="pickupDateTime">Pickup Date & Time</FormLabel>
-        <DatePicker
-          id="pickupDateTime"
-          selected={formData.pickupDateTime}
-          onChange={handleDateTimeChange}
-          showTimeSelect
-          dateFormat="Pp"
-          placeholderText="Select Date and Time"
+        <Controller
+          control={control}
+          name="pickupDateTime"
+          render={({ field }) => (
+            <DatePicker
+              id="pickupDateTime"
+              selected={field.value}
+              onChange={(date) => {
+                field.onChange(date);
+                handleDateTimeChange(date);
+              }}
+              showTimeSelect
+              dateFormat="Pp"
+              placeholderText="Select Date and Time"
+              customInput={<Input />}
+            />
+          )}
         />
       </FormControl>
+      
+      {/* ... keep existing code for other form fields */}
     </>
   );
 };
