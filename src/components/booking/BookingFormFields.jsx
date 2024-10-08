@@ -38,7 +38,7 @@ export const BookingFormFields = ({
           placeholder="Select Vehicle Brand"
           onChange={handleChange}
         >
-          {vehicleBrands.map((brand) => (
+          {Array.isArray(vehicleBrands) && vehicleBrands.map((brand) => (
             <option key={brand} value={brand}>{brand}</option>
           ))}
         </Select>
@@ -51,7 +51,7 @@ export const BookingFormFields = ({
           placeholder="Select Vehicle Model"
           onChange={handleChange}
         >
-          {vehicleModels.map((model) => (
+          {Array.isArray(vehicleModels) && vehicleModels.map((model) => (
             <option key={model} value={model}>{model}</option>
           ))}
         </Select>
