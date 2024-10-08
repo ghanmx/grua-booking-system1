@@ -57,7 +57,23 @@ const Login = () => {
 
     try {
       if (isLogin) {
-        await login(email, password);
+        const { user, error } = await login(email, password);
+        if (error) throw error;
+        
+        // Fetch user role after successful login
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        
+        if (userError) throw userError;
+        
+        // Update the session with the user's role
+        await supabase.auth.updateUser({
+          data: { role: userData.role }
+        });
+
         toast({
           title: "Login successful",
           status: "success",

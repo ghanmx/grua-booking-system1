@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, VStack, Heading, Tabs, TabList, TabPanels, Tab, TabPanel, useToast } from "@chakra-ui/react";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { isAdmin, isSuperAdmin } from '../utils/adminUtils';
 import UserManagement from '../components/admin/UserManagement';
 import ServiceManagement from '../components/admin/ServiceManagement';
 import BookingManagement from '../components/admin/BookingManagement';
@@ -10,9 +11,21 @@ import SMTPSettingsForm from '../components/admin/SMTPSettingsForm';
 const AdminPanel = () => {
   const { session } = useSupabaseAuth();
   const toast = useToast();
+  const [hasAdminAccess, setHasAdminAccess] = useState(false);
   const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
 
-  if (!session && !testModeUser?.isAdmin) {
+  useEffect(() => {
+    const checkAdminAccess = async () => {
+      if (session?.user?.id) {
+        const adminStatus = await isAdmin(session.user.id);
+        const superAdminStatus = await isSuperAdmin(session.user.id);
+        setHasAdminAccess(adminStatus || superAdminStatus);
+      }
+    };
+    checkAdminAccess();
+  }, [session]);
+
+  if (!hasAdminAccess && !testModeUser?.isAdmin) {
     return <Box p={4}><Heading as="h2" size="lg">You do not have admin privileges.</Heading></Box>;
   }
 
