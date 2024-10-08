@@ -12,6 +12,7 @@ const AdminPanel = () => {
   const { session } = useSupabaseAuth();
   const toast = useToast();
   const [hasAdminAccess, setHasAdminAccess] = useState(false);
+  const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
 
@@ -24,6 +25,7 @@ const AdminPanel = () => {
           const superAdminStatus = await isSuperAdmin(session.user.id);
           console.log('Admin status:', adminStatus, 'Super admin status:', superAdminStatus);
           setHasAdminAccess(adminStatus || superAdminStatus);
+          setIsSuperAdminUser(superAdminStatus);
         } catch (error) {
           console.error('Error checking admin status:', error);
           toast({
@@ -55,14 +57,14 @@ const AdminPanel = () => {
   return (
     <Box p={4}>
       <VStack spacing={8} align="stretch">
-        <Heading as="h1" size="xl">Admin Panel</Heading>
+        <Heading as="h1" size="xl">Admin Panel {isSuperAdminUser ? '(Super Admin)' : ''}</Heading>
         <Tabs isFitted variant="enclosed">
           <TabList mb="1em">
             <Tab>Analytics Dashboard</Tab>
             <Tab>Booking Management</Tab>
             <Tab>Service Management</Tab>
             <Tab>User Management</Tab>
-            <Tab>SMTP Settings</Tab>
+            {isSuperAdminUser && <Tab>SMTP Settings</Tab>}
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -75,11 +77,13 @@ const AdminPanel = () => {
               <ServiceManagement showNotification={showNotification} />
             </TabPanel>
             <TabPanel>
-              <UserManagement showNotification={showNotification} />
+              <UserManagement showNotification={showNotification} userRole={isSuperAdminUser ? 'super_admin' : 'admin'} />
             </TabPanel>
-            <TabPanel>
-              <SMTPSettingsForm />
-            </TabPanel>
+            {isSuperAdminUser && (
+              <TabPanel>
+                <SMTPSettingsForm />
+              </TabPanel>
+            )}
           </TabPanels>
         </Tabs>
       </VStack>
