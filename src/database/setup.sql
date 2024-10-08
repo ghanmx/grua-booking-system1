@@ -9,6 +9,13 @@ CREATE TYPE payment_status AS ENUM('pending', 'paid', 'failed', 'refunded');
 CREATE TYPE vehicle_size AS ENUM('small', 'medium', 'large');
 CREATE TYPE tow_truck_type AS ENUM('flatbed', 'wheel_lift', 'integrated', 'heavy_duty');
 
+-- Drop existing tables and their dependencies
+DROP TABLE IF EXISTS public.bookings CASCADE;
+DROP TABLE IF EXISTS public.profiles CASCADE;
+DROP TABLE IF EXISTS public.services CASCADE;
+DROP TABLE IF EXISTS public.smtp_settings CASCADE;
+DROP TABLE IF EXISTS public.users CASCADE;
+
 -- Create tables
 CREATE TABLE IF NOT EXISTS public.users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -78,6 +85,20 @@ COMMENT ON COLUMN public.bookings.user_id IS 'Reference to the user who made the
 COMMENT ON COLUMN public.bookings.service_id IS 'Reference to the service requested';
 COMMENT ON COLUMN public.bookings.vehicle_details IS 'JSON object containing vehicle information';
 
+CREATE TABLE IF NOT EXISTS public.smtp_settings (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  host TEXT NOT NULL,
+  port INTEGER NOT NULL,
+  username TEXT NOT NULL,
+  password TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE public.smtp_settings IS 'Stores SMTP settings for email notifications';
+COMMENT ON COLUMN public.smtp_settings.user_id IS 'Reference to the user who owns these SMTP settings';
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
 CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON public.bookings(user_id);
@@ -130,3 +151,4 @@ VALUES (
   '{"brand": "Toyota", "model": "Corolla", "year": 2020, "color": "Silver", "license_plate": "ABC123", "size": "medium"}'::jsonb,
   15.5, 81.00, NOW() + INTERVAL '2 hours'
 );
+

@@ -5,7 +5,64 @@ ALTER TABLE public.services DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.smtp_settings DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.users DISABLE ROW LEVEL SECURITY;
 
--- Bookings table policies
+-- Drop existing policies
+DROP POLICY IF EXISTS "Admins can delete any booking" ON public.bookings;
+DROP POLICY IF EXISTS "Admins can update any booking" ON public.bookings;
+DROP POLICY IF EXISTS "booking_admin_delete" ON public.bookings;
+DROP POLICY IF EXISTS "booking_admin_update" ON public.bookings;
+DROP POLICY IF EXISTS "booking_user_delete_cancelled" ON public.bookings;
+DROP POLICY IF EXISTS "booking_user_delete_own" ON public.bookings;
+DROP POLICY IF EXISTS "booking_user_insert_own" ON public.bookings;
+DROP POLICY IF EXISTS "booking_user_insert_pending" ON public.bookings;
+DROP POLICY IF EXISTS "booking_user_select_confirmed" ON public.bookings;
+DROP POLICY IF EXISTS "booking_user_select_own" ON public.bookings;
+DROP POLICY IF EXISTS "booking_user_update_completed" ON public.bookings;
+DROP POLICY IF EXISTS "booking_user_update_own" ON public.bookings;
+DROP POLICY IF EXISTS "Users can create pending bookings" ON public.bookings;
+DROP POLICY IF EXISTS "Users can create their own bookings" ON public.bookings;
+DROP POLICY IF EXISTS "Users can delete their own bookings" ON public.bookings;
+DROP POLICY IF EXISTS "Users can delete their own cancelled bookings" ON public.bookings;
+DROP POLICY IF EXISTS "Users can update their own bookings" ON public.bookings;
+DROP POLICY IF EXISTS "Users can update their own bookings to completed" ON public.bookings;
+DROP POLICY IF EXISTS "Users can view confirmed bookings" ON public.bookings;
+DROP POLICY IF EXISTS "Users can view their own bookings" ON public.bookings;
+
+DROP POLICY IF EXISTS "Authenticated users can delete their own profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Authenticated users can insert profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Authenticated users can update their own profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Authenticated users can view profiles" ON public.profiles;
+DROP POLICY IF EXISTS "profile_access_all" ON public.profiles;
+DROP POLICY IF EXISTS "user_access_policy" ON public.profiles;
+
+DROP POLICY IF EXISTS "Admins and super admins can manage services" ON public.services;
+DROP POLICY IF EXISTS "Anyone can view services" ON public.services;
+DROP POLICY IF EXISTS "service_select_all" ON public.services;
+DROP POLICY IF EXISTS "service_update_manage" ON public.services;
+
+DROP POLICY IF EXISTS "Admins can manage all SMTP settings" ON public.smtp_settings;
+DROP POLICY IF EXISTS "Authenticated users can view SMTP settings" ON public.smtp_settings;
+DROP POLICY IF EXISTS "smtp_admin_manage" ON public.smtp_settings;
+DROP POLICY IF EXISTS "smtp_user_manage_own" ON public.smtp_settings;
+DROP POLICY IF EXISTS "smtp_user_view" ON public.smtp_settings;
+DROP POLICY IF EXISTS "Users can manage their own SMTP settings" ON public.smtp_settings;
+
+DROP POLICY IF EXISTS "Admins can delete any user data" ON public.users;
+DROP POLICY IF EXISTS "Admins can view all user data" ON public.users;
+DROP POLICY IF EXISTS "Super admins can insert new data" ON public.users;
+DROP POLICY IF EXISTS "Super admins can manage all user data" ON public.users;
+DROP POLICY IF EXISTS "user_admin_delete" ON public.users;
+DROP POLICY IF EXISTS "user_admin_view" ON public.users;
+DROP POLICY IF EXISTS "user_own_delete" ON public.users;
+DROP POLICY IF EXISTS "user_own_insert" ON public.users;
+DROP POLICY IF EXISTS "user_own_update" ON public.users;
+DROP POLICY IF EXISTS "user_own_view" ON public.users;
+DROP POLICY IF EXISTS "user_superadmin_insert" ON public.users;
+DROP POLICY IF EXISTS "user_superadmin_manage" ON public.users;
+DROP POLICY IF EXISTS "Users can delete their own data" ON public.users;
+DROP POLICY IF EXISTS "Users can insert new data" ON public.users;
+DROP POLICY IF EXISTS "Users can update their own data" ON public.users;
+DROP POLICY IF EXISTS "Users can view their own data" ON public.users;
+
 CREATE POLICY "Admins can delete any booking" ON public.bookings
     FOR DELETE TO authenticated USING (auth.jwt() ->> 'role' = 'admin');
 
