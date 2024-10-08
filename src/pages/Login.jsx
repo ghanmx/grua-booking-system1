@@ -2,28 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Container, Heading, VStack, Button, FormControl, FormLabel, Input, useToast, Tabs, TabList, Tab, TabPanels, TabPanel } from '@chakra-ui/react';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { supabase } from '../integrations/supabase/supabase'; // Import the Supabase client
+import { supabase } from '../integrations/supabase/supabase';
 
 const AuthForm = ({ isLogin, onSubmit, isLoading }) => (
   <form onSubmit={onSubmit}>
     <VStack spacing={4}>
       <FormControl>
         <FormLabel>Email</FormLabel>
-        <Input type="email" name="email" required />
+        <Input type="email" name="email" required autoComplete="username" />
       </FormControl>
       <FormControl>
         <FormLabel>Password</FormLabel>
-        <Input type="password" name="password" required />
+        <Input 
+          type="password" 
+          name="password" 
+          required 
+          autoComplete={isLogin ? "current-password" : "new-password"} 
+        />
       </FormControl>
       {!isLogin && (
         <>
           <FormControl>
             <FormLabel>Full Name</FormLabel>
-            <Input type="text" name="fullName" required />
+            <Input type="text" name="fullName" required autoComplete="name" />
           </FormControl>
           <FormControl>
             <FormLabel>Phone Number</FormLabel>
-            <Input type="tel" name="phoneNumber" required />
+            <Input type="tel" name="phoneNumber" required autoComplete="tel" />
           </FormControl>
         </>
       )}

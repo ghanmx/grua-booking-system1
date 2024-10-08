@@ -1,5 +1,5 @@
 import { supabase } from './supabase.js';
-import { SupabaseAuthProvider, useSupabaseAuth, SupabaseAuthUI } from './auth.jsx';
+import { SupabaseAuthProvider, useSupabaseAuth } from './auth.jsx';
 import { SupabaseProvider, useSupabase } from './SupabaseProvider.jsx';
 
 // Import hooks
@@ -48,7 +48,6 @@ export {
   SupabaseProvider,
   SupabaseAuthProvider,
   useSupabaseAuth,
-  SupabaseAuthUI,
   useSupabase,
   useProfile,
   useProfiles,
