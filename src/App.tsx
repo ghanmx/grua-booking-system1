@@ -11,6 +11,7 @@ import AdminPanel from './pages/AdminPanel';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Login from './pages/Login';
 import ErrorBoundary from './components/ErrorBoundary';
+import BookingForm from './pages/BookingForm'; // Import the BookingForm component
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => {
                   <Route path="/about" element={<About />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/login" element={<Login />} />
+                  <Route path="/booking" element={<BookingForm />} /> {/* Add this line */}
                   <Route 
                     path="/admin" 
                     element={
