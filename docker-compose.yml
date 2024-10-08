@@ -1,4 +1,4 @@
-version: "2"
+version: "3.8"
 services:
   node:
     image: "node:current"
@@ -11,3 +11,29 @@ services:
     ports:
       - "8080:8080"
     command: "sh run.sh"
+
+  notifications:
+    build:
+      context: ./notifications
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+
+  smtp:
+    image: namshi/smtp
+    environment:
+      - RELAY_HOST=smtp.example.com
+      - RELAY_PORT=587
+      - RELAY_USERNAME=your_username
+      - RELAY_PASSWORD=your_password
+    ports:
+      - "25:25"
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
