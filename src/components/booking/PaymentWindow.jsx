@@ -26,9 +26,10 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsProcessing(true);
+    setError('');
 
     if (!stripe || !elements) {
-      setError('Stripe no se ha cargado. Por favor, intente más tarde.');
+      setError('Stripe has not loaded. Please try again later.');
       setIsProcessing(false);
       return;
     }
@@ -48,38 +49,25 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
       const paymentResult = await processPayment(totalCost, paymentMethod.id);
 
       if (paymentResult.success) {
-        await onPaymentSubmit(paymentMethod);
-        toast({
-          title: 'Pago exitoso',
-          description: 'Su pago ha sido procesado correctamente.',
-          status: 'success',
-          duration: 5000,
-          isClosable: true,
-        });
+        await onPaymentSubmit({ success: true, paymentMethodId: paymentMethod.id });
       } else {
-        throw new Error(paymentResult.error || 'Error al procesar el pago');
+        throw new Error(paymentResult.error || 'Payment processing failed');
       }
     } catch (err) {
-      console.error('Error al procesar el pago:', err);
-      setError(err.message || 'Ocurrió un error inesperado');
-      toast({
-        title: 'Error de Pago',
-        description: err.message || 'Ocurrió un error inesperado durante el procesamiento del pago.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+      console.error('Error processing payment:', err);
+      setError(err.message || 'An unexpected error occurred');
+      await onPaymentSubmit({ success: false, error: err.message });
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false}>
       <ModalOverlay />
       <ModalContent aria-label="Payment information form">
-        <ModalHeader>Información de Pago</ModalHeader>
-        <ModalCloseButton />
+        <ModalHeader>Payment Information</ModalHeader>
+        {!isProcessing && <ModalCloseButton />}
         <ModalBody>
           <VStack spacing={4}>
             <Box width="100%">
@@ -101,15 +89,25 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
                 aria-label="Credit card input field"
               />
             </Box>
-            <Text fontWeight="bold">Costo Total: ${totalCost.toFixed(2)}</Text>
+            <Text fontWeight="bold">Total Cost: ${totalCost.toFixed(2)}</Text>
             {error && <Text color="red.500" role="alert">{error}</Text>}
           </VStack>
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={handleSubmit} isLoading={isProcessing} aria-label="Process payment">
-            Procesar Pago
+          <Button 
+            colorScheme="blue" 
+            mr={3} 
+            onClick={handleSubmit} 
+            isLoading={isProcessing} 
+            loadingText="Processing Payment"
+            disabled={isProcessing}
+            aria-label="Process payment"
+          >
+            Process Payment
           </Button>
-          <Button variant="ghost" onClick={onClose} aria-label="Cancel payment">Cancelar</Button>
+          {!isProcessing && (
+            <Button variant="ghost" onClick={onClose} aria-label="Cancel payment">Cancel</Button>
+          )}
         </ModalFooter>
       </ModalContent>
     </Modal>

@@ -6,6 +6,7 @@ import * as yup from 'yup';
 import { renderField, fieldNames } from './BookingFormFields';
 import { getVehicleSize, getTowTruckType } from '../../utils/towTruckSelection';
 import { useBookingForm } from '../../hooks/useBookingForm';
+import { useNavigate } from 'react-router-dom';
 
 const BookingFormStepper = lazy(() => import('./BookingFormStepper'));
 const BookingFormFields = lazy(() => import('./BookingFormFields'));
@@ -25,6 +26,7 @@ const schema = yup.object().shape({
 
 const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
   const [isMobile] = useMediaQuery("(max-width: 48em)");
+  const navigate = useNavigate();
   const {
     formData,
     setFormData,
@@ -65,8 +67,9 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
   const onSubmit = async (data) => {
     if (isValid) {
       try {
-        await handleBookingProcess({ ...data, serviceType: selectedTowTruckType });
+        const bookingData = await handleBookingProcess({ ...data, serviceType: selectedTowTruckType });
         setIsPaymentWindowOpen(true);
+        setFormData(prevData => ({ ...prevData, ...bookingData }));
       } catch (error) {
         console.error('Error processing booking:', error);
         toast({
@@ -88,22 +91,28 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     }
   };
 
-  const handlePaymentSubmit = async (paymentMethod) => {
+  const handlePaymentSubmit = async (paymentResult) => {
     try {
-      await handleBookingProcess({ ...formData, paymentMethodId: paymentMethod.id });
-      setIsPaymentWindowOpen(false);
-      toast({
-        title: "Booking Successful",
-        description: "Your booking has been processed successfully.",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
+      if (paymentResult.success) {
+        // Update the booking with payment information
+        await handleBookingProcess({ ...formData, paymentMethodId: paymentResult.paymentMethodId, paymentStatus: 'paid' });
+        setIsPaymentWindowOpen(false);
+        toast({
+          title: "Booking Successful",
+          description: "Your booking has been processed and payment confirmed.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        navigate('/confirmation', { state: { bookingData: formData } });
+      } else {
+        throw new Error(paymentResult.error || 'Payment processing failed');
+      }
     } catch (error) {
       console.error('Error finalizing booking:', error);
       toast({
-        title: "Error",
-        description: "There was an error finalizing your booking. Please contact support.",
+        title: "Payment Error",
+        description: error.message || "There was an error processing your payment. Please try again.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -180,15 +189,16 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
         </form>
       </VStack>
       <Suspense fallback={<Spinner aria-label="Loading payment window" />}>
-        <PaymentWindow
-          isOpen={isPaymentWindowOpen}
-          onClose={() => setIsPaymentWindowOpen(false)}
-          onPaymentSubmit={handlePaymentSubmit}
-          totalCost={totalCost}
-        />
-      </Suspense>
-    </Box>
-  );
-});
-
-export default BookingForm;
+          <Suspense fallback={<Spinner aria-label="Loading payment window" />}>
+            <PaymentWindow
+              isOpen={isPaymentWindowOpen}
+              onClose={() => setIsPaymentWindowOpen(false)}
+              onPaymentSubmit={handlePaymentSubmit}
+              totalCost={totalCost}
+            />
+          </Suspense>
+        </Box>
+      );
+    });
+    
+    export default BookingForm;
