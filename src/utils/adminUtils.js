@@ -8,7 +8,13 @@ const getRoleFromDatabase = async (userId) => {
       .eq('id', userId)
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === 'PGRST116') {
+        console.warn(`No user found with id: ${userId}`);
+        return null;
+      }
+      throw error;
+    }
     return data?.role;
   } catch (error) {
     console.error('Error fetching user role:', error);
