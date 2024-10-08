@@ -1,7 +1,7 @@
 // Import all the relevant exports from other files in the supabase directory
 import { supabase } from './supabase.js';
 import { SupabaseAuthProvider, useSupabaseAuth, SupabaseAuthUI } from './auth.jsx';
-import { SupabaseProvider } from './SupabaseProvider.jsx';
+import { SupabaseProvider, useSupabase } from './SupabaseProvider.jsx';
 
 // Import hooks
 import {
@@ -51,6 +51,7 @@ export {
   SupabaseAuthProvider,
   useSupabaseAuth,
   SupabaseAuthUI,
+  useSupabase,  // Add this line to export useSupabase
   useProfile,
   useProfiles,
   useAddProfile,
