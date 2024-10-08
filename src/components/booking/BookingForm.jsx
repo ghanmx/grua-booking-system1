@@ -1,5 +1,5 @@
 import React, { useMemo, lazy, Suspense } from 'react';
-import { Box, VStack, Heading, Text, Button, useToast, Spinner, useMediaQuery } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, Button, useToast, Spinner, useMediaQuery, Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -107,6 +107,33 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     return <Box p={4}><Text color="red.500">Error loading map. Please refresh the page or contact support.</Text></Box>;
   }
 
+  const renderForm = () => (
+    <form onSubmit={handleSubmit(onSubmit)} aria-label="Tow truck service booking form">
+      <BookingFormFields
+        register={register}
+        errors={errors}
+        control={control}
+        formData={formData}
+        handleChange={handleChange}
+        handleDateTimeChange={handleDateTimeChange}
+        vehicleBrands={vehicleBrands}
+        vehicleModels={vehicleModels}
+      />
+      <BookingFormSummary distance={distance} totalCost={totalCost} />
+      <Button 
+        colorScheme="blue" 
+        type="submit" 
+        mt={4} 
+        isLoading={isLoading} 
+        isDisabled={!isValid || isLoading}
+        width="100%"
+        aria-label="Submit booking request"
+      >
+        Request Tow Truck Service
+      </Button>
+    </form>
+  );
+
   return (
     <Box 
       position={isMobile ? "static" : "fixed"}
@@ -127,30 +154,27 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
         <Suspense fallback={<Spinner aria-label="Loading form steps" />}>
           <BookingFormStepper currentStep={currentStep} />
         </Suspense>
-        <form onSubmit={handleSubmit(onSubmit)} aria-label="Tow truck service booking form">
-          <BookingFormFields
-            register={register}
-            errors={errors}
-            control={control}
-            formData={formData}
-            handleChange={handleChange}
-            handleDateTimeChange={handleDateTimeChange}
-            vehicleBrands={vehicleBrands}
-            vehicleModels={vehicleModels}
-          />
-          <BookingFormSummary distance={distance} totalCost={totalCost} />
-          <Button 
-            colorScheme="blue" 
-            type="submit" 
-            mt={4} 
-            isLoading={isLoading} 
-            isDisabled={!isValid || isLoading}
-            width="100%"
-            aria-label="Submit booking request"
-          >
-            Request Tow Truck Service
-          </Button>
-        </form>
+        {isMobile ? (
+          <Tabs isFitted variant="enclosed">
+            <TabList mb="1em">
+              <Tab>Form</Tab>
+              <Tab>Map</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                {renderForm()}
+              </TabPanel>
+              <TabPanel>
+                <Box height="300px" width="100%">
+                  {/* Add your map component here */}
+                  <Text>Map will be displayed here</Text>
+                </Box>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        ) : (
+          renderForm()
+        )}
       </VStack>
       <Suspense fallback={<Spinner aria-label="Loading payment window" />}>
         <Elements stripe={stripePromise}>
