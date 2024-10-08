@@ -75,7 +75,6 @@ const BookingPage = () => {
     });
   };
 
-  // Function to force re-render of MapRoute
   const refreshMap = () => {
     setKey(prevKey => prevKey + 1);
   };
@@ -112,6 +111,8 @@ const BookingPage = () => {
           vehicleSize={formData.vehicleSize}
           onError={handleMapError}
         />
+      </Suspense>
+      <Suspense fallback={<Spinner />}>
         <BookingForm
           formData={formData}
           setFormData={setFormData}
@@ -129,7 +130,9 @@ const BookingPage = () => {
           mapError={mapError}
           refreshMap={refreshMap}
         />
-        {isPaymentWindowOpen && (
+      </Suspense>
+      {isPaymentWindowOpen && (
+        <Suspense fallback={<Spinner />}>
           <Elements stripe={stripePromise}>
             <PaymentWindow
               isOpen={isPaymentWindowOpen}
@@ -138,8 +141,8 @@ const BookingPage = () => {
               totalCost={totalCost}
             />
           </Elements>
-        )}
-      </Suspense>
+        </Suspense>
+      )}
     </Box>
   );
 };
