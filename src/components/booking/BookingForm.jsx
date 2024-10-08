@@ -23,7 +23,6 @@ const schema = yup.object().shape({
   dropOffAddress: yup.string().required('Drop-off address is required').min(5, 'Address must be at least 5 characters'),
   pickupDateTime: yup.date().nullable().required('Pickup date and time is required').min(new Date(), 'Pickup time must be in the future'),
 });
-});
 
 const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
   const [isMobile] = useMediaQuery("(max-width: 48em)");
@@ -62,7 +61,6 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     if (!formData.pickupAddress || !formData.dropOffAddress) return 1;
     if (!formData.serviceType) return 2;
     return 3;
-  }, [watchVehicleModel, formData.pickupAddress, formData.dropOffAddress, formData.serviceType]);
   }, [watchVehicleModel, formData.pickupAddress, formData.dropOffAddress, formData.serviceType]);
 
   const onSubmit = async (data) => {
