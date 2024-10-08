@@ -19,7 +19,12 @@ const Navbar = () => {
     navigate('/');
   };
 
-  const NavLink = ({ to, children }) => (
+  const handleAdminPanelClick = (e) => {
+    e.preventDefault();
+    navigate('/admin');
+  };
+
+  const NavLink = ({ to, children, onClick }) => (
     <Link
       as={RouterLink}
       to={to}
@@ -30,6 +35,7 @@ const Navbar = () => {
         textDecoration: 'none',
         bg: 'blue.600',
       }}
+      onClick={onClick}
     >
       {children}
     </Link>
@@ -50,7 +56,7 @@ const Navbar = () => {
 
         <Flex alignItems={'center'}>
           {(session || testModeUser) && (testModeUser?.isAdmin || session?.user?.email === 'admin@example.com') && (
-            <NavLink to="/admin">Admin Panel</NavLink>
+            <NavLink to="/admin" onClick={handleAdminPanelClick}>Admin Panel</NavLink>
           )}
           {session || testModeUser ? (
             <Button onClick={handleLogout} colorScheme="red" size="sm" ml={2}>Logout</Button>
@@ -71,7 +77,7 @@ const Navbar = () => {
           <NavLink to="/contact">Contact</NavLink>
           <NavLink to="/booking">Book Now</NavLink>
           {(session || testModeUser) && (testModeUser?.isAdmin || session?.user?.email === 'admin@example.com') && (
-            <NavLink to="/admin">Admin Panel</NavLink>
+            <NavLink to="/admin" onClick={handleAdminPanelClick}>Admin Panel</NavLink>
           )}
         </Box>
       )}
