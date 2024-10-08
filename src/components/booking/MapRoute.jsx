@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap, useMapEvents } from 'react-leaflet';
+import React, { useState, useEffect, useCallback } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Box, useToast } from '@chakra-ui/react';
@@ -15,58 +15,6 @@ L.Icon.Default.mergeOptions({
   iconUrl,
   shadowUrl,
 });
-
-const MapEvents = ({ onMapClick }) => {
-  useMapEvents({
-    click: onMapClick,
-  });
-  return null;
-};
-
-const MapContent = ({ pickup, destination, route, companyLocation, handleMarkerDragEnd }) => {
-  const map = useMap();
-
-  useEffect(() => {
-    if (pickup && destination) {
-      const bounds = L.latLngBounds(pickup, destination);
-      bounds.extend(companyLocation);
-      map.fitBounds(bounds, { padding: [50, 50] });
-    }
-  }, [map, pickup, destination, companyLocation]);
-
-  return (
-    <>
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
-      <Marker position={companyLocation}><Popup>Company Location</Popup></Marker>
-      {pickup && (
-        <Marker 
-          position={pickup} 
-          draggable={true}
-          eventHandlers={{
-            dragend: (e) => handleMarkerDragEnd(e, true)
-          }}
-        >
-          <Popup>Pickup Location</Popup>
-        </Marker>
-      )}
-      {destination && (
-        <Marker 
-          position={destination} 
-          draggable={true}
-          eventHandlers={{
-            dragend: (e) => handleMarkerDragEnd(e, false)
-          }}
-        >
-          <Popup>Drop-off Location</Popup>
-        </Marker>
-      )}
-      {route && <Polyline positions={route} color="blue" />}
-    </>
-  );
-};
 
 const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, vehicleSize }) => {
   const [pickup, setPickup] = useState(null);
@@ -149,24 +97,38 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
     calculateRoute();
   }, [calculateRoute]);
 
-  const mapCenter = useMemo(() => {
-    if (pickup && destination) {
-      return [(pickup[0] + destination[0]) / 2, (pickup[1] + destination[1]) / 2];
-    }
-    return companyLocation;
-  }, [pickup, destination, companyLocation]);
-
   return (
     <Box position="absolute" top="0" left="0" height="100%" width="100%">
-      <MapContainer key={`${mapCenter[0]}-${mapCenter[1]}`} center={mapCenter} zoom={10} style={{ height: "100%", width: "100%" }}>
-        <MapEvents onMapClick={handleMapClick} />
-        <MapContent
-          pickup={pickup}
-          destination={destination}
-          route={route}
-          companyLocation={companyLocation}
-          handleMarkerDragEnd={handleMarkerDragEnd}
+      <MapContainer center={companyLocation} zoom={10} style={{ height: "100%", width: "100%" }}>
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
+        <MapEvents onMapClick={handleMapClick} />
+        <Marker position={companyLocation}><Popup>Company Location</Popup></Marker>
+        {pickup && (
+          <Marker 
+            position={pickup} 
+            draggable={true}
+            eventHandlers={{
+              dragend: (e) => handleMarkerDragEnd(e, true)
+            }}
+          >
+            <Popup>Pickup Location</Popup>
+          </Marker>
+        )}
+        {destination && (
+          <Marker 
+            position={destination} 
+            draggable={true}
+            eventHandlers={{
+              dragend: (e) => handleMarkerDragEnd(e, false)
+            }}
+          >
+            <Popup>Drop-off Location</Popup>
+          </Marker>
+        )}
+        {route && <Polyline positions={route} color="blue" />}
       </MapContainer>
     </Box>
   );

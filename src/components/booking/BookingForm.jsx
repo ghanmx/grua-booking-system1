@@ -35,6 +35,7 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     handleBookingProcess,
     isLoading,
     totalCost,
+    setTotalCost,
     distance,
     isPaymentWindowOpen,
     setIsPaymentWindowOpen,
@@ -98,8 +99,8 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
         await handleBookingProcess({ ...formData, paymentMethodId: paymentResult.paymentMethodId, paymentStatus: 'paid' });
         setIsPaymentWindowOpen(false);
         toast({
-          title: "Booking Successful",
-          description: "Your booking has been processed and payment confirmed.",
+          title: "Payment Successful",
+          description: "Your payment has been processed successfully.",
           status: "success",
           duration: 5000,
           isClosable: true,
