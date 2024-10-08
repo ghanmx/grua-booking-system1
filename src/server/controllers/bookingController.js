@@ -3,12 +3,17 @@ const { sendAdminNotification } = require('../../utils/adminNotification');
 const { logger } = require('../middleware/errorHandler');
 const { body, validationResult } = require('express-validator');
 
+const addressValidation = (fieldName) => 
+  body(fieldName)
+    .notEmpty().withMessage(`${fieldName} is required`)
+    .isLength({ min: 5 }).withMessage(`${fieldName} must be at least 5 characters`);
+
 exports.validateBookingInput = [
   body('userName').notEmpty().withMessage('User name is required').isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
   body('phoneNumber').matches(/^\d{10}$/).withMessage('Phone number must be 10 digits'),
   body('serviceType').notEmpty().withMessage('Service type is required'),
-  body('pickupAddress').notEmpty().withMessage('Pickup address is required').isLength({ min: 5 }).withMessage('Address must be at least 5 characters'),
-  body('dropOffAddress').notEmpty().withMessage('Drop off address is required').isLength({ min: 5 }).withMessage('Address must be at least 5 characters'),
+  addressValidation('pickupAddress'),
+  addressValidation('dropOffAddress'),
   body('vehicleBrand').notEmpty().withMessage('Vehicle brand is required'),
   body('vehicleModel').notEmpty().withMessage('Vehicle model is required'),
   body('vehicleColor').notEmpty().withMessage('Vehicle color is required'),
