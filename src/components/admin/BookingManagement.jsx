@@ -17,7 +17,17 @@ const BookingManagement = ({ showNotification }) => {
     );
   }
 
-  const bookings = bookingsData?.data || [];
+  if (!bookingsData || !Array.isArray(bookingsData.data)) {
+    showNotification('Error', 'Invalid booking data format', 'error');
+    return (
+      <Alert status="error">
+        <AlertIcon />
+        Invalid booking data format. Please contact support.
+      </Alert>
+    );
+  }
+
+  const bookings = bookingsData.data;
 
   return (
     <Box>

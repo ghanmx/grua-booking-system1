@@ -69,8 +69,8 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     if (isValid) {
       try {
         const bookingData = await handleBookingProcess({ ...data, serviceType: selectedTowTruckType });
-        setIsPaymentWindowOpen(true);
         setFormData(prevData => ({ ...prevData, ...bookingData }));
+        setIsPaymentWindowOpen(true);
       } catch (error) {
         console.error('Error processing booking:', error);
         toast({
