@@ -77,7 +77,7 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent aria-label="Payment information form">
         <ModalHeader>Información de Pago</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
@@ -98,17 +98,18 @@ const PaymentWindow = ({ isOpen, onClose, onPaymentSubmit, totalCost }) => {
                     },
                   },
                 }}
+                aria-label="Credit card input field"
               />
             </Box>
             <Text fontWeight="bold">Costo Total: ${totalCost.toFixed(2)}</Text>
-            {error && <Text color="red.500">{error}</Text>}
+            {error && <Text color="red.500" role="alert">{error}</Text>}
           </VStack>
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={handleSubmit} isLoading={isProcessing}>
+          <Button colorScheme="blue" mr={3} onClick={handleSubmit} isLoading={isProcessing} aria-label="Process payment">
             Procesar Pago
           </Button>
-          <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+          <Button variant="ghost" onClick={onClose} aria-label="Cancel payment">Cancelar</Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

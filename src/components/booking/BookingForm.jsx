@@ -138,14 +138,15 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
       borderRadius="md"
       boxShadow="xl"
       zIndex={1000}
+      aria-label="Booking form"
     >
       <VStack spacing={4} align="stretch">
         <Heading as="h1" size="lg">Booking Form</Heading>
-        <Suspense fallback={<Spinner />}>
+        <Suspense fallback={<Spinner aria-label="Loading form steps" />}>
           <BookingFormStepper currentStep={currentStep} />
         </Suspense>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Suspense fallback={<Spinner />}>
+        <form onSubmit={handleSubmit(onSubmit)} aria-label="Tow truck service booking form">
+          <Suspense fallback={<Spinner aria-label="Loading form fields" />}>
             <BookingFormFields
               fieldNames={fieldNames}
               renderField={renderField}
@@ -172,12 +173,13 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
             isLoading={isLoading} 
             isDisabled={!isValid || isLoading}
             width="100%"
+            aria-label="Submit booking request"
           >
             Request Tow Truck Service
           </Button>
         </form>
       </VStack>
-      <Suspense fallback={<Spinner />}>
+      <Suspense fallback={<Spinner aria-label="Loading payment window" />}>
         <PaymentWindow
           isOpen={isPaymentWindowOpen}
           onClose={() => setIsPaymentWindowOpen(false)}

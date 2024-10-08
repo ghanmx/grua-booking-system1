@@ -107,7 +107,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
   }, [setPickupAddress, setDropOffAddress]);
 
   return (
-    <Box position="absolute" top="0" left="0" height="100%" width="100%">
+    <Box position="absolute" top="0" left="0" height="100%" width="100%" aria-label="Interactive map for selecting pickup and drop-off locations">
       <MapContainer center={companyLocation} zoom={10} style={{ height: "100%", width: "100%" }}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
