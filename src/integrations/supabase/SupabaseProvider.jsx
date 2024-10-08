@@ -1,23 +1,14 @@
-import React, { createContext, useContext, useEffect } from 'react';
-import { supabase } from './supabase';
+import React, { createContext, useContext } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_API_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const SupabaseContext = createContext();
 
 export const SupabaseProvider = ({ children }) => {
-  useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') {
-        supabase.removeAllChannels();
-      }
-    });
-
-    return () => {
-      if (authListener && typeof authListener.unsubscribe === 'function') {
-        authListener.unsubscribe();
-      }
-    };
-  }, []);
-
   return (
     <SupabaseContext.Provider value={supabase}>
       {children}

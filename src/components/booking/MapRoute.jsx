@@ -16,6 +16,13 @@ L.Icon.Default.mergeOptions({
   shadowUrl,
 });
 
+const MapEvents = ({ onMapClick }) => {
+  useMapEvents({
+    click: onMapClick,
+  });
+  return null;
+};
+
 const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, vehicleSize }) => {
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
