@@ -8,8 +8,7 @@ import Login from './pages/Login';
 import BookingForm from './pages/BookingForm';
 import AdminPanel from './pages/AdminPanel';
 import ProtectedRoute from './components/common/ProtectedRoute';
-import { SupabaseProvider } from './integrations/supabase';
-import { SupabaseAuthProvider } from './integrations/supabase/auth';
+import { SupabaseProvider, SupabaseAuthProvider } from './integrations/supabase';
 
 function App() {
   return (
