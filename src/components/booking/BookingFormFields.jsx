@@ -51,9 +51,10 @@ export const BookingFormFields = ({
           placeholder="Select Vehicle Model"
           onChange={handleChange}
         >
-          {Array.isArray(vehicleModels) && vehicleModels.map((model) => (
-            <option key={model} value={model}>{model}</option>
-          ))}
+          {formData.vehicleBrand && vehicleModels[formData.vehicleBrand] &&
+            vehicleModels[formData.vehicleBrand].map((model) => (
+              <option key={model} value={model}>{model}</option>
+            ))}
         </Select>
       </FormControl>
       <FormControl isInvalid={errors.vehicleColor}>
