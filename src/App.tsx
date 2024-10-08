@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { ChakraProvider } from '@chakra-ui/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { SupabaseProvider } from './integrations/supabase';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
 import Index from './pages/Index';
 import About from './pages/About';
@@ -10,28 +12,34 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import Login from './pages/Login';
 import ErrorBoundary from './components/ErrorBoundary';
 
+const queryClient = new QueryClient();
+
 const App = () => {
   return (
     <ChakraProvider>
       <ErrorBoundary>
-        <SupabaseAuthProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/login" element={<Login />} />
-              <Route 
-                path="/admin" 
-                element={
-                  <ProtectedRoute adminOnly>
-                    <AdminPanel />
-                  </ProtectedRoute>
-                } 
-              />
-            </Routes>
-          </Router>
-        </SupabaseAuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <SupabaseProvider>
+            <SupabaseAuthProvider>
+              <Router>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route 
+                    path="/admin" 
+                    element={
+                      <ProtectedRoute adminOnly>
+                        <AdminPanel />
+                      </ProtectedRoute>
+                    } 
+                  />
+                </Routes>
+              </Router>
+            </SupabaseAuthProvider>
+          </SupabaseProvider>
+        </QueryClientProvider>
       </ErrorBoundary>
     </ChakraProvider>
   );

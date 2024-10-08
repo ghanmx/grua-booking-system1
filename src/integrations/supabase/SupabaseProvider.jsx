@@ -1,14 +1,14 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_API_KEY;
 
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 const SupabaseContext = createContext();
 
 export const SupabaseProvider = ({ children }) => {
+  const supabase = useMemo(() => createClient(supabaseUrl, supabaseKey), []);
+
   return (
     <SupabaseContext.Provider value={supabase}>
       {children}
