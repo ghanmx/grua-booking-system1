@@ -16,30 +16,19 @@ L.Icon.Default.mergeOptions({
   shadowUrl,
 });
 
-const MapEvents = ({ onMapClick }) => {
-  useMapEvents({
-    click: onMapClick,
-  });
-  return null;
-};
-
 const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, vehicleSize }) => {
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
   const [route, setRoute] = useState(null);
-  const companyLocation = [26.509672, -100.0095504];
+  const companyLocation = [26.509672, -100.0095504]; // Company location coordinates
   const toast = useToast();
 
-  const getAddressFromLatLng = useCallback(async (lat, lng) => {
-    try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-      const data = await response.json();
-      return data.display_name;
-    } catch (error) {
-      console.error('Error getting address:', error);
-      return '';
-    }
-  }, []);
+  const MapEvents = () => {
+    useMapEvents({
+      click: handleMapClick,
+    });
+    return null;
+  };
 
   const handleMapClick = useCallback(async (e) => {
     const { lat, lng } = e.latlng;
@@ -51,22 +40,33 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
       setDestination([lat, lng]);
       const address = await getAddressFromLatLng(lat, lng);
       setDropOffAddress(address);
-    }
-  }, [pickup, destination, getAddressFromLatLng, setPickupAddress, setDropOffAddress]);
-
-  const handleMarkerDragEnd = useCallback(async (e, isPickup) => {
-    const { lat, lng } = e.target.getLatLng();
-    const newPosition = [lat, lng];
-    const address = await getAddressFromLatLng(lat, lng);
-
-    if (isPickup) {
-      setPickup(newPosition);
-      setPickupAddress(address);
     } else {
-      setDestination(newPosition);
-      setDropOffAddress(address);
+      // Allow changing existing markers
+      const distanceToPickup = L.latLng(pickup).distanceTo([lat, lng]);
+      const distanceToDestination = L.latLng(destination).distanceTo([lat, lng]);
+      
+      if (distanceToPickup < distanceToDestination) {
+        setPickup([lat, lng]);
+        const address = await getAddressFromLatLng(lat, lng);
+        setPickupAddress(address);
+      } else {
+        setDestination([lat, lng]);
+        const address = await getAddressFromLatLng(lat, lng);
+        setDropOffAddress(address);
+      }
     }
-  }, [getAddressFromLatLng, setPickupAddress, setDropOffAddress]);
+  }, [pickup, destination, setPickupAddress, setDropOffAddress]);
+
+  const getAddressFromLatLng = async (lat, lng) => {
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+      const data = await response.json();
+      return data.display_name;
+    } catch (error) {
+      console.error('Error getting address:', error);
+      return '';
+    }
+  };
 
   const calculateRoute = useCallback(async () => {
     if (pickup && destination) {
@@ -84,7 +84,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
           if (typeof setTotalCost === 'function') {
             setTotalCost(cost);
           } else {
-            console.error('setTotalCost is not a function', setTotalCost);
+            console.warn('setTotalCost is not a function', setTotalCost);
           }
         }
       } catch (error) {
@@ -98,20 +98,34 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
         });
       }
     }
-  }, [pickup, destination, companyLocation, setDistance, setTotalCost, vehicleSize, toast]);
+  }, [pickup, destination, setDistance, setTotalCost, vehicleSize, toast]);
 
   useEffect(() => {
     calculateRoute();
   }, [calculateRoute]);
 
+  const handleMarkerDragEnd = useCallback(async (e, isPickup) => {
+    const { lat, lng } = e.target.getLatLng();
+    const newPosition = [lat, lng];
+    const address = await getAddressFromLatLng(lat, lng);
+
+    if (isPickup) {
+      setPickup(newPosition);
+      setPickupAddress(address);
+    } else {
+      setDestination(newPosition);
+      setDropOffAddress(address);
+    }
+  }, [setPickupAddress, setDropOffAddress]);
+
   return (
-    <Box position="absolute" top="0" left="0" height="100%" width="100%">
+    <Box position="absolute" top="0" left="0" height="100%" width="100%" aria-label="Interactive map for selecting pickup and drop-off locations">
       <MapContainer center={companyLocation} zoom={10} style={{ height: "100%", width: "100%" }}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        <MapEvents onMapClick={handleMapClick} />
+        <MapEvents />
         <Marker position={companyLocation}><Popup>Company Location</Popup></Marker>
         {pickup && (
           <Marker 

@@ -10,7 +10,10 @@ import { getVehicleSize, getTowTruckType, calculateTotalCost } from '../utils/to
 export const useBookingForm = () => {
   const [formData, setFormData] = useState(() => {
     const savedData = localStorage.getItem('bookingFormData');
-    return savedData ? JSON.parse(savedData) : {
+    return savedData ? JSON.parse(savedData, (key, value) => {
+      if (key === 'pickupDateTime') return new Date(value);
+      return value;
+    }) : {
       serviceType: '',
       userName: '',
       phoneNumber: '',
@@ -143,6 +146,7 @@ export const useBookingForm = () => {
     distance,
     setDistance,
     totalCost,
+    setTotalCost,  // Make sure this is included
     isPaymentWindowOpen,
     setIsPaymentWindowOpen,
     handleChange,
