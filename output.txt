@@ -315,6 +315,25 @@ main();
 }
 
 
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\notifications\index.js
+const express = require('express');
+const Redis = require('ioredis');
+
+const app = express();
+const redis = new Redis(process.env.REDIS_URL || 'redis://redis:6379');
+
+app.use(express.json());
+
+app.post('/notify', async (req, res) => {
+  const { message } = req.body;
+  await redis.publish('notifications', JSON.stringify(message));
+  res.status(200).json({ status: 'Notification sent' });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Notifications service running on port ${PORT}`));
+
+
 // C:\Users\israe\Documents\GitHub\grua-booking-system--38\scripts\update-package-json.js
 const fs = require('fs');
 const path = require('path');
