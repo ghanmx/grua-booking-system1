@@ -153,7 +153,7 @@ export const useBookingForm = () => {
         userId: session.user.id,
         totalCost,
         distance,
-        additionalDetails: data.additionalDetails || '',
+        additional_details: data.additionalDetails || '',
       });
     } catch (error) {
       console.error('Error processing booking:', error);

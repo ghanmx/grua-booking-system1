@@ -24,6 +24,7 @@ const schema = yup.object().shape({
   pickupAddress: yup.string().required('Pickup address is required').min(5, 'Address must be at least 5 characters'),
   dropOffAddress: yup.string().required('Drop-off address is required').min(5, 'Address must be at least 5 characters'),
   pickupDateTime: yup.date().nullable().required('Pickup date and time is required').min(new Date(), 'Pickup time must be in the future'),
+  additional_details: yup.string(),
 });
 
 const BookingFormContent = ({ formProps, handleSubmit, onSubmit, currentStep, totalSteps, handlePrevious, handleNext, handleSaveDraft }) => (
@@ -103,7 +104,10 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
   };
 
   const onSubmit = async (data) => {
-    await handleBookingProcess(data);
+    await handleBookingProcess({
+      ...data,
+      additional_details: data.additionalDetails,
+    });
   };
 
   React.useEffect(() => {
