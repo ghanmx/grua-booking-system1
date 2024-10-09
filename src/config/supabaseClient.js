@@ -7,9 +7,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables. Please check your .env file.');
 }
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-export default supabase;
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Function to get user role
 export async function getUserRole(userId) {
@@ -31,3 +29,5 @@ export async function getUserRole(userId) {
 
   return data.role;
 }
+
+export default supabase;
