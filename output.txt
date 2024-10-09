@@ -12,7 +12,14 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "start:dev": "vite --host 0.0.0.0 --port 8080"
+    "start:dev": "vite --host 0.0.0.0 --port 8080",
+    "supabase:init": "supabase init",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:status": "supabase status",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "devDependencies": {
     "@types/react": "^18.3.10",
@@ -21,6 +28,7 @@
     "eslint": "^8.57.1",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.12",
+    "supabase": "^1.204.0",
     "vite": "^5.4.8"
   },
   "dependencies": {
@@ -112,7 +120,14 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "start:dev": "vite --host 0.0.0.0 --port 8080"
+    "start:dev": "vite --host 0.0.0.0 --port 8080",
+    "supabase:init": "supabase init",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:status": "supabase status",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "devDependencies": {
     "@types/react": "^18.3.10",
@@ -121,6 +136,7 @@
     "eslint": "^8.57.1",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.12",
+    "supabase": "^1.204.0",
     "vite": "^5.4.8"
   },
   "dependencies": {
@@ -297,6 +313,13 @@ main();
 
 
 
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\.vscode\extensions.json
+{
+  "recommendations": ["denoland.vscode-deno"]
+}
+
+
+
 // C:\Users\israe\Documents\GitHub\grua-booking-system--38\.vscode\launch.json
 {
     // Use IntelliSense para saber los atributos posibles.
@@ -422,9 +445,16 @@ export default App;
 // C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\setupSampleData.js
 import { resetAndInsertSampleData } from './utils/insertSampleData';
 
-resetAndInsertSampleData()
-  .then(() => console.log('Database reset and sample data setup complete'))
-  catch(error => console.error('Error resetting database and setting up sample data:', error));
+const setupSampleData = async () => {
+  try {
+    await resetAndInsertSampleData();
+    console.log('Database reset and sample data setup complete');
+  } catch (error) {
+    console.error('Error resetting database and setting up sample data:', error);
+  }
+};
+
+setupSampleData();
 
 
 // C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\theme.js
@@ -520,22 +550,63 @@ if (!supabaseUrl || !supabaseKey) {
   throw new Error('Missing Supabase environment variables. Please check your .env file.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
+export const supabase = createClient(supabaseUrl, supabaseKey);
+
+export const getUserRole = async (userId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching user role:', error);
+      return null;
+    }
+
+    return data?.role || null;
+  } catch (error) {
+    console.error('Error fetching user role:', error);
+    return null;
   }
-});
+};
 
 export default supabase;
 
 
 // C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\config\supabaseClient.js
 import { createClient } from '@supabase/supabase-js';
-import config from '../server/config/config.js';
 
-const supabase = createClient(config.supabaseUrl, config.supabaseKey);
+const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_API_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables. Please check your .env file.');
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Function to get user role
+export async function getUserRole(userId) {
+  const { data, error } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', userId)
+    .single();
+
+  if (error) {
+    console.error('Error fetching user role:', error);
+    return null; // Handle the error appropriately
+  }
+
+  if (!data) {
+    console.warn(`No user found with id: ${userId}`);
+    return null; // Handle the case where the user is not found
+  }
+
+  return data.role;
+}
 
 export default supabase;
 
@@ -579,7 +650,10 @@ import { getVehicleSize, getTowTruckType, calculateTotalCost } from '../utils/to
 export const useBookingForm = () => {
   const [formData, setFormData] = useState(() => {
     const savedData = localStorage.getItem('bookingFormData');
-    return savedData ? JSON.parse(savedData) : {
+    return savedData ? JSON.parse(savedData, (key, value) => {
+      if (key === 'pickupDateTime') return new Date(value);
+      return value;
+    }) : {
       serviceType: '',
       userName: '',
       phoneNumber: '',
@@ -616,8 +690,8 @@ export const useBookingForm = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('bookings');
       toast({
-        title: 'Reserva creada.',
-        description: "Hemos creado su reserva exitosamente.",
+        title: 'Booking created.',
+        description: "Your booking has been created successfully.",
         status: 'success',
         duration: 5000,
         isClosable: true,
@@ -625,10 +699,10 @@ export const useBookingForm = () => {
       navigate('/confirmation');
     },
     onError: (error) => {
-      console.error('Error al crear la reserva:', error);
+      console.error('Error creating booking:', error);
       toast({
-        title: 'Ocurrió un error.',
-        description: error.message,
+        title: 'An error occurred.',
+        description: error.message || 'There was an error processing your request. Please try again.',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -673,8 +747,8 @@ export const useBookingForm = () => {
   const handleBookingProcess = useCallback(async (data) => {
     if (!session) {
       toast({
-        title: 'Autenticación requerida',
-        description: 'Por favor, inicie sesión para crear una reserva.',
+        title: 'Authentication required',
+        description: 'Please log in to create a booking.',
         status: 'warning',
         duration: 5000,
         isClosable: true,
@@ -682,24 +756,28 @@ export const useBookingForm = () => {
       return;
     }
 
-    const testResult = await testPayment(totalCost);
-    if (!testResult.success) {
+    try {
+      const testResult = await testPayment(totalCost);
+      if (!testResult.success) {
+        throw new Error(testResult.message || 'Payment test failed');
+      }
+
+      await createBookingMutation.mutateAsync({
+        ...data,
+        userId: session.user.id,
+        totalCost,
+        distance,
+      });
+    } catch (error) {
+      console.error('Error processing booking:', error);
       toast({
-        title: 'Prueba de pago fallida',
-        description: testResult.message,
+        title: 'Booking Error',
+        description: error.message || 'There was an error processing your request. Please try again.',
         status: 'error',
         duration: 5000,
         isClosable: true,
       });
-      return;
     }
-
-    createBookingMutation.mutate({
-      ...data,
-      userId: session.user.id,
-      totalCost,
-      distance,
-    });
   }, [session, totalCost, distance, createBookingMutation, toast]);
 
   useEffect(() => {
@@ -712,6 +790,7 @@ export const useBookingForm = () => {
     distance,
     setDistance,
     totalCost,
+    setTotalCost,
     isPaymentWindowOpen,
     setIsPaymentWindowOpen,
     handleChange,
@@ -1899,12 +1978,17 @@ const { sendAdminNotification } = require('../../utils/adminNotification');
 const { logger } = require('../middleware/errorHandler');
 const { body, validationResult } = require('express-validator');
 
+const addressValidation = (fieldName) => 
+  body(fieldName)
+    .notEmpty().withMessage(`${fieldName} is required`)
+    .isLength({ min: 5 }).withMessage(`${fieldName} must be at least 5 characters`);
+
 exports.validateBookingInput = [
   body('userName').notEmpty().withMessage('User name is required').isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
   body('phoneNumber').matches(/^\d{10}$/).withMessage('Phone number must be 10 digits'),
   body('serviceType').notEmpty().withMessage('Service type is required'),
-  body('pickupAddress').notEmpty().withMessage('Pickup address is required').isLength({ min: 5 }).withMessage('Address must be at least 5 characters'),
-  body('dropOffAddress').notEmpty().withMessage('Drop off address is required').isLength({ min: 5 }).withMessage('Address must be at least 5 characters'),
+  addressValidation('pickupAddress'),
+  addressValidation('dropOffAddress'),
   body('vehicleBrand').notEmpty().withMessage('Vehicle brand is required'),
   body('vehicleModel').notEmpty().withMessage('Vehicle model is required'),
   body('vehicleColor').notEmpty().withMessage('Vehicle color is required'),
@@ -2085,12 +2169,17 @@ module.exports = { errorHandler, logger };
 // C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\server\middleware\inputValidation.js
 const { body, validationResult } = require('express-validator');
 
+const addressValidation = (fieldName) => 
+  body(fieldName)
+    .notEmpty().withMessage(`${fieldName} is required`)
+    .isLength({ min: 5 }).withMessage(`${fieldName} must be at least 5 characters`);
+
 const validateBookingInput = [
-  body('userName').notEmpty().withMessage('User name is required'),
-  body('phoneNumber').notEmpty().withMessage('Phone number is required'),
+  body('userName').notEmpty().withMessage('User name is required').isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
+  body('phoneNumber').matches(/^\d{10}$/).withMessage('Phone number must be 10 digits'),
   body('serviceType').notEmpty().withMessage('Service type is required'),
-  body('pickupAddress').notEmpty().withMessage('Pickup address is required'),
-  body('dropOffAddress').notEmpty().withMessage('Drop off address is required'),
+  addressValidation('pickupAddress'),
+  addressValidation('dropOffAddress'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -2440,7 +2529,7 @@ export const runAccessibilityChecks = () => {
 
 
 // C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\adminNotification.js
-import { supabase } from '../integrations/supabase/index.jsx';
+import { supabase } from '../config/supabaseClient';
 
 export const sendAdminNotification = async (bookingData, totalCost) => {
   try {
@@ -2482,38 +2571,34 @@ export const sendAdminNotification = async (bookingData, totalCost) => {
 
 
 // C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\adminUtils.js
-import { supabase } from '../integrations/supabase/supabase';
+import { getUserRole } from '../config/supabase.config';
 
-const getRoleFromDatabase = async (userId) => {
+export const isAdmin = async (userId) => {
+  if (!userId) {
+    console.warn('No user ID provided for admin check');
+    return false;
+  }
   try {
-    const { data, error } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', userId)
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') {
-        console.warn(`No user found with id: ${userId}`);
-        return null;
-      }
-      throw error;
-    }
-    return data?.role;
+    const role = await getUserRole(userId);
+    return role === 'admin' || role === 'super_admin';
   } catch (error) {
-    console.error('Error fetching user role:', error);
-    return null;
+    console.error('Error checking admin status:', error);
+    return false;
   }
 };
 
-export const isAdmin = async (userId) => {
-  const role = await getRoleFromDatabase(userId);
-  return role === 'admin' || role === 'super_admin';
-};
-
 export const isSuperAdmin = async (userId) => {
-  const role = await getRoleFromDatabase(userId);
-  return role === 'super_admin';
+  if (!userId) {
+    console.warn('No user ID provided for super admin check');
+    return false;
+  }
+  try {
+    const role = await getUserRole(userId);
+    return role === 'super_admin';
+  } catch (error) {
+    console.error('Error checking super admin status:', error);
+    return false;
+  }
 };
 
 
@@ -2786,18 +2871,22 @@ import axios from 'axios';
 export const processPayment = async (amount, paymentMethodId) => {
   try {
     const response = await axios.post('/api/process-payment', {
-      amount: Math.round(amount * 100), // Convertir a centavos
+      amount: Math.round(amount * 100), // Convert to cents
       payment_method_id: paymentMethodId,
     });
 
     if (response.data.success) {
       return { success: true, paymentIntent: response.data.paymentIntent };
     } else {
-      throw new Error(response.data.error || 'Falló el procesamiento del pago');
+      throw new Error(response.data.error || 'Payment processing failed');
     }
   } catch (error) {
-    console.error('Error al procesar el pago:', error);
-    return { success: false, error: error.message };
+    console.error('Error processing payment:', error);
+    return { 
+      success: false, 
+      error: `Payment processing error: ${error.message}`,
+      details: error.response?.data || 'No additional details available'
+    };
   }
 };
 
