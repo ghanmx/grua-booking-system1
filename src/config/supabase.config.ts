@@ -7,19 +7,7 @@ if (!supabaseUrl || !supabaseKey) {
   throw new Error('Missing Supabase environment variables. Please check your .env file.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  },
-  global: {
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    }
-  }
-});
+export const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const getUserRole = async (userId: string) => {
   try {
@@ -34,12 +22,7 @@ export const getUserRole = async (userId: string) => {
       return null;
     }
 
-    if (!data) {
-      console.warn(`No user found with id: ${userId}`);
-      return null;
-    }
-
-    return data.role;
+    return data?.role || null;
   } catch (error) {
     console.error('Error fetching user role:', error);
     return null;
