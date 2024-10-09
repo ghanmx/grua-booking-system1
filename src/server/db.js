@@ -17,6 +17,22 @@ export const getBookings = async () => {
     throw error;
   }
 };
+export const saveDraftBooking = async (draftData) => {
+  try {
+    const { data, error } = await supabase
+      .from('draft_bookings')
+      .insert(draftData)
+      .select();
+
+    if (error) throw error;
+    return data[0];
+  } catch (error) {
+    logger.error(`Error saving draft booking: ${error.message}`);
+    throw error;
+  }
+};
+
+export { createBooking, updateBooking, deleteBooking };
 
 // Otras exportaciones...
 
