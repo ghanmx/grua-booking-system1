@@ -1,7 +1,9 @@
 const supabase = require('../config/database');
 const { logger } = require('../middleware/errorHandler');
 
-const getBookings = async () => {
+// Otras importaciones y código...
+
+export const getBookings = async () => {
   try {
     const { data, error } = await supabase
       .from('bookings')
@@ -15,6 +17,8 @@ const getBookings = async () => {
     throw error;
   }
 };
+
+// Otras exportaciones...
 
 const createBooking = async (bookingData) => {
   try {
