@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, VStack, Heading, Tabs, TabList, TabPanels, Tab, TabPanel, useToast } from "@chakra-ui/react";
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { isAdmin, isSuperAdmin } from '../utils/adminUtils';
+import { getUserRole } from '../config/supabaseClient';
 import UserManagement from '../components/admin/UserManagement';
 import ServiceManagement from '../components/admin/ServiceManagement';
 import BookingManagement from '../components/admin/BookingManagement';
@@ -11,8 +11,7 @@ import SMTPSettingsForm from '../components/admin/SMTPSettingsForm';
 const AdminPanel = () => {
   const { session } = useSupabaseAuth();
   const toast = useToast();
-  const [hasAdminAccess, setHasAdminAccess] = useState(false);
-  const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
+  const [userRole, setUserRole] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -20,10 +19,8 @@ const AdminPanel = () => {
       setIsLoading(true);
       if (session?.user?.id) {
         try {
-          const adminStatus = await isAdmin(session.user.id);
-          const superAdminStatus = await isSuperAdmin(session.user.id);
-          setHasAdminAccess(adminStatus);
-          setIsSuperAdminUser(superAdminStatus);
+          const role = await getUserRole(session.user.id);
+          setUserRole(role);
         } catch (error) {
           console.error('Error checking admin status:', error);
           toast({
@@ -44,7 +41,7 @@ const AdminPanel = () => {
     return <Box p={4}><Heading as="h2" size="lg">Loading...</Heading></Box>;
   }
 
-  if (!hasAdminAccess) {
+  if (userRole !== 'admin' && userRole !== 'super_admin') {
     return <Box p={4}><Heading as="h2" size="lg">You do not have admin privileges.</Heading></Box>;
   }
 
@@ -55,14 +52,14 @@ const AdminPanel = () => {
   return (
     <Box p={4}>
       <VStack spacing={8} align="stretch">
-        <Heading as="h1" size="xl">Admin Panel {isSuperAdminUser ? '(Super Admin)' : ''}</Heading>
+        <Heading as="h1" size="xl">Admin Panel {userRole === 'super_admin' ? '(Super Admin)' : ''}</Heading>
         <Tabs isFitted variant="enclosed">
           <TabList mb="1em">
             <Tab>Analytics Dashboard</Tab>
             <Tab>Booking Management</Tab>
             <Tab>Service Management</Tab>
             <Tab>User Management</Tab>
-            {isSuperAdminUser && <Tab>SMTP Settings</Tab>}
+            {userRole === 'super_admin' && <Tab>SMTP Settings</Tab>}
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -75,9 +72,9 @@ const AdminPanel = () => {
               <ServiceManagement showNotification={showNotification} />
             </TabPanel>
             <TabPanel>
-              <UserManagement showNotification={showNotification} userRole={isSuperAdminUser ? 'super_admin' : 'admin'} />
+              <UserManagement showNotification={showNotification} userRole={userRole} />
             </TabPanel>
-            {isSuperAdminUser && (
+            {userRole === 'super_admin' && (
               <TabPanel>
                 <SMTPSettingsForm />
               </TabPanel>

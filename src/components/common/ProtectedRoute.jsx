@@ -1,43 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSupabaseAuth } from '../../integrations/supabase/auth';
-import { isAdmin, isSuperAdmin } from '../../utils/adminUtils';
+import { getUserRole } from '../../config/supabaseClient';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
     const { session, loading } = useSupabaseAuth();
     const location = useLocation();
-    const testModeUser = JSON.parse(localStorage.getItem('testModeUser'));
-
-    const [isAdminUser, setIsAdminUser] = useState(false);
-    const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
-    const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
+    const [userRole, setUserRole] = useState(null);
+    const [isCheckingRole, setIsCheckingRole] = useState(true);
 
     useEffect(() => {
-        const checkAdminStatus = async () => {
+        const checkUserRole = async () => {
             if (session?.user?.id) {
                 try {
-                    const adminStatus = await isAdmin(session.user.id);
-                    const superAdminStatus = await isSuperAdmin(session.user.id);
-                    setIsAdminUser(adminStatus);
-                    setIsSuperAdminUser(superAdminStatus);
+                    const role = await getUserRole(session.user.id);
+                    setUserRole(role);
                 } catch (error) {
-                    console.error('Error checking admin status:', error);
+                    console.error('Error checking user role:', error);
                 }
             }
-            setIsCheckingAdmin(false);
+            setIsCheckingRole(false);
         };
-        checkAdminStatus();
+        checkUserRole();
     }, [session]);
 
-    if (loading || isCheckingAdmin) {
+    if (loading || isCheckingRole) {
         return <div>Loading...</div>;
     }
 
-    if (!session && !testModeUser?.isTestMode) {
+    if (!session) {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
-    if (adminOnly && !testModeUser?.isAdmin && !isAdminUser && !isSuperAdminUser) {
+    if (adminOnly && userRole !== 'admin' && userRole !== 'super_admin') {
         return <Navigate to="/" replace />;
     }
 
