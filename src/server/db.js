@@ -1,79 +1,55 @@
 import { supabase } from '../config/supabaseClient';
 
-export const getBookings = async () => {
-  const { data, error } = await supabase
+export const getBookings = async (page = 1, limit = 50) => {
+  const start = (page - 1) * limit;
+  const end = start + limit - 1;
+
+  const { data, error, count } = await supabase
     .from('bookings')
-    .select('*');
+    .select('*', { count: 'exact' })
+    .range(start, end);
 
   if (error) throw error;
-  return data;
+  return { data, count, page, limit };
 };
 
-const saveDraftBooking = async (draftData) => {
-  try {
-    const { data, error } = await supabase
-      .from('draft_bookings')
-      .insert(draftData)
-      .select();
+export const saveDraftBooking = async (draftData) => {
+  const { data, error } = await supabase
+    .from('draft_bookings')
+    .insert(draftData)
+    .select();
 
-    if (error) throw error;
-    return data[0];
-  } catch (error) {
-    logger.error(`Error saving draft booking: ${error.message}`);
-    throw error;
-  }
+  if (error) throw error;
+  return data[0];
 };
 
-const createBooking = async (bookingData) => {
-  try {
-    const { data, error } = await supabase
-      .from('bookings')
-      .insert(bookingData)
-      .select();
+export const createBooking = async (bookingData) => {
+  const { data, error } = await supabase
+    .from('bookings')
+    .insert(bookingData)
+    .select();
 
-    if (error) throw error;
-    return data[0];
-  } catch (error) {
-    logger.error(`Error creating booking: ${error.message}`);
-    throw error;
-  }
+  if (error) throw error;
+  return data[0];
 };
 
-const updateBooking = async (id, updateData) => {
-  try {
-    const { data, error } = await supabase
-      .from('bookings')
-      .update(updateData)
-      .eq('id', id)
-      .select();
+export const updateBooking = async (id, updateData) => {
+  const { data, error } = await supabase
+    .from('bookings')
+    .update(updateData)
+    .eq('id', id)
+    .select();
 
-    if (error) throw error;
-    return data[0];
-  } catch (error) {
-    logger.error(`Error updating booking: ${error.message}`);
-    throw error;
-  }
+  if (error) throw error;
+  return data[0];
 };
 
-const deleteBooking = async (id) => {
-  try {
-    const { error } = await supabase
-      .from('bookings')
-      .delete()
-      .eq('id', id);
+export const deleteBooking = async (id) => {
+  const { error } = await supabase
+    .from('bookings')
+    .delete()
+    .eq('id', id);
 
-    if (error) throw error;
-    return true;
-  } catch (error) {
-    logger.error(`Error deleting booking: ${error.message}`);
-    throw error;
-  }
-};
-
-module.exports = {
-  getBookings,
-  createBooking,
-  updateBooking,
-  deleteBooking,
-  saveDraftBooking
+  if (error) throw error;
+  return true;
 };
