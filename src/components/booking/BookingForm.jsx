@@ -1,5 +1,5 @@
 import React, { useMemo, lazy, Suspense } from 'react';
-import { Box, VStack, Heading, Text, Button, useToast, Spinner, useMediaQuery, Tabs, TabList, TabPanels, Tab, TabPanel, HStack } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, useToast, Spinner, useMediaQuery, Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -59,22 +59,8 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     resolver: yupResolver(schema)
   });
 
-  const totalSteps = 4; // Adjust this based on your actual number of steps
-
-  const handlePrevious = () => {
-    if (currentStep > 0) {
-      // Logic to go to the previous step
-    }
-  };
-
-  const handleNext = () => {
-    if (currentStep < totalSteps - 1) {
-      // Logic to go to the next step
-    }
-  };
-
+  const totalSteps = 4;
   const watchVehicleModel = watch('vehicleModel');
-  const watchVehiclePosition = watch('vehiclePosition');
 
   const currentStep = useMemo(() => {
     if (!watchVehicleModel) return 0;
@@ -86,7 +72,7 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
   const onSubmit = async (data) => {
     if (isValid) {
       try {
-        const bookingData = await handleBookingProcess({ ...data, serviceType: selectedTowTruckType });
+        const bookingData = await handleBookingProcess({ ...data, serviceType: formData.serviceType });
         setFormData(prevData => ({ ...prevData, ...bookingData }));
         setIsPaymentWindowOpen(true);
       } catch (error) {
@@ -115,23 +101,13 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     setValue('dropOffAddress', formData.dropOffAddress);
   }, [formData.pickupAddress, formData.dropOffAddress, setValue]);
 
-  const handleAddressUpdate = (address, isPickup) => {
-    if (isPickup) {
-      setFormData(prevData => ({ ...prevData, pickupAddress: address }));
-      setValue('pickupAddress', address);
-    } else {
-      setFormData(prevData => ({ ...prevData, dropOffAddress: address }));
-      setValue('dropOffAddress', address);
-    }
-  };
-
   const renderForm = () => (
     <form onSubmit={handleSubmit(onSubmit)} aria-label="Tow truck service booking form">
       <FormNavButtons
         currentStep={currentStep}
         totalSteps={totalSteps}
-        onPrevious={handlePrevious}
-        onNext={handleNext}
+        onPrevious={() => {/* Implement previous step logic */}}
+        onNext={() => {/* Implement next step logic */}}
       />
       <BookingFormFields
         register={register}
@@ -149,7 +125,6 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
         isLoading={isLoading} 
         onCancel={() => navigate('/')} 
         onSaveDraft={() => {
-          // Implement save draft functionality
           toast({
             title: "Draft Saved",
             description: "Your booking draft has been saved.",
@@ -158,12 +133,6 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
             isClosable: true,
           });
         }}
-      />
-      <FormNavButtons
-        currentStep={currentStep}
-        totalSteps={totalSteps}
-        onPrevious={handlePrevious}
-        onNext={handleNext}
       />
     </form>
   );
@@ -195,12 +164,9 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
               <Tab>Map</Tab>
             </TabList>
             <TabPanels>
-              <TabPanel>
-                {renderForm()}
-              </TabPanel>
+              <TabPanel>{renderForm()}</TabPanel>
               <TabPanel>
                 <Box height="300px" width="100%">
-                  {/* Add your map component here */}
                   <Text>Map will be displayed here</Text>
                 </Box>
               </TabPanel>
@@ -222,7 +188,6 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
       </Suspense>
     </Box>
   );
-});
 });
 
 export default BookingForm;
