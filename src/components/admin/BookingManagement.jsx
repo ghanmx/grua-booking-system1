@@ -1,24 +1,25 @@
 import React from 'react';
-import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Text, Alert, AlertIcon } from "@chakra-ui/react";
-import { useQuery } from '@tanstack/react-query';
+import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Text, Alert, AlertIcon, Button, Badge } from "@chakra-ui/react";
 import { useBookings } from '../../hooks/useBookings';
 
 const BookingManagement = ({ showNotification }) => {
-  const { data: bookingsData, isLoading, error } = useBookings();
+  const { data: bookingsData, isLoading, error, refetch } = useBookings();
 
   if (isLoading) return <Box>Loading bookings...</Box>;
+  
   if (error) {
-    showNotification('Error', `Failed to load bookings: ${error.message}`, 'error');
     return (
-      <Alert status="error">
-        <AlertIcon />
-        Error loading bookings. Please try again later.
-      </Alert>
+      <Box>
+        <Alert status="error" mb={4}>
+          <AlertIcon />
+          Error loading bookings: {error.message}
+        </Alert>
+        <Button onClick={() => refetch()}>Try Again</Button>
+      </Box>
     );
   }
 
   if (!bookingsData || !Array.isArray(bookingsData.data)) {
-    showNotification('Error', 'Invalid booking data format', 'error');
     return (
       <Alert status="error">
         <AlertIcon />
@@ -28,6 +29,17 @@ const BookingManagement = ({ showNotification }) => {
   }
 
   const bookings = bookingsData.data;
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'pending': return 'yellow';
+      case 'confirmed': return 'green';
+      case 'in_progress': return 'blue';
+      case 'completed': return 'green';
+      case 'cancelled': return 'red';
+      default: return 'gray';
+    }
+  };
 
   return (
     <Box>
@@ -44,7 +56,10 @@ const BookingManagement = ({ showNotification }) => {
               <Th>Status</Th>
               <Th>Payment Status</Th>
               <Th>Total Cost</Th>
+              <Th>Pickup Location</Th>
+              <Th>Dropoff Location</Th>
               <Th>Created At</Th>
+              <Th>Pickup Date/Time</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -53,10 +68,21 @@ const BookingManagement = ({ showNotification }) => {
                 <Td>{booking.id}</Td>
                 <Td>{booking.user?.email || 'N/A'}</Td>
                 <Td>{booking.service?.name || 'N/A'}</Td>
-                <Td>{booking.status}</Td>
-                <Td>{booking.payment_status}</Td>
+                <Td>
+                  <Badge colorScheme={getStatusColor(booking.status)}>
+                    {booking.status}
+                  </Badge>
+                </Td>
+                <Td>
+                  <Badge colorScheme={booking.payment_status === 'paid' ? 'green' : 'red'}>
+                    {booking.payment_status}
+                  </Badge>
+                </Td>
                 <Td>${booking.total_cost}</Td>
+                <Td>{booking.pickup_location}</Td>
+                <Td>{booking.dropoff_location}</Td>
                 <Td>{new Date(booking.created_at).toLocaleString()}</Td>
+                <Td>{new Date(booking.pickup_datetime).toLocaleString()}</Td>
               </Tr>
             ))}
           </Tbody>
