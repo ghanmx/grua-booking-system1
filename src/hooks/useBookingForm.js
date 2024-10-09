@@ -3,7 +3,7 @@ import { useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { createBooking } from '../server/db';
+import { createBooking, saveDraftBooking } from '../server/db';
 import { testPayment } from '../utils/testPayment';
 import { getVehicleSize, getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
 
@@ -69,6 +69,32 @@ export const useBookingForm = () => {
       });
     },
   });
+
+  const saveDraft = useCallback(async (draftData) => {
+    if (!session) {
+      toast({
+        title: 'Authentication required',
+        description: 'Please log in to save a draft.',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+      });
+      return false;
+    }
+
+    try {
+      await saveDraftBooking({
+        ...draftData,
+        userId: session.user.id,
+        totalCost,
+        distance,
+      });
+      return true;
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      return false;
+    }
+  }, [session, totalCost, distance, toast]);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -157,5 +183,6 @@ export const useBookingForm = () => {
     handleDateTimeChange,
     handleBookingProcess,
     isLoading: createBookingMutation.isLoading,
+    saveDraft,
   };
 };

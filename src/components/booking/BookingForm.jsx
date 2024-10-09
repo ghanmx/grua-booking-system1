@@ -46,11 +46,12 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     distance,
     isPaymentWindowOpen,
     setIsPaymentWindowOpen,
+    saveDraft,
   } = useBookingForm();
 
   const { handlePaymentSubmit } = usePaymentProcessing(formData, totalCost, setIsPaymentWindowOpen, navigate);
 
-  const { register, handleSubmit, control, watch, setValue, formState: { errors, isValid } } = useForm({
+  const { register, handleSubmit, control, watch, setValue, trigger, formState: { errors, isValid } } = useForm({
     mode: 'onChange',
     defaultValues: {
       ...formData,
@@ -69,28 +70,47 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     return 3;
   }, [watchVehicleModel, formData.pickupAddress, formData.dropOffAddress, formData.serviceType]);
 
-  const onSubmit = async (data) => {
-    if (isValid) {
-      try {
-        const bookingData = await handleBookingProcess({ ...data, serviceType: formData.serviceType });
-        setFormData(prevData => ({ ...prevData, ...bookingData }));
-        setIsPaymentWindowOpen(true);
-      } catch (error) {
-        console.error('Error processing booking:', error);
-        toast({
-          title: "Error",
-          description: "There was an error processing your request. Please try again.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      }
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      // Logic to go to the previous step
+      // This could involve updating the form state or changing the visible fields
+    }
+  };
+
+  const handleNext = async () => {
+    // Validate the current step before moving to the next
+    const isStepValid = await trigger();
+    if (isStepValid && currentStep < totalSteps - 1) {
+      // Logic to go to the next step
+      // This could involve updating the form state or changing the visible fields
     } else {
       toast({
-        title: "Form Error",
-        description: "Please complete all required fields correctly.",
+        title: "Validation Error",
+        description: "Please fill in all required fields correctly before proceeding.",
         status: "error",
-        duration: 5000,
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleSaveDraft = async () => {
+    const currentFormData = await handleSubmit(data => data)();
+    const draftSaved = await saveDraft(currentFormData);
+    if (draftSaved) {
+      toast({
+        title: "Draft Saved",
+        description: "Your booking draft has been saved successfully.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "There was an error saving your draft. Please try again.",
+        status: "error",
+        duration: 3000,
         isClosable: true,
       });
     }
@@ -106,8 +126,8 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
       <FormNavButtons
         currentStep={currentStep}
         totalSteps={totalSteps}
-        onPrevious={() => {/* Implement previous step logic */}}
-        onNext={() => {/* Implement next step logic */}}
+        onPrevious={handlePrevious}
+        onNext={handleNext}
       />
       <BookingFormFields
         register={register}
@@ -118,21 +138,14 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
         handleDateTimeChange={handleDateTimeChange}
         vehicleBrands={vehicleBrands}
         vehicleModels={vehicleModels}
+        currentStep={currentStep}
       />
       <BookingFormSummary distance={distance} totalCost={totalCost} />
       <FormButtons 
         isValid={isValid} 
         isLoading={isLoading} 
         onCancel={() => navigate('/')} 
-        onSaveDraft={() => {
-          toast({
-            title: "Draft Saved",
-            description: "Your booking draft has been saved.",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-          });
-        }}
+        onSaveDraft={handleSaveDraft}
       />
     </form>
   );
