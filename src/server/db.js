@@ -8,7 +8,8 @@ export const getBookings = async () => {
   if (error) throw error;
   return data;
 };
-export const saveDraftBooking = async (draftData) => {
+
+const saveDraftBooking = async (draftData) => {
   try {
     const { data, error } = await supabase
       .from('draft_bookings')
@@ -22,10 +23,6 @@ export const saveDraftBooking = async (draftData) => {
     throw error;
   }
 };
-
-export { createBooking, updateBooking, deleteBooking };
-
-// Otras exportaciones...
 
 const createBooking = async (bookingData) => {
   try {
@@ -69,24 +66,6 @@ const deleteBooking = async (id) => {
     return true;
   } catch (error) {
     logger.error(`Error deleting booking: ${error.message}`);
-    throw error;
-  }
-};
-
-const saveDraftBooking = async (draftData) => {
-  try {
-    const { data, error } = await supabase
-      .from('booking_drafts')
-      .insert({
-        user_id: draftData.userId,
-        draft_data: draftData,
-        created_at: new Date().toISOString(),
-      });
-
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    logger.error(`Error saving draft booking: ${error.message}`);
     throw error;
   }
 };
