@@ -1,16 +1,12 @@
 import { supabase } from '../config/supabaseClient';
 
-export const getBookings = async (page = 1, limit = 50) => {
-  const start = (page - 1) * limit;
-  const end = start + limit - 1;
-
+export const getBookings = async () => {
   const { data, error, count } = await supabase
     .from('bookings')
-    .select('*', { count: 'exact' })
-    .range(start, end);
+    .select('*', { count: 'exact' });
 
   if (error) throw error;
-  return { data, count, page, limit };
+  return { data, count };
 };
 
 export const saveDraftBooking = async (draftData) => {
