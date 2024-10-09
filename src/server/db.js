@@ -1,21 +1,12 @@
-const supabase = require('../config/database');
-const { logger } = require('../middleware/errorHandler');
-
-// Otras importaciones y código...
+import { supabase } from '../config/supabaseClient';
 
 export const getBookings = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('bookings')
-      .select('*')
-      .order('created_at', { ascending: false });
+  const { data, error } = await supabase
+    .from('bookings')
+    .select('*');
 
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    logger.error(`Error fetching bookings: ${error.message}`);
-    throw error;
-  }
+  if (error) throw error;
+  return data;
 };
 export const saveDraftBooking = async (draftData) => {
   try {
