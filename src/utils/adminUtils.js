@@ -5,8 +5,13 @@ export const isAdmin = async (userId) => {
     console.warn('No user ID provided for admin check');
     return false;
   }
-  const role = await getUserRole(userId);
-  return role === 'admin' || role === 'super_admin';
+  try {
+    const role = await getUserRole(userId);
+    return role === 'admin' || role === 'super_admin';
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    return false;
+  }
 };
 
 export const isSuperAdmin = async (userId) => {
@@ -14,6 +19,11 @@ export const isSuperAdmin = async (userId) => {
     console.warn('No user ID provided for super admin check');
     return false;
   }
-  const role = await getUserRole(userId);
-  return role === 'super_admin';
+  try {
+    const role = await getUserRole(userId);
+    return role === 'super_admin';
+  } catch (error) {
+    console.error('Error checking super admin status:', error);
+    return false;
+  }
 };

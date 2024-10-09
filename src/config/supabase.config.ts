@@ -29,8 +29,17 @@ export const getUserRole = async (userId: string) => {
       .eq('id', userId)
       .single();
 
-    if (error) throw error;
-    return data?.role || null;
+    if (error) {
+      console.error('Error fetching user role:', error);
+      return null;
+    }
+
+    if (!data) {
+      console.warn(`No user found with id: ${userId}`);
+      return null;
+    }
+
+    return data.role;
   } catch (error) {
     console.error('Error fetching user role:', error);
     return null;
