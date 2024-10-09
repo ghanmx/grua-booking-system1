@@ -99,6 +99,16 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     setValue('dropOffAddress', formData.dropOffAddress);
   }, [formData.pickupAddress, formData.dropOffAddress, setValue]);
 
+  const handleAddressUpdate = (address, isPickup) => {
+    if (isPickup) {
+      setFormData(prevData => ({ ...prevData, pickupAddress: address }));
+      setValue('pickupAddress', address);
+    } else {
+      setFormData(prevData => ({ ...prevData, dropOffAddress: address }));
+      setValue('dropOffAddress', address);
+    }
+  };
+
   if (isLoading) {
     return <Box textAlign="center" p={4}><Spinner size="xl" /><Text mt={4}>Loading booking form...</Text></Box>;
   }

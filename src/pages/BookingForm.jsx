@@ -79,6 +79,14 @@ const BookingPage = () => {
     setKey(prevKey => prevKey + 1);
   };
 
+  const handleAddressUpdate = (address, isPickup) => {
+    if (isPickup) {
+      setFormData(prevData => ({ ...prevData, pickupAddress: address }));
+    } else {
+      setFormData(prevData => ({ ...prevData, dropOffAddress: address }));
+    }
+  };
+
   if (isLoading || !isPageLoaded) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
@@ -104,8 +112,8 @@ const BookingPage = () => {
       <Suspense fallback={<Spinner />}>
         <MapRoute
           key={key}
-          setPickupAddress={(address) => setFormData(prev => ({ ...prev, pickupAddress: address }))}
-          setDropOffAddress={(address) => setFormData(prev => ({ ...prev, dropOffAddress: address }))}
+          setPickupAddress={(address) => handleAddressUpdate(address, true)}
+          setDropOffAddress={(address) => handleAddressUpdate(address, false)}
           setDistance={setDistance}
           setTotalCost={setTotalCost}
           vehicleSize={formData.vehicleSize}

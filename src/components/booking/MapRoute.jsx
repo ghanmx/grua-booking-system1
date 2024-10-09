@@ -64,6 +64,13 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
       return data.display_name;
     } catch (error) {
       console.error('Error getting address:', error);
+      toast({
+        title: "Error",
+        description: "Unable to fetch address. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
       return '';
     }
   };
@@ -149,10 +156,10 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
             <Popup>Drop-off Location</Popup>
           </Marker>
         )}
-        {route && <Polyline positions={route} color="blue" />}
+        {route && <Polyline positions={route.map(coord => [coord[1], coord[0]])} color="blue" />}
       </MapContainer>
     </Box>
   );
 };
 
-export default React.memo(MapRoute);
+export default MapRoute;
