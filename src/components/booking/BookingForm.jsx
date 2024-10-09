@@ -15,7 +15,6 @@ const BookingFormStepper = lazy(() => import('./BookingFormStepper'));
 const PaymentWindowWrapper = lazy(() => import('./PaymentWindowWrapper'));
 
 const schema = yup.object().shape({
-const schema = yup.object().shape({
   userName: yup.string().required('Name is required').min(2, 'Name must be at least 2 characters'),
   phoneNumber: yup.string().matches(/^\d{10}$/, 'Phone number must be 10 digits').required('Phone number is required'),
   vehicleBrand: yup.string().required('Vehicle brand is required'),
@@ -25,7 +24,6 @@ const schema = yup.object().shape({
   pickupAddress: yup.string().required('Pickup address is required').min(5, 'Address must be at least 5 characters'),
   dropOffAddress: yup.string().required('Drop-off address is required').min(5, 'Address must be at least 5 characters'),
   pickupDateTime: yup.date().nullable().required('Pickup date and time is required').min(new Date(), 'Pickup time must be in the future'),
-});
 });
 
 const BookingFormContent = ({ formProps, handleSubmit, onSubmit, currentStep, totalSteps, handlePrevious, handleNext, handleSaveDraft }) => (
