@@ -1,5 +1,5 @@
 import React, { useMemo, lazy, Suspense } from 'react';
-import { Box, VStack, Heading, Text, Button, useToast, Spinner, useMediaQuery, Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, Button, useToast, Spinner, useMediaQuery, Tabs, TabList, TabPanels, Tab, TabPanel, HStack } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -10,6 +10,7 @@ import { useBookingForm } from '../../hooks/useBookingForm';
 import { usePaymentProcessing } from '../../hooks/usePaymentProcessing';
 import { BookingFormFields } from './BookingFormFields';
 import { BookingFormSummary } from './BookingFormSummary';
+import { FormButtons } from './FormButtons'; // New component for buttons
 
 const BookingFormStepper = lazy(() => import('./BookingFormStepper'));
 const PaymentWindow = lazy(() => import('./PaymentWindow'));
@@ -130,17 +131,21 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
         vehicleModels={vehicleModels}
       />
       <BookingFormSummary distance={distance} totalCost={totalCost} />
-      <Button 
-        colorScheme="blue" 
-        type="submit" 
-        mt={4} 
+      <FormButtons 
+        isValid={isValid} 
         isLoading={isLoading} 
-        isDisabled={!isValid || isLoading}
-        width="100%"
-        aria-label="Submit booking request"
-      >
-        Request Tow Truck Service
-      </Button>
+        onCancel={() => navigate('/')} 
+        onSaveDraft={() => {
+          // Implement save draft functionality
+          toast({
+            title: "Draft Saved",
+            description: "Your booking draft has been saved.",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+        }}
+      />
     </form>
   );
 
