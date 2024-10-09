@@ -10,7 +10,8 @@ import { useBookingForm } from '../../hooks/useBookingForm';
 import { usePaymentProcessing } from '../../hooks/usePaymentProcessing';
 import { BookingFormFields } from './BookingFormFields';
 import { BookingFormSummary } from './BookingFormSummary';
-import { FormButtons } from './FormButtons'; // New component for buttons
+import { FormButtons } from './FormButtons';
+import FormNavButtons from './FormNavButtons';
 
 const BookingFormStepper = lazy(() => import('./BookingFormStepper'));
 const PaymentWindow = lazy(() => import('./PaymentWindow'));
@@ -57,6 +58,20 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     },
     resolver: yupResolver(schema)
   });
+
+  const totalSteps = 4; // Adjust this based on your actual number of steps
+
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      // Logic to go to the previous step
+    }
+  };
+
+  const handleNext = () => {
+    if (currentStep < totalSteps - 1) {
+      // Logic to go to the next step
+    }
+  };
 
   const watchVehicleModel = watch('vehicleModel');
   const watchVehiclePosition = watch('vehiclePosition');
@@ -110,16 +125,14 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     }
   };
 
-  if (isLoading) {
-    return <Box textAlign="center" p={4}><Spinner size="xl" /><Text mt={4}>Loading booking form...</Text></Box>;
-  }
-
-  if (mapError) {
-    return <Box p={4}><Text color="red.500">Error loading map. Please refresh the page or contact support.</Text></Box>;
-  }
-
   const renderForm = () => (
     <form onSubmit={handleSubmit(onSubmit)} aria-label="Tow truck service booking form">
+      <FormNavButtons
+        currentStep={currentStep}
+        totalSteps={totalSteps}
+        onPrevious={handlePrevious}
+        onNext={handleNext}
+      />
       <BookingFormFields
         register={register}
         errors={errors}
@@ -145,6 +158,12 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
             isClosable: true,
           });
         }}
+      />
+      <FormNavButtons
+        currentStep={currentStep}
+        totalSteps={totalSteps}
+        onPrevious={handlePrevious}
+        onNext={handleNext}
       />
     </form>
   );
@@ -203,6 +222,7 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
       </Suspense>
     </Box>
   );
+});
 });
 
 export default BookingForm;
