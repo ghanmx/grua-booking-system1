@@ -46,7 +46,6 @@ COMMENT ON TABLE public.profiles IS 'Stores additional user profile information'
 COMMENT ON COLUMN public.profiles.user_id IS 'Reference to the user account';
 COMMENT ON COLUMN public.profiles.phone_number IS 'User''s contact phone number';
 
-
 -- Create services table
 CREATE TABLE IF NOT EXISTS public.services (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -62,7 +61,6 @@ CREATE TABLE IF NOT EXISTS public.services (
   CONSTRAINT services_maneuver_charge_check CHECK (maneuver_charge >= 0),
   CONSTRAINT services_price_per_km_check CHECK (price_per_km >= 0)
 );
-
 
 COMMENT ON TABLE public.services IS 'Stores information about available towing services';
 COMMENT ON COLUMN public.services.base_price IS 'Base price for the service';
@@ -105,6 +103,23 @@ CREATE TABLE IF NOT EXISTS public.smtp_settings (
 COMMENT ON TABLE public.smtp_settings IS 'Stores SMTP settings for email notifications';
 COMMENT ON COLUMN public.smtp_settings.user_id IS 'Reference to the user who owns these SMTP settings';
 
+-- Create public profiles table
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users ON DELETE CASCADE,
+  updated_at TIMESTAMPTZ,
+  username TEXT UNIQUE,
+  full_name TEXT,
+  avatar_url TEXT,
+  website TEXT,
+  CONSTRAINT username_length CHECK (char_length(username) >= 3)
+);
+
+-- Create password failed verification attempts table
+CREATE TABLE IF NOT EXISTS public.password_failed_verification_attempts (
+  user_id UUID NOT NULL PRIMARY KEY,
+  last_failed_at TIMESTAMPTZ NOT NULL
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
 CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON public.bookings(user_id);
@@ -112,7 +127,7 @@ CREATE INDEX IF NOT EXISTS idx_bookings_service_id ON public.bookings(service_id
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON public.bookings(status);
 CREATE INDEX IF NOT EXISTS idx_bookings_pickup_datetime ON public.bookings(pickup_datetime);
 
--- Triggers for updating 'updated_at' columns
+-- Triggers
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -137,6 +152,85 @@ CREATE TRIGGER update_bookings_timestamp
 BEFORE UPDATE ON public.bookings
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
+-- Create handle_new_user function
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, avatar_url)
+  VALUES (NEW.id, NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'avatar_url');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create on_auth_user_created trigger
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.handle_new_user();
+
+-- Create hook_password_verification_attempt function
+CREATE OR REPLACE FUNCTION public.hook_password_verification_attempt(event JSONB)
+RETURNS JSONB AS $$
+DECLARE
+  last_failed_at TIMESTAMPTZ;
+BEGIN
+  IF event->'valid' IS TRUE THEN
+    RETURN jsonb_build_object('decision', 'continue');
+  END IF;
+
+  SELECT last_failed_at INTO last_failed_at
+    FROM public.password_failed_verification_attempts
+    WHERE user_id = (event->'user_id')::UUID;
+
+  IF last_failed_at IS NOT NULL AND NOW() - last_failed_at < INTERVAL '10 seconds' THEN
+    RETURN jsonb_build_object(
+      'error', jsonb_build_object(
+        'http_code', 429,
+        'message', 'Please wait a moment before trying again.'
+      )
+    );
+  END IF;
+
+  INSERT INTO public.password_failed_verification_attempts
+    (user_id, last_failed_at)
+    VALUES
+    (event->'user_id', NOW())
+    ON CONFLICT DO UPDATE
+    SET last_failed_at = NOW();
+
+  RETURN jsonb_build_object('decision', 'continue');
+END;
+$$ LANGUAGE plpgsql;
+
+-- Set up Storage
+INSERT INTO storage.buckets (id, name) VALUES ('avatars', 'avatars');
+
+-- Policies
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public profiles are viewable by everyone." ON public.profiles
+  FOR SELECT USING (true);
+
+CREATE POLICY "Users can insert their own profile." ON public.profiles
+  FOR INSERT WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Users can update own profile." ON public.profiles
+  FOR UPDATE USING (auth.uid() = id);
+
+-- Set up access controls for storage
+CREATE POLICY "Avatar images are publicly accessible." ON storage.objects
+  FOR SELECT USING (bucket_id = 'avatars');
+
+CREATE POLICY "Anyone can upload an avatar." ON storage.objects
+  FOR INSERT WITH CHECK (bucket_id = 'avatars');
+
+-- Permissions
+GRANT EXECUTE ON FUNCTION public.hook_password_verification_attempt TO supabase_auth_admin;
+GRANT ALL ON TABLE public.password_failed_verification_attempts TO supabase_auth_admin;
+REVOKE EXECUTE ON FUNCTION public.hook_password_verification_attempt FROM authenticated, anon, public;
+REVOKE ALL ON TABLE public.password_failed_verification_attempts FROM authenticated, anon, public;
+GRANT USAGE ON SCHEMA public TO supabase_auth_admin;
+
 -- Sample data insertions (optional, can be removed for production)
 INSERT INTO public.users (email, encrypted_password, role) VALUES
 ('admin@example.com', crypt('admin_password', gen_salt('bf')), 'admin'),
@@ -157,5 +251,3 @@ VALUES (
   '{"brand": "Toyota", "model": "Corolla", "year": 2020, "color": "Silver", "license_plate": "ABC123", "size": "medium"}'::jsonb,
   15.5, 81.00, NOW() + INTERVAL '2 hours'
 );
-
-
