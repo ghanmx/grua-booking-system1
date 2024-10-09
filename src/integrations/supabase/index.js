@@ -13,10 +13,12 @@ import {
   useUpdatePasswordFailedVerificationAttempt,
   useDeletePasswordFailedVerificationAttempt
 } from './hooks/password_failed_verification_attempts';
+import { SupabaseProvider } from './SupabaseProvider.jsx'; // Add this line
 
 // Export all the imported functions and objects
 export {
   supabase,
+  SupabaseProvider, // Add this line
   SupabaseAuthProvider,
   useSupabaseAuth,
   SupabaseAuthUI,
