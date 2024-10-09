@@ -26,7 +26,10 @@ export const saveDraftBooking = async (draftData) => {
 export const createBooking = async (bookingData) => {
   const { data, error } = await supabase
     .from('bookings')
-    .insert(bookingData)
+    .insert({
+      ...bookingData,
+      additional_details: bookingData.additionalDetails,
+    })
     .select();
 
   if (error) throw error;
@@ -36,7 +39,10 @@ export const createBooking = async (bookingData) => {
 export const updateBooking = async (id, updateData) => {
   const { data, error } = await supabase
     .from('bookings')
-    .update(updateData)
+    .update({
+      ...updateData,
+      additional_details: updateData.additionalDetails,
+    })
     .eq('id', id)
     .select();
 
