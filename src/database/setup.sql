@@ -46,6 +46,8 @@ COMMENT ON TABLE public.profiles IS 'Stores additional user profile information'
 COMMENT ON COLUMN public.profiles.user_id IS 'Reference to the user account';
 COMMENT ON COLUMN public.profiles.phone_number IS 'User''s contact phone number';
 
+
+-- Create services table
 CREATE TABLE IF NOT EXISTS public.services (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
@@ -53,10 +55,14 @@ CREATE TABLE IF NOT EXISTS public.services (
   base_price NUMERIC(10, 2) NOT NULL CHECK (base_price >= 0),
   price_per_km NUMERIC(10, 2) NOT NULL CHECK (price_per_km >= 0),
   maneuver_charge NUMERIC(10, 2) NOT NULL CHECK (maneuver_charge >= 0),
-  tow_truck_type tow_truck_type NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  tow_truck_type public.tow_truck_type NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  CONSTRAINT services_base_price_check CHECK (base_price >= 0),
+  CONSTRAINT services_maneuver_charge_check CHECK (maneuver_charge >= 0),
+  CONSTRAINT services_price_per_km_check CHECK (price_per_km >= 0)
 );
+
 
 COMMENT ON TABLE public.services IS 'Stores information about available towing services';
 COMMENT ON COLUMN public.services.base_price IS 'Base price for the service';
@@ -151,4 +157,5 @@ VALUES (
   '{"brand": "Toyota", "model": "Corolla", "year": 2020, "color": "Silver", "license_plate": "ABC123", "size": "medium"}'::jsonb,
   15.5, 81.00, NOW() + INTERVAL '2 hours'
 );
+
 
