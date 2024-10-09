@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, VStack, Heading, Tabs, TabList, TabPanels, Tab, TabPanel, useToast } from "@chakra-ui/react";
+import { Box, VStack, Heading, Tabs, TabList, TabPanels, Tab, TabPanel, useToast, Button, HStack } from "@chakra-ui/react";
+import { useNavigate } from 'react-router-dom';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
 import { getUserRole } from '../config/supabaseClient';
 import UserManagement from '../components/admin/UserManagement';
@@ -9,7 +10,8 @@ import AnalyticsDashboard from '../components/admin/AnalyticsDashboard';
 import SMTPSettingsForm from '../components/admin/SMTPSettingsForm';
 
 const AdminPanel = () => {
-  const { session } = useSupabaseAuth();
+  const { session, logout } = useSupabaseAuth();
+  const navigate = useNavigate();
   const toast = useToast();
   const [userRole, setUserRole] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,10 +51,22 @@ const AdminPanel = () => {
     toast({ title, description, status, duration: 3000, isClosable: true });
   };
 
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
+
   return (
     <Box p={4}>
       <VStack spacing={8} align="stretch">
-        <Heading as="h1" size="xl">Admin Panel {userRole === 'super_admin' ? '(Super Admin)' : ''}</Heading>
+        <HStack justifyContent="space-between">
+          <Heading as="h1" size="xl">Admin Panel {userRole === 'super_admin' ? '(Super Admin)' : ''}</Heading>
+          <HStack>
+            <Button onClick={() => navigate('/')}>Main Page</Button>
+            <Button onClick={() => navigate('/profile')}>Profile</Button>
+            <Button onClick={handleLogout} colorScheme="red">Logout</Button>
+          </HStack>
+        </HStack>
         <Tabs isFitted variant="enclosed">
           <TabList mb="1em">
             <Tab>Analytics Dashboard</Tab>
