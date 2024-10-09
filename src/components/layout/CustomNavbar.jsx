@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Flex, Link, Button, Image, useDisclosure, VStack } from "@chakra-ui/react";
+import React, { useState, useEffect } from 'react';
+import { Box, Flex, Link, Button, Image, useDisclosure } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useSupabaseAuth } from '../../integrations/supabase/auth';
@@ -9,6 +9,17 @@ const CustomNavbar = () => {
   const { session, logout } = useSupabaseAuth();
   const navigate = useNavigate();
   const { isOpen, onToggle } = useDisclosure();
+  const [isUserAdmin, setIsUserAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (session?.user?.id) {
+        const adminStatus = await isAdmin(session.user.id);
+        setIsUserAdmin(adminStatus);
+      }
+    };
+    checkAdminStatus();
+  }, [session]);
 
   const handleLogout = async () => {
     await logout();
@@ -45,7 +56,7 @@ const CustomNavbar = () => {
         </Flex>
 
         <Flex alignItems={'center'}>
-          {session && isAdmin(session.user.id) && (
+          {isUserAdmin && (
             <NavLink to="/admin">Admin Panel</NavLink>
           )}
           {session ? (
@@ -62,15 +73,13 @@ const CustomNavbar = () => {
 
       {isOpen && (
         <Box pb={4} display={{ md: 'none' }}>
-          <VStack spacing={2} align="stretch">
-            <NavLink to="/">Home</NavLink>
-            <NavLink to="/about">About</NavLink>
-            <NavLink to="/contact">Contact</NavLink>
-            <NavLink to="/booking">Book Now</NavLink>
-            {session && isAdmin(session.user.id) && (
-              <NavLink to="/admin">Admin Panel</NavLink>
-            )}
-          </VStack>
+          <NavLink to="/">Home</NavLink>
+          <NavLink to="/about">About</NavLink>
+          <NavLink to="/contact">Contact</NavLink>
+          <NavLink to="/booking">Book Now</NavLink>
+          {isUserAdmin && (
+            <NavLink to="/admin">Admin Panel</NavLink>
+          )}
         </Box>
       )}
     </Box>

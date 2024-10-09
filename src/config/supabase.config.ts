@@ -21,4 +21,20 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
   }
 });
 
+export const getUserRole = async (userId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', userId)
+      .single();
+
+    if (error) throw error;
+    return data?.role || null;
+  } catch (error) {
+    console.error('Error fetching user role:', error);
+    return null;
+  }
+};
+
 export default supabase;

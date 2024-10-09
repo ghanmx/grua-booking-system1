@@ -1,4 +1,4 @@
-import supabase, { getUserRole } from '../config/supabaseClient';
+import { getUserRole } from '../config/supabase.config';
 
 export const isAdmin = async (userId) => {
   if (!userId) {
