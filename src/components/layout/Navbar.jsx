@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Box, Flex, Link, Button, Image, useDisclosure } from "@chakra-ui/react";
+import { Box, Flex, Link, Button, Image, useDisclosure, keyframes } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useSupabaseAuth } from '../../integrations/supabase/auth';
 import { getUserRole } from '../../config/supabaseClient';
+
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
 
 const Navbar = () => {
   const { session, logout } = useSupabaseAuth();
@@ -36,14 +41,16 @@ const Navbar = () => {
       _hover={{
         textDecoration: 'none',
         bg: 'blue.600',
+        transform: 'translateY(-2px)',
       }}
+      transition="all 0.2s"
     >
       {children}
     </Link>
   );
 
   return (
-    <Box bg="blue.500" px={4} position="sticky" top="0" zIndex="sticky">
+    <Box bg="rgba(255,255,255,0.1)" px={4} position="sticky" top="0" zIndex="sticky" backdropFilter="blur(10px)">
       <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
         <Flex alignItems={'center'}>
           <Image src="/mr-gruas-logo-navbar.png" alt="M.R. Gruas Logo" h="40px" mr={4} />
@@ -72,7 +79,7 @@ const Navbar = () => {
       </Flex>
 
       {isOpen && (
-        <Box pb={4} display={{ md: 'none' }}>
+        <Box pb={4} display={{ md: 'none' }} animation={`${fadeIn} 0.3s ease-in`}>
           <NavLink to="/">Home</NavLink>
           <NavLink to="/about">About</NavLink>
           <NavLink to="/contact">Contact</NavLink>
