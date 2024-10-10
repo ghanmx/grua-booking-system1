@@ -6,7 +6,7 @@ import * as yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import { useBookingForm } from '../../hooks/useBookingForm';
 import { usePaymentProcessing } from '../../hooks/usePaymentProcessing';
-import { BookingFormFields } from './BookingFormFields';
+import BookingFormFields from './BookingFormFields';
 import { BookingFormSummary } from './BookingFormSummary';
 import { FormButtons } from './FormButtons';
 import FormNavButtons from './FormNavButtons';
