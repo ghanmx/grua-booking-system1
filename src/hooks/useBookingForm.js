@@ -171,6 +171,10 @@ export const useBookingForm = () => {
     localStorage.setItem('bookingFormData', JSON.stringify(formData));
   }, [formData]);
 
+  useEffect(() => {
+    updateTotalCost();
+  }, [updateTotalCost, distance]);
+
   return {
     formData,
     setFormData,

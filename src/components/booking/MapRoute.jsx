@@ -16,7 +16,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl,
 });
 
-const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, vehicleSize }) => {
+const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCost, vehicleSize, onMarkerMove }) => {
   const [pickup, setPickup] = useState(null);
   const [destination, setDestination] = useState(null);
   const [route, setRoute] = useState(null);
@@ -36,26 +36,14 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
       setPickup([lat, lng]);
       const address = await getAddressFromLatLng(lat, lng);
       setPickupAddress(address);
+      onMarkerMove(address, destination ? await getAddressFromLatLng(destination[0], destination[1]) : '');
     } else if (!destination) {
       setDestination([lat, lng]);
       const address = await getAddressFromLatLng(lat, lng);
       setDropOffAddress(address);
-    } else {
-      // Allow changing existing markers
-      const distanceToPickup = L.latLng(pickup).distanceTo([lat, lng]);
-      const distanceToDestination = L.latLng(destination).distanceTo([lat, lng]);
-      
-      if (distanceToPickup < distanceToDestination) {
-        setPickup([lat, lng]);
-        const address = await getAddressFromLatLng(lat, lng);
-        setPickupAddress(address);
-      } else {
-        setDestination([lat, lng]);
-        const address = await getAddressFromLatLng(lat, lng);
-        setDropOffAddress(address);
-      }
+      onMarkerMove(await getAddressFromLatLng(pickup[0], pickup[1]), address);
     }
-  }, [pickup, destination, setPickupAddress, setDropOffAddress]);
+  }, [pickup, destination, setPickupAddress, setDropOffAddress, onMarkerMove]);
 
   const getAddressFromLatLng = async (lat, lng) => {
     try {
@@ -88,11 +76,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
           setDistance(distanceInKm);
           const towTruckType = getTowTruckType(vehicleSize);
           const cost = calculateTotalCost(distanceInKm, towTruckType);
-          if (typeof setTotalCost === 'function') {
-            setTotalCost(cost);
-          } else {
-            console.warn('setTotalCost is not a function', setTotalCost);
-          }
+          setTotalCost(cost);
         }
       } catch (error) {
         console.error('Error calculating route:', error);
@@ -123,7 +107,11 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
       setDestination(newPosition);
       setDropOffAddress(address);
     }
-  }, [setPickupAddress, setDropOffAddress]);
+    onMarkerMove(
+      isPickup ? address : await getAddressFromLatLng(pickup[0], pickup[1]),
+      isPickup ? await getAddressFromLatLng(destination[0], destination[1]) : address
+    );
+  }, [setPickupAddress, setDropOffAddress, onMarkerMove, pickup, destination]);
 
   return (
     <Box position="absolute" top="0" left="0" height="100%" width="100%" aria-label="Interactive map for selecting pickup and drop-off locations">
@@ -156,7 +144,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
             <Popup>Drop-off Location</Popup>
           </Marker>
         )}
-        {route && <Polyline positions={route.map(coord => [coord[1], coord[0]])} color="blue" />}
+        {route && <Polyline positions={route} color="blue" />}
       </MapContainer>
     </Box>
   );

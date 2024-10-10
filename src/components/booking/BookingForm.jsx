@@ -1,5 +1,5 @@
 import React, { useMemo, lazy, Suspense } from 'react';
-import { Box, VStack, Heading, Spinner, useMediaQuery } from "@chakra-ui/react";
+import { Box, VStack, Heading, Spinner, useMediaQuery, useToast } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -13,6 +13,7 @@ import FormNavButtons from './FormNavButtons';
 
 const BookingFormStepper = lazy(() => import('./BookingFormStepper'));
 const PaymentWindowWrapper = lazy(() => import('./PaymentWindowWrapper'));
+const MapRoute = lazy(() => import('./MapRoute'));
 
 const schema = yup.object().shape({
   userName: yup.string().required('Name is required').min(2, 'Name must be at least 2 characters'),
@@ -27,40 +28,24 @@ const schema = yup.object().shape({
   additional_details: yup.string(),
 });
 
-const BookingFormContent = ({ formProps, handleSubmit, onSubmit, currentStep, totalSteps, handlePrevious, handleNext, handleSaveDraft }) => (
-  <form onSubmit={handleSubmit(onSubmit)} aria-label="Tow truck service booking form">
-    <FormNavButtons
-      currentStep={currentStep}
-      totalSteps={totalSteps}
-      onPrevious={handlePrevious}
-      onNext={handleNext}
-    />
-    <BookingFormFields {...formProps} currentStep={currentStep} />
-    <BookingFormSummary distance={formProps.distance} totalCost={formProps.totalCost} />
-    <FormButtons 
-      isValid={formProps.isValid} 
-      isLoading={formProps.isLoading} 
-      onCancel={() => formProps.navigate('/')} 
-      onSaveDraft={handleSaveDraft}
-    />
-  </form>
-);
-
-const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
+const BookingForm = () => {
   const [isMobile] = useMediaQuery("(max-width: 48em)");
   const navigate = useNavigate();
+  const toast = useToast();
   
   const {
     formData,
     setFormData,
+    distance,
+    setDistance,
+    totalCost,
+    setTotalCost,
+    isPaymentWindowOpen,
+    setIsPaymentWindowOpen,
     handleChange,
     handleDateTimeChange,
     handleBookingProcess,
     isLoading,
-    totalCost,
-    distance,
-    isPaymentWindowOpen,
-    setIsPaymentWindowOpen,
     saveDraft,
   } = useBookingForm();
 
@@ -110,25 +95,14 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
     });
   };
 
-  React.useEffect(() => {
-    setValue('pickupAddress', formData.pickupAddress);
-    setValue('dropOffAddress', formData.dropOffAddress);
-  }, [formData.pickupAddress, formData.dropOffAddress, setValue]);
-
-  const formProps = {
-    register,
-    errors,
-    control,
-    formData,
-    handleChange,
-    handleDateTimeChange,
-    vehicleBrands,
-    vehicleModels,
-    distance,
-    totalCost,
-    isValid,
-    isLoading,
-    navigate
+  const handleMarkerMove = (newPickup, newDropoff) => {
+    setValue('pickupAddress', newPickup);
+    setValue('dropOffAddress', newDropoff);
+    setFormData(prev => ({
+      ...prev,
+      pickupAddress: newPickup,
+      dropOffAddress: newDropoff
+    }));
   };
 
   return (
@@ -151,17 +125,40 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
         <Suspense fallback={<Spinner aria-label="Loading form steps" />}>
           <BookingFormStepper currentStep={currentStep} />
         </Suspense>
-        <BookingFormContent 
-          formProps={formProps}
-          handleSubmit={handleSubmit}
-          onSubmit={onSubmit}
-          currentStep={currentStep}
-          totalSteps={totalSteps}
-          handlePrevious={handlePrevious}
-          handleNext={handleNext}
-          handleSaveDraft={handleSaveDraft}
-        />
+        <form onSubmit={handleSubmit(onSubmit)} aria-label="Tow truck service booking form">
+          <FormNavButtons
+            currentStep={currentStep}
+            totalSteps={totalSteps}
+            onPrevious={handlePrevious}
+            onNext={handleNext}
+          />
+          <BookingFormFields
+            register={register}
+            errors={errors}
+            control={control}
+            formData={formData}
+            handleChange={handleChange}
+            handleDateTimeChange={handleDateTimeChange}
+          />
+          <BookingFormSummary distance={distance} totalCost={totalCost} />
+          <FormButtons 
+            isValid={isValid} 
+            isLoading={isLoading} 
+            onCancel={() => navigate('/')} 
+            onSaveDraft={handleSaveDraft}
+          />
+        </form>
       </VStack>
+      <Suspense fallback={<Spinner aria-label="Loading map" />}>
+        <MapRoute
+          setPickupAddress={(address) => setValue('pickupAddress', address)}
+          setDropOffAddress={(address) => setValue('dropOffAddress', address)}
+          setDistance={setDistance}
+          setTotalCost={setTotalCost}
+          vehicleSize={formData.vehicleSize}
+          onMarkerMove={handleMarkerMove}
+        />
+      </Suspense>
       <Suspense fallback={<Spinner aria-label="Loading payment window" />}>
         <PaymentWindowWrapper
           isOpen={isPaymentWindowOpen}
@@ -172,6 +169,6 @@ const BookingForm = React.memo(({ vehicleBrands, vehicleModels, mapError }) => {
       </Suspense>
     </Box>
   );
-});
+};
 
 export default BookingForm;
