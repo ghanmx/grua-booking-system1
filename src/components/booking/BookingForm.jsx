@@ -1,5 +1,5 @@
 import React, { useMemo, lazy, Suspense } from 'react';
-import { Box, VStack, Heading, Spinner, useToast, useMediaQuery } from "@chakra-ui/react";
+import { Box, VStack, Heading, Spinner, useToast, useMediaQuery, IconButton } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -10,6 +10,7 @@ import BookingFormFields from './BookingFormFields';
 import { BookingFormSummary } from './BookingFormSummary';
 import { FormButtons } from './FormButtons';
 import FormNavButtons from './FormNavButtons';
+import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
 
 const BookingFormStepper = lazy(() => import('./BookingFormStepper'));
 const PaymentWindowWrapper = lazy(() => import('./PaymentWindowWrapper'));
@@ -29,6 +30,7 @@ const schema = yup.object().shape({
 
 const BookingForm = () => {
   const [isMobile] = useMediaQuery("(max-width: 48em)");
+  const [isFormMinimized, setIsFormMinimized] = React.useState(false);
   const navigate = useNavigate();
   const toast = useToast();
   
@@ -96,44 +98,62 @@ const BookingForm = () => {
 
   return (
     <Box 
-      width="100%"
-      maxWidth={{ base: "100%", md: "400px" }}
-      margin="auto"
-      padding={4}
-      bg="white"
-      borderRadius="md"
+      position={isMobile ? "fixed" : "absolute"}
+      bottom={isMobile ? "0" : "auto"}
+      right={isMobile ? "0" : "20px"}
+      width={isMobile ? "100%" : "400px"}
+      maxHeight={isMobile ? (isFormMinimized ? "50px" : "80vh") : "calc(100vh - 40px)"}
+      overflowY="auto"
+      bg="rgba(0, 0, 0, 0.8)"
+      color="white"
+      p={4}
+      borderRadius={isMobile ? "16px 16px 0 0" : "md"}
       boxShadow="xl"
       zIndex={1000}
+      transition="all 0.3s ease-in-out"
       aria-label="Booking form"
     >
       <VStack spacing={4} align="stretch">
-        <Heading as="h1" size="lg">Booking Form</Heading>
-        <Suspense fallback={<Spinner aria-label="Loading form steps" />}>
-          <BookingFormStepper currentStep={currentStep} />
-        </Suspense>
-        <form onSubmit={handleSubmit(onSubmit)} aria-label="Tow truck service booking form">
-          <FormNavButtons
-            currentStep={currentStep}
-            totalSteps={totalSteps}
-            onPrevious={handlePrevious}
-            onNext={handleNext}
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Heading as="h1" size="lg">Booking Form</Heading>
+          <IconButton
+            icon={isFormMinimized ? <ChevronUpIcon /> : <ChevronDownIcon />}
+            onClick={() => setIsFormMinimized(!isFormMinimized)}
+            aria-label={isFormMinimized ? "Expand form" : "Minimize form"}
+            variant="ghost"
+            color="white"
           />
-          <BookingFormFields
-            register={register}
-            errors={errors}
-            control={control}
-            formData={formData}
-            handleChange={handleChange}
-            handleDateTimeChange={handleDateTimeChange}
-          />
-          <BookingFormSummary distance={distance} totalCost={totalCost} />
-          <FormButtons 
-            isValid={isValid} 
-            isLoading={isLoading} 
-            onCancel={() => navigate('/')} 
-            onSaveDraft={handleSaveDraft}
-          />
-        </form>
+        </Box>
+        {!isFormMinimized && (
+          <>
+            <Suspense fallback={<Spinner aria-label="Loading form steps" />}>
+              <BookingFormStepper currentStep={currentStep} />
+            </Suspense>
+            <form onSubmit={handleSubmit(onSubmit)} aria-label="Tow truck service booking form">
+              <FormNavButtons
+                currentStep={currentStep}
+                totalSteps={totalSteps}
+                onPrevious={handlePrevious}
+                onNext={handleNext}
+              />
+              <BookingFormFields
+                register={register}
+                errors={errors}
+                control={control}
+                formData={formData}
+                handleChange={handleChange}
+                handleDateTimeChange={handleDateTimeChange}
+              />
+              <BookingFormSummary distance={distance} totalCost={totalCost} />
+              <FormButtons 
+                isValid={isValid} 
+                isLoading={isLoading} 
+                onCancel={() => navigate('/')} 
+                onSaveDraft={handleSaveDraft}
+              />
+            </form>
+          </>
+        )}
       </VStack>
       <Suspense fallback={<Spinner aria-label="Loading payment window" />}>
         <PaymentWindowWrapper

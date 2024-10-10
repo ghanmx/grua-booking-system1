@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Box, useToast } from '@chakra-ui/react';
+import { Box, useToast, useMediaQuery } from "@chakra-ui/react";
 import { calculateTotalCost, getTowTruckType } from '../../utils/towTruckSelection';
 
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
@@ -22,6 +22,7 @@ const MapRoute = ({ setPickupAddress, setDropOffAddress, setDistance, setTotalCo
   const [route, setRoute] = useState(null);
   const companyLocation = [26.509672, -100.0095504]; // Company location coordinates
   const toast = useToast();
+  const [isMobile] = useMediaQuery("(max-width: 48em)");
 
   const MapEvents = () => {
     useMapEvents({

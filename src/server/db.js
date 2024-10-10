@@ -24,7 +24,7 @@ export const createBooking = async (bookingData) => {
     .from('bookings')
     .insert({
       ...bookingData,
-      additional_details: bookingData.additionalDetails,
+      additional_details: bookingData.additionalDetails, // Changed from additionalDetails to additional_details
     })
     .select();
 
@@ -37,7 +37,7 @@ export const updateBooking = async (id, updateData) => {
     .from('bookings')
     .update({
       ...updateData,
-      additional_details: updateData.additionalDetails,
+      additional_details: updateData.additionalDetails, // Changed from additionalDetails to additional_details
     })
     .eq('id', id)
     .select();
