@@ -55,3 +55,26 @@ export const deleteBooking = async (id) => {
   if (error) throw error;
   return true;
 };
+
+export const getPaidServicesWaiting = async () => {
+  const { data, error } = await supabase
+    .from('bookings')
+    .select('*')
+    .eq('payment_status', 'paid')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+};
+
+export const updateServiceStatus = async (id, newStatus) => {
+  const { data, error } = await supabase
+    .from('bookings')
+    .update({ status: newStatus })
+    .eq('id', id)
+    .select();
+
+  if (error) throw error;
+  return data[0];
+};

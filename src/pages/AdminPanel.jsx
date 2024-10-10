@@ -8,6 +8,7 @@ import ServiceManagement from '../components/admin/ServiceManagement';
 import BookingManagement from '../components/admin/BookingManagement';
 import AnalyticsDashboard from '../components/admin/AnalyticsDashboard';
 import SMTPSettingsForm from '../components/admin/SMTPSettingsForm';
+import ServiceHistory from '../components/booking/ServiceHistory';
 
 const AdminPanel = () => {
   const { session, logout } = useSupabaseAuth();
@@ -73,6 +74,7 @@ const AdminPanel = () => {
             <Tab>Booking Management</Tab>
             <Tab>Service Management</Tab>
             <Tab>User Management</Tab>
+            <Tab>Paid Services Waiting</Tab>
             {userRole === 'super_admin' && <Tab>SMTP Settings</Tab>}
           </TabList>
           <TabPanels>
@@ -87,6 +89,9 @@ const AdminPanel = () => {
             </TabPanel>
             <TabPanel>
               <UserManagement showNotification={showNotification} userRole={userRole} />
+            </TabPanel>
+            <TabPanel>
+              <ServiceHistory />
             </TabPanel>
             {userRole === 'super_admin' && (
               <TabPanel>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, useToast } from "@chakra-ui/react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getPaidServicesWaiting, updateServiceStatus } from '../server/db';
+import { getPaidServicesWaiting, updateServiceStatus } from '../../server/db';
 
 const ServiceHistory = () => {
   const toast = useToast();
