@@ -1,120 +1,109 @@
 import React from 'react';
-import { FormControl, FormLabel, Input, Select } from "@chakra-ui/react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { Controller } from "react-hook-form";
+import { VStack } from "@chakra-ui/react";
+import { InputField, SelectField, DateTimeField } from '../common/FormComponents';
+import { vehicleBrands, vehicleModels, vehicleSizes } from '../../utils/vehicleData';
 
-export const BookingFormFields = ({
-  register,
-  errors,
-  control,
-  formData,
-  handleChange,
-  handleDateTimeChange,
-  vehicleBrands,
-  vehicleModels
-}) => {
+const BookingFormFields = ({ register, errors, control, formData, handleChange, handleDateTimeChange }) => {
   return (
-    <>
-      <FormControl isInvalid={errors.userName}>
-        <FormLabel htmlFor="userName">Name</FormLabel>
-        <Input
-          id="userName"
-          {...register('userName')}
-          placeholder="Your Name"
-        />
-      </FormControl>
-      <FormControl isInvalid={errors.phoneNumber}>
-        <FormLabel htmlFor="phoneNumber">Phone Number</FormLabel>
-        <Input
-          id="phoneNumber"
-          {...register('phoneNumber')}
-          placeholder="Your Phone Number"
-        />
-      </FormControl>
-      <FormControl isInvalid={errors.vehicleBrand}>
-        <FormLabel htmlFor="vehicleBrand">Vehicle Brand</FormLabel>
-        <Select
-          id="vehicleBrand"
-          {...register('vehicleBrand')}
-          placeholder="Select Vehicle Brand"
-          onChange={handleChange}
-        >
-          {Array.isArray(vehicleBrands) && vehicleBrands.map((brand) => (
-            <option key={brand} value={brand}>{brand}</option>
-          ))}
-        </Select>
-      </FormControl>
-      <FormControl isInvalid={errors.vehicleModel}>
-        <FormLabel htmlFor="vehicleModel">Vehicle Model</FormLabel>
-        <Select
-          id="vehicleModel"
-          {...register('vehicleModel')}
-          placeholder="Select Vehicle Model"
-          onChange={handleChange}
-        >
-          {formData.vehicleBrand && vehicleModels[formData.vehicleBrand] &&
-            vehicleModels[formData.vehicleBrand].map((model) => (
-              <option key={model} value={model}>{model}</option>
-            ))}
-        </Select>
-      </FormControl>
-      <FormControl isInvalid={errors.vehicleColor}>
-        <FormLabel htmlFor="vehicleColor">Vehicle Color</FormLabel>
-        <Input
-          id="vehicleColor"
-          {...register('vehicleColor')}
-          placeholder="Vehicle Color"
-        />
-      </FormControl>
-      <FormControl isInvalid={errors.licensePlate}>
-        <FormLabel htmlFor="licensePlate">License Plate</FormLabel>
-        <Input
-          id="licensePlate"
-          {...register('licensePlate')}
-          placeholder="License Plate"
-        />
-      </FormControl>
-      <FormControl isInvalid={errors.pickupAddress}>
-        <FormLabel htmlFor="pickupAddress">Pickup Address</FormLabel>
-        <Input
-          id="pickupAddress"
-          {...register('pickupAddress')}
-          placeholder="Pickup Address"
-        />
-      </FormControl>
-      <FormControl isInvalid={errors.dropOffAddress}>
-        <FormLabel htmlFor="dropOffAddress">Drop-off Address</FormLabel>
-        <Input
-          id="dropOffAddress"
-          {...register('dropOffAddress')}
-          placeholder="Drop-off Address"
-        />
-      </FormControl>
-      
-      <FormControl isInvalid={errors.pickupDateTime}>
-        <FormLabel htmlFor="pickupDateTime">Pickup Date & Time</FormLabel>
-        <Controller
-          control={control}
-          name="pickupDateTime"
-          render={({ field }) => (
-            <DatePicker
-              id="pickupDateTime"
-              selected={field.value}
-              onChange={(date) => {
-                field.onChange(date);
-                handleDateTimeChange(date);
-              }}
-              showTimeSelect
-              dateFormat="Pp"
-              placeholderText="Select Date and Time"
-              customInput={<Input />}
-            />
-          )}
-        />
-      </FormControl>
-      
-      {/* ... keep existing code for other form fields */}
-    </>
+    <VStack spacing={4} align="stretch">
+      <InputField
+        label="Name"
+        name="userName"
+        register={register}
+        errors={errors}
+        value={formData.userName}
+        onChange={handleChange}
+      />
+      <InputField
+        label="Phone Number"
+        name="phoneNumber"
+        register={register}
+        errors={errors}
+        value={formData.phoneNumber}
+        onChange={handleChange}
+        type="tel"
+      />
+      <SelectField
+        label="Vehicle Brand"
+        name="vehicleBrand"
+        options={vehicleBrands.map(brand => ({ value: brand, label: brand }))}
+        register={register}
+        errors={errors}
+        value={formData.vehicleBrand}
+        onChange={handleChange}
+      />
+      <SelectField
+        label="Vehicle Model"
+        name="vehicleModel"
+        options={formData.vehicleBrand && vehicleModels[formData.vehicleBrand]
+          ? vehicleModels[formData.vehicleBrand].map(model => ({ value: model, label: model }))
+          : []
+        }
+        register={register}
+        errors={errors}
+        value={formData.vehicleModel}
+        onChange={handleChange}
+        disabled={!formData.vehicleBrand}
+      />
+      <InputField
+        label="Vehicle Color"
+        name="vehicleColor"
+        register={register}
+        errors={errors}
+        value={formData.vehicleColor}
+        onChange={handleChange}
+      />
+      <InputField
+        label="License Plate"
+        name="licensePlate"
+        register={register}
+        errors={errors}
+        value={formData.licensePlate}
+        onChange={handleChange}
+      />
+      <SelectField
+        label="Vehicle Size"
+        name="vehicleSize"
+        options={Object.entries(vehicleSizes).map(([size, models]) => ({ value: size, label: size.charAt(0).toUpperCase() + size.slice(1) }))}
+        register={register}
+        errors={errors}
+        value={formData.vehicleSize}
+        onChange={handleChange}
+      />
+      <InputField
+        label="Pickup Address"
+        name="pickupAddress"
+        register={register}
+        errors={errors}
+        value={formData.pickupAddress}
+        onChange={handleChange}
+      />
+      <InputField
+        label="Drop-off Address"
+        name="dropOffAddress"
+        register={register}
+        errors={errors}
+        value={formData.dropOffAddress}
+        onChange={handleChange}
+      />
+      <DateTimeField
+        label="Pickup Date and Time"
+        name="pickupDateTime"
+        control={control}
+        errors={errors}
+        value={formData.pickupDateTime}
+        onChange={handleDateTimeChange}
+      />
+      <InputField
+        label="Additional Details"
+        name="additionalDetails"
+        register={register}
+        errors={errors}
+        value={formData.additionalDetails}
+        onChange={handleChange}
+      />
+    </VStack>
   );
 };
+
+export default BookingFormFields;
