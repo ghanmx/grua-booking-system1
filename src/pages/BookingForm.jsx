@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Box, VStack, Heading, Text, Spinner, useToast, Alert, AlertIcon, AlertTitle, AlertDescription, SimpleGrid } from "@chakra-ui/react";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
