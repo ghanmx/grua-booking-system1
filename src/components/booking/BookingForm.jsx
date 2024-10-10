@@ -1,5 +1,5 @@
 import React, { useMemo, lazy, Suspense } from 'react';
-import { Box, VStack, Heading, Spinner, useMediaQuery, useToast } from "@chakra-ui/react";
+import { Box, VStack, Heading, Spinner, useToast } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -29,7 +29,6 @@ const schema = yup.object().shape({
 });
 
 const BookingForm = () => {
-  const [isMobile] = useMediaQuery("(max-width: 48em)");
   const navigate = useNavigate();
   const toast = useToast();
   
@@ -107,14 +106,11 @@ const BookingForm = () => {
 
   return (
     <Box 
-      position={isMobile ? "static" : "fixed"}
-      top={isMobile ? "auto" : "20px"}
-      right={isMobile ? "auto" : "20px"}
-      width={isMobile ? "100%" : "400px"}
-      maxHeight={isMobile ? "auto" : "calc(100vh - 40px)"}
-      overflowY={isMobile ? "visible" : "auto"}
+      width="100%"
+      maxWidth={{ base: "100%", md: "400px" }}
+      margin="auto"
+      padding={4}
       bg="white"
-      p={4}
       borderRadius="md"
       boxShadow="xl"
       zIndex={1000}
