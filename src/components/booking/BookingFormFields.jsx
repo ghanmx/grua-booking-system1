@@ -1,6 +1,6 @@
 import React from 'react';
 import { VStack } from "@chakra-ui/react";
-import { InputField, SelectField, DateTimeField } from '../common/FormComponents';
+import { InputField, SelectField, DateTimeField } from '../FormComponents';
 import { vehicleBrands, vehicleModels, vehicleSizes } from '../../utils/vehicleData';
 
 const BookingFormFields = ({ register, errors, control, formData, handleChange, handleDateTimeChange }) => {

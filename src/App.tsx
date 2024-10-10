@@ -46,11 +46,6 @@ const theme = extendTheme({
           transform: 'rotate(45deg)',
           transition: 'all 0.3s',
         },
-        _hover: {
-          _before: {
-            left: '100%',
-          },
-        },
       },
     },
   },
