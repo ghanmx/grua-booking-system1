@@ -1,5 +1,5 @@
 import React, { useMemo, lazy, Suspense } from 'react';
-import { Box, VStack, Heading, Spinner, useToast } from "@chakra-ui/react";
+import { Box, VStack, Heading, Spinner, useToast, useMediaQuery } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -13,7 +13,6 @@ import FormNavButtons from './FormNavButtons';
 
 const BookingFormStepper = lazy(() => import('./BookingFormStepper'));
 const PaymentWindowWrapper = lazy(() => import('./PaymentWindowWrapper'));
-const MapRoute = lazy(() => import('./MapRoute'));
 
 const schema = yup.object().shape({
   userName: yup.string().required('Name is required').min(2, 'Name must be at least 2 characters'),
@@ -29,6 +28,7 @@ const schema = yup.object().shape({
 });
 
 const BookingForm = () => {
+  const [isMobile] = useMediaQuery("(max-width: 48em)");
   const navigate = useNavigate();
   const toast = useToast();
   
@@ -94,16 +94,6 @@ const BookingForm = () => {
     });
   };
 
-  const handleMarkerMove = (newPickup, newDropoff) => {
-    setValue('pickupAddress', newPickup);
-    setValue('dropOffAddress', newDropoff);
-    setFormData(prev => ({
-      ...prev,
-      pickupAddress: newPickup,
-      dropOffAddress: newDropoff
-    }));
-  };
-
   return (
     <Box 
       width="100%"
@@ -145,16 +135,6 @@ const BookingForm = () => {
           />
         </form>
       </VStack>
-      <Suspense fallback={<Spinner aria-label="Loading map" />}>
-        <MapRoute
-          setPickupAddress={(address) => setValue('pickupAddress', address)}
-          setDropOffAddress={(address) => setValue('dropOffAddress', address)}
-          setDistance={setDistance}
-          setTotalCost={setTotalCost}
-          vehicleSize={formData.vehicleSize}
-          onMarkerMove={handleMarkerMove}
-        />
-      </Suspense>
       <Suspense fallback={<Spinner aria-label="Loading payment window" />}>
         <PaymentWindowWrapper
           isOpen={isPaymentWindowOpen}

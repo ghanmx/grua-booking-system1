@@ -1,5 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { Box, VStack, Heading, Text, Spinner, useToast, Alert, AlertIcon, AlertTitle, AlertDescription, SimpleGrid } from "@chakra-ui/react";
+import { Box, VStack, Heading, Text, Spinner, useToast, Alert, AlertIcon, AlertTitle, AlertDescription, SimpleGrid, useMediaQuery } from "@chakra-ui/react";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { useQuery } from '@tanstack/react-query';
@@ -30,6 +30,7 @@ const BookingPage = () => {
   const [mapError, setMapError] = useState(false);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [key, setKey] = useState(0);
+  const [isMobile] = useMediaQuery("(max-width: 48em)");
 
   const {
     formData,
@@ -119,7 +120,7 @@ const BookingPage = () => {
   }
 
   return (
-    <Box position="relative" minHeight="100vh" width="100%">
+    <Box position="relative" minHeight="100vh" width="100%" overflow="hidden">
       <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={8} p={4}>
         <VStack spacing={8} align="stretch">
           <Heading as="h1" size="xl">Book Your Tow</Heading>
