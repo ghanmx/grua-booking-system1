@@ -1,10 +1,30 @@
 import React from 'react';
-import { Box, VStack, Heading, Table, Thead, Tbody, Tr, Th, Td, Button, Select, Alert, AlertIcon, useDisclosure } from "@chakra-ui/react";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  Box,
+  VStack,
+  Heading,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Button,
+  Select,
+  Alert,
+  AlertIcon,
+  useDisclosure,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+} from "@chakra-ui/react";
+import { useQueryClient } from '@tanstack/react-query';
 import { useSupabaseAuth } from '../../integrations/supabase/auth';
 import { ROLES } from '../../constants/roles';
 import { useUsers, useUpdateUser, useDeleteUser } from '../../integrations/supabase/hooks/users';
-import { AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay } from "@chakra-ui/react";
 
 const UserManagement = ({ showNotification, userRole }) => {
   const queryClient = useQueryClient();
@@ -115,11 +135,9 @@ const UserManagement = ({ showNotification, userRole }) => {
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
               Delete User
             </AlertDialogHeader>
-
             <AlertDialogBody>
               Are you sure you want to delete this user? This action cannot be undone.
             </AlertDialogBody>
-
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose}>
                 Cancel
