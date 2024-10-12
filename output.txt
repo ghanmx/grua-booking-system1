@@ -52,7 +52,7 @@
     "axios-retry": "^3.9.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.21.1",
+    "express": "^4.21.0",
     "express-rate-limit": "^7.4.1",
     "express-validator": "^7.2.0",
     "framer-motion": "^11.9.0",
@@ -108,7 +108,7 @@
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\package.json
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\package.json
 {
   "name": "vite-project",
   "private": true,
@@ -160,7 +160,7 @@
     "axios-retry": "^3.9.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.21.1",
+    "express": "^4.21.0",
     "express-rate-limit": "^7.4.1",
     "express-validator": "^7.2.0",
     "framer-motion": "^11.9.0",
@@ -191,366 +191,7 @@
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\supabase.ts
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
-
-export type Database = {
-  public: {
-    Tables: {
-      bookings: {
-        Row: {
-          id: string
-          user_id: string
-          service_id: string
-          status: Database["public"]["Enums"]["booking_status"]
-          payment_status: Database["public"]["Enums"]["payment_status"]
-          pickup_location: string
-          dropoff_location: string
-          vehicle_details: Json
-          distance: number
-          total_cost: number
-          pickup_datetime: string
-          additional_details: string | null
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          service_id: string
-          status?: Database["public"]["Enums"]["booking_status"]
-          payment_status?: Database["public"]["Enums"]["payment_status"]
-          pickup_location: string
-          dropoff_location: string
-          vehicle_details: Json
-          distance: number
-          total_cost: number
-          pickup_datetime: string
-          additional_details?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          service_id?: string
-          status?: Database["public"]["Enums"]["booking_status"]
-          payment_status?: Database["public"]["Enums"]["payment_status"]
-          pickup_location?: string
-          dropoff_location?: string
-          vehicle_details?: Json
-          distance?: number
-          total_cost?: number
-          pickup_datetime?: string
-          additional_details?: string | null
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bookings_service_id_fkey"
-            columns: ["service_id"]
-            referencedRelation: "services"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bookings_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-      password_failed_verification_attempts: {
-        Row: {
-          last_failed_at: string
-          user_id: string
-        }
-        Insert: {
-          last_failed_at: string
-          user_id: string
-        }
-        Update: {
-          last_failed_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          full_name: string | null
-          id: string
-          updated_at: string | null
-          username: string | null
-          website: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          full_name?: string | null
-          id: string
-          updated_at?: string | null
-          username?: string | null
-          website?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          full_name?: string | null
-          id?: string
-          updated_at?: string | null
-          username?: string | null
-          website?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      services: {
-        Row: {
-          base_price: number
-          created_at: string
-          description: string | null
-          id: string
-          maneuver_charge: number
-          name: string
-          price_per_km: number
-          tow_truck_type: Database["public"]["Enums"]["tow_truck_type"]
-          updated_at: string
-        }
-        Insert: {
-          base_price: number
-          created_at?: string
-          description?: string | null
-          id?: string
-          maneuver_charge: number
-          name: string
-          price_per_km: number
-          tow_truck_type: Database["public"]["Enums"]["tow_truck_type"]
-          updated_at?: string
-        }
-        Update: {
-          base_price?: number
-          created_at?: string
-          description?: string | null
-          id?: string
-          maneuver_charge?: number
-          name?: string
-          price_per_km?: number
-          tow_truck_type?: Database["public"]["Enums"]["tow_truck_type"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      smtp_settings: {
-        Row: {
-          created_at: string
-          from_email: string | null
-          from_name: string | null
-          id: string
-          is_custom_smtp: boolean
-          smtp_host: string | null
-          smtp_password: string | null
-          smtp_port: number | null
-          smtp_user: string | null
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          from_email?: string | null
-          from_name?: string | null
-          id?: string
-          is_custom_smtp?: boolean
-          smtp_host?: string | null
-          smtp_password?: string | null
-          smtp_port?: number | null
-          smtp_user?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          from_email?: string | null
-          from_name?: string | null
-          id?: string
-          is_custom_smtp?: boolean
-          smtp_host?: string | null
-          smtp_password?: string | null
-          smtp_port?: number | null
-          smtp_user?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "smtp_settings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      users: {
-        Row: {
-          created_at: string
-          email: string
-          encrypted_password: string
-          id: string
-          role: Database["public"]["Enums"]["user_role"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          encrypted_password: string
-          id?: string
-          role?: Database["public"]["Enums"]["user_role"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          encrypted_password?: string
-          id?: string
-          role?: Database["public"]["Enums"]["user_role"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      custom_access_token_hook: {
-        Args: {
-          event: Json
-        }
-        Returns: Json
-      }
-      get_current_user_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      hook_password_verification_attempt: {
-        Args: {
-          event: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      booking_status: "pending" | "confirmed" | "in_progress" | "completed" | "cancelled"
-      payment_status: "pending" | "paid" | "failed" | "refunded"
-      tow_truck_type: "flatbed" | "wheel_lift" | "integrated" | "heavy_duty"
-      user_role: "user" | "admin" | "super_admin"
-      vehicle_size: "small" | "medium" | "large"
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
-}
-
-type PublicSchema = Database[Extract<keyof Database, "public">]
-
-export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
-    }
-    ? R
-    : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
-    : never
-
-export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
-    }
-    ? I
-    : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
-    : never
-
-export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
-    ? U
-    : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
-    : never
-
-export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
-    | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
-    : never
-
-
-
-
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\tsconfig.json
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\tsconfig.json
 {
   "compilerOptions": {
     "target": "ES2020",
@@ -575,7 +216,7 @@ export type Enums<
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\tsconfig.node.json
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\tsconfig.node.json
 {
   "compilerOptions": {
     "composite": true,
@@ -588,7 +229,7 @@ export type Enums<
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\vite.config.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\vite.config.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -610,7 +251,7 @@ export default defineConfig({
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\.gpt_engineer_internals\report-url-change.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\.gpt_engineer_internals\report-url-change.js
 const main = () => {
   /**
    * Function to send a message to parent windows
@@ -672,14 +313,14 @@ main();
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\.vscode\extensions.json
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\.vscode\extensions.json
 {
   "recommendations": ["denoland.vscode-deno"]
 }
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\.vscode\launch.json
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\.vscode\launch.json
 {
     // Use IntelliSense para saber los atributos posibles.
     // Mantenga el puntero para ver las descripciones de los existentes atributos.
@@ -697,7 +338,7 @@ main();
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\notifications\index.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\notifications\index.js
 const express = require('express');
 const Redis = require('ioredis');
 
@@ -716,7 +357,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Notifications service running on port ${PORT}`));
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\scripts\update-package-json.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\scripts\update-package-json.js
 const fs = require('fs');
 const path = require('path');
 
@@ -748,10 +389,10 @@ try {
 
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\App.tsx
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\App.tsx
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { ChakraProvider, extendTheme } from '@chakra-ui/react';
+import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SupabaseProvider } from './integrations/supabase';
 import { SupabaseAuthProvider } from './integrations/supabase/auth';
@@ -762,71 +403,33 @@ import AdminPanel from './pages/AdminPanel';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Login from './pages/Login';
 import ErrorBoundary from './components/ErrorBoundary';
-import BookingPage from './pages/BookingForm';
-import Layout from './components/layout/Layout';
+import BookingForm from './pages/BookingForm'; // Import the BookingForm component
 
 const queryClient = new QueryClient();
 
-const theme = extendTheme({
-  styles: {
-    global: {
-      body: {
-        bg: 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)',
-        color: 'white',
-      },
-    },
-  },
-  components: {
-    Button: {
-      baseStyle: {
-        _hover: {
-          transform: 'translateY(-2px)',
-          boxShadow: '0 0 15px rgba(0, 150, 255, 0.5)',
-        },
-        transition: 'all 0.3s',
-        position: 'relative',
-        overflow: 'hidden',
-        _before: {
-          content: '""',
-          position: 'absolute',
-          top: '-50%',
-          left: '-50%',
-          width: '200%',
-          height: '200%',
-          background: 'linear-gradient(45deg, transparent, rgba(0, 150, 255, 0.3), transparent)',
-          transform: 'rotate(45deg)',
-          transition: 'all 0.3s',
-        },
-      },
-    },
-  },
-});
-
 const App = () => {
   return (
-    <ChakraProvider theme={theme}>
+    <ChakraProvider>
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <SupabaseProvider>
             <SupabaseAuthProvider>
               <Router>
-                <Layout>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/booking" element={<BookingPage />} />
-                    <Route 
-                      path="/admin" 
-                      element={
-                        <ProtectedRoute adminOnly>
-                          <AdminPanel />
-                        </ProtectedRoute>
-                      } 
-                    />
-                  </Routes>
-                </Layout>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/booking" element={<BookingForm />} /> {/* Add this line */}
+                  <Route 
+                    path="/admin" 
+                    element={
+                      <ProtectedRoute adminOnly>
+                        <AdminPanel />
+                      </ProtectedRoute>
+                    } 
+                  />
+                </Routes>
               </Router>
             </SupabaseAuthProvider>
           </SupabaseProvider>
@@ -839,7 +442,7 @@ const App = () => {
 export default App;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\setupSampleData.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\setupSampleData.js
 import { resetAndInsertSampleData } from './utils/insertSampleData';
 
 const setupSampleData = async () => {
@@ -854,53 +457,26 @@ const setupSampleData = async () => {
 setupSampleData();
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\theme.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\theme.js
+// theme.js
 import { extendTheme } from "@chakra-ui/react";
 
 const theme = extendTheme({
-  styles: {
-    global: {
-      body: {
-        bg: 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)',
-        color: 'white',
-      },
-    },
+  colors: {
+    primary: "#ff6347",
+    secondary: "#4a5568",
   },
-  components: {
-    Button: {
-      baseStyle: {
-        _hover: {
-          transform: 'translateY(-2px)',
-          boxShadow: '0 0 15px rgba(0, 150, 255, 0.5)',
-        },
-        transition: 'all 0.3s',
-        position: 'relative',
-        overflow: 'hidden',
-        _before: {
-          content: '""',
-          position: 'absolute',
-          top: '-50%',
-          left: '-50%',
-          width: '200%',
-          height: '200%',
-          background: 'linear-gradient(45deg, transparent, rgba(0, 150, 255, 0.3), transparent)',
-          transform: 'rotate(45deg)',
-          transition: 'all 0.3s',
-        },
-        _hover: {
-          _before: {
-            left: '100%',
-          },
-        },
-      },
-    },
+  fonts: {
+    body: "system-ui, sans-serif",
+    heading: "Georgia, serif",
   },
 });
 
 export default theme;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\vite-env.d.ts
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\vite-env.d.ts
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
@@ -917,7 +493,7 @@ interface ImportMeta {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\authentication\authentication.domain.facade.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\authentication\authentication.domain.facade.ts
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -945,7 +521,7 @@ export class AuthenticationDomainFacade {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\authentication\authentication.domain.module.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\authentication\authentication.domain.module.ts
 import { Module } from '@nestjs/common';
 import { AuthenticationDomainFacade } from './authentication.domain.facade';
 
@@ -956,7 +532,7 @@ import { AuthenticationDomainFacade } from './authentication.domain.facade';
 export class AuthenticationDomainModule {}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\config\stripe.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\config\stripe.js
 import { loadStripe } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -964,7 +540,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 export default stripePromise;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\config\supabase.config.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\config\supabase.config.ts
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
@@ -999,7 +575,7 @@ export const getUserRole = async (userId: string) => {
 export default supabase;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\config\supabaseClient.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\config\supabaseClient.js
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
@@ -1035,7 +611,7 @@ export async function getUserRole(userId) {
 export default supabase;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\constants\roles.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\constants\roles.js
 export const ROLES = {
   USER: 'user',
   ADMIN: 'admin',
@@ -1043,7 +619,7 @@ export const ROLES = {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\event\event.service.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\event\event.service.ts
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -1061,13 +637,13 @@ export class EventService {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\hooks\useBookingForm.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\hooks\useBookingForm.js
 import { useState, useCallback, useEffect } from 'react';
 import { useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSupabaseAuth } from '../integrations/supabase/auth';
-import { createBooking, saveDraftBooking } from '../server/db';
+import { createBooking } from '../server/db';
 import { testPayment } from '../utils/testPayment';
 import { getVehicleSize, getTowTruckType, calculateTotalCost } from '../utils/towTruckSelection';
 
@@ -1134,32 +710,6 @@ export const useBookingForm = () => {
     },
   });
 
-  const saveDraft = useCallback(async (draftData) => {
-    if (!session) {
-      toast({
-        title: 'Authentication required',
-        description: 'Please log in to save a draft.',
-        status: 'warning',
-        duration: 5000,
-        isClosable: true,
-      });
-      return false;
-    }
-
-    try {
-      await saveDraftBooking({
-        ...draftData,
-        userId: session.user.id,
-        totalCost,
-        distance,
-      });
-      return true;
-    } catch (error) {
-      console.error('Error saving draft:', error);
-      return false;
-    }
-  }, [session, totalCost, distance, toast]);
-
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData(prevData => ({
@@ -1217,7 +767,6 @@ export const useBookingForm = () => {
         userId: session.user.id,
         totalCost,
         distance,
-        additional_details: data.additionalDetails || '',
       });
     } catch (error) {
       console.error('Error processing booking:', error);
@@ -1235,10 +784,6 @@ export const useBookingForm = () => {
     localStorage.setItem('bookingFormData', JSON.stringify(formData));
   }, [formData]);
 
-  useEffect(() => {
-    updateTotalCost();
-  }, [updateTotalCost, distance]);
-
   return {
     formData,
     setFormData,
@@ -1252,16 +797,14 @@ export const useBookingForm = () => {
     handleDateTimeChange,
     handleBookingProcess,
     isLoading: createBookingMutation.isLoading,
-    saveDraft,
   };
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\hooks\useBookings.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\hooks\useBookings.js
 import { useQuery } from '@tanstack/react-query';
 import { getBookings } from '../server/db';
 import { useToast } from '@chakra-ui/react';
-import { logError } from '../utils/monitoring';
 
 export const useBookings = (page = 1, limit = 50) => {
   const toast = useToast();
@@ -1271,13 +814,13 @@ export const useBookings = (page = 1, limit = 50) => {
     queryFn: async () => {
       try {
         const result = await getBookings(Number(page), Number(limit));
+        console.log('Bookings query result:', result);
         return result;
       } catch (error) {
         console.error('Error fetching bookings:', error);
-        logError(error);
         toast({
           title: 'Error fetching bookings',
-          description: 'Please try again later or contact support if the problem persists.',
+          description: `${error.message}. Please try again later or contact support if the problem persists.`,
           status: 'error',
           duration: 5000,
           isClosable: true,
@@ -1294,7 +837,7 @@ export const useBookings = (page = 1, limit = 50) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\hooks\useMapRouteLogic.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\hooks\useMapRouteLogic.js
 import { useState, useCallback, useEffect } from 'react';
 import { useToast } from '@chakra-ui/react';
 import { calculateTotalCost, getTowTruckType } from '../utils/towTruckSelection';
@@ -1460,7 +1003,7 @@ export const useMapRouteLogic = (setPickupAddress, setDropOffAddress, setDistanc
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\hooks\usePaymentProcessing.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\hooks\usePaymentProcessing.js
 import { useToast } from "@chakra-ui/react";
 
 export const usePaymentProcessing = (formData, totalCost, setIsPaymentWindowOpen, navigate) => {
@@ -1498,7 +1041,7 @@ export const usePaymentProcessing = (formData, totalCost, setIsPaymentWindowOpen
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\hooks\usePaymentSubmit.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\hooks\usePaymentSubmit.js
 import { useCallback } from 'react';
 import { useToast } from "@chakra-ui/react";
 import { useQueryClient } from '@tanstack/react-query';
@@ -1581,7 +1124,7 @@ export const usePaymentSubmit = (formData, totalCost, createBookingMutation, set
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\hooks\useServices.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\hooks\useServices.js
 import { useQuery } from '@tanstack/react-query';
 import { getServices } from '../server/db';
 import { useToast } from '@chakra-ui/react';
@@ -1617,7 +1160,7 @@ export const useServices = () => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\hooks\useUsers.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\hooks\useUsers.js
 import { useQuery } from '@tanstack/react-query';
 import { getUsers } from '../server/db';
 import { useToast } from '@chakra-ui/react';
@@ -1654,11 +1197,10 @@ export const useUsers = () => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\integrations\supabase\auth.tsx
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\integrations\supabase\auth.tsx
 import React, { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { Session } from '@supabase/supabase-js';
-import { User } from '@supabase/supabase-js';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../config/supabase.config';
 
 interface SupabaseAuthContextType {
@@ -1724,27 +1266,92 @@ export const useSupabaseAuth = (): SupabaseAuthContextType => {
 };
 
 
-
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\integrations\supabase\index.js
-// Import all the relevant exports from other files in the supabase directory
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\integrations\supabase\index.js
 import { supabase } from './supabase.js';
 import { SupabaseAuthProvider, useSupabaseAuth, SupabaseAuthUI } from './auth.jsx';
+import { SupabaseProvider } from './SupabaseProvider.jsx';
 
-// Export all the imported functions and objects from .auth and .hooks/
+// Import hooks
+import {
+  useProfile,
+  useProfiles,
+  useAddProfile,
+  useUpdateProfile,
+  useDeleteProfile
+} from './hooks/profiles';
+
+import {
+  useService,
+  useServices,
+  useAddService,
+  useUpdateService,
+  useDeleteService
+} from './hooks/services';
+
+import {
+  useBooking,
+  useBookings,
+  useAddBooking,
+  useUpdateBooking,
+  useDeleteBooking
+} from './hooks/bookings';
+
+import {
+  useSmtpSetting,
+  useSmtpSettings,
+  useAddSmtpSetting,
+  useUpdateSmtpSetting,
+  useDeleteSmtpSetting
+} from './hooks/smtp_settings';
+
+import {
+  useUser,
+  useUsers,
+  useAddUser,
+  useUpdateUser,
+  useDeleteUser
+} from './hooks/users';
+
+// Export all the imported functions and objects
 export {
   supabase,
+  SupabaseProvider,
   SupabaseAuthProvider,
   useSupabaseAuth,
   SupabaseAuthUI,
+  useProfile,
+  useProfiles,
+  useAddProfile,
+  useUpdateProfile,
+  useDeleteProfile,
+  useService,
+  useServices,
+  useAddService,
+  useUpdateService,
+  useDeleteService,
+  useBooking,
+  useBookings,
+  useAddBooking,
+  useUpdateBooking,
+  useDeleteBooking,
+  useSmtpSetting,
+  useSmtpSettings,
+  useAddSmtpSetting,
+  useUpdateSmtpSetting,
+  useDeleteSmtpSetting,
+  useUser,
+  useUsers,
+  useAddUser,
+  useUpdateUser,
+  useDeleteUser
 };
 
 
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\integrations\supabase\openapi.json
+{"swagger":"2.0","info":{"description":"","title":"standard public schema","version":"12.2.3 (519615d)"},"host":"rugvfnxozqzmpamnrgem.supabase.co:443","basePath":"/","schemes":["https"],"consumes":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json","text/csv"],"produces":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json","text/csv"],"paths":{"/":{"get":{"produces":["application/openapi+json","application/json"],"responses":{"200":{"description":"OK"}},"summary":"OpenAPI description (this document)","tags":["Introspection"]}},"/profiles":{"get":{"parameters":[{"$ref":"#/parameters/rowFilter.profiles.id"},{"$ref":"#/parameters/rowFilter.profiles.user_id"},{"$ref":"#/parameters/rowFilter.profiles.full_name"},{"$ref":"#/parameters/rowFilter.profiles.phone_number"},{"$ref":"#/parameters/rowFilter.profiles.created_at"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/order"},{"$ref":"#/parameters/range"},{"$ref":"#/parameters/rangeUnit"},{"$ref":"#/parameters/offset"},{"$ref":"#/parameters/limit"},{"$ref":"#/parameters/preferCount"}],"responses":{"200":{"description":"OK","schema":{"items":{"$ref":"#/definitions/profiles"},"type":"array"}},"206":{"description":"Partial Content"}},"tags":["profiles"]},"post":{"parameters":[{"$ref":"#/parameters/body.profiles"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/preferPost"}],"responses":{"201":{"description":"Created"}},"tags":["profiles"]},"delete":{"parameters":[{"$ref":"#/parameters/rowFilter.profiles.id"},{"$ref":"#/parameters/rowFilter.profiles.user_id"},{"$ref":"#/parameters/rowFilter.profiles.full_name"},{"$ref":"#/parameters/rowFilter.profiles.phone_number"},{"$ref":"#/parameters/rowFilter.profiles.created_at"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["profiles"]},"patch":{"parameters":[{"$ref":"#/parameters/rowFilter.profiles.id"},{"$ref":"#/parameters/rowFilter.profiles.user_id"},{"$ref":"#/parameters/rowFilter.profiles.full_name"},{"$ref":"#/parameters/rowFilter.profiles.phone_number"},{"$ref":"#/parameters/rowFilter.profiles.created_at"},{"$ref":"#/parameters/body.profiles"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["profiles"]}},"/services":{"get":{"parameters":[{"$ref":"#/parameters/rowFilter.services.id"},{"$ref":"#/parameters/rowFilter.services.name"},{"$ref":"#/parameters/rowFilter.services.description"},{"$ref":"#/parameters/rowFilter.services.base_price"},{"$ref":"#/parameters/rowFilter.services.price_per_km"},{"$ref":"#/parameters/rowFilter.services.maneuver_charge"},{"$ref":"#/parameters/rowFilter.services.tow_truck_type"},{"$ref":"#/parameters/rowFilter.services.created_at"},{"$ref":"#/parameters/rowFilter.services.updated_at"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/order"},{"$ref":"#/parameters/range"},{"$ref":"#/parameters/rangeUnit"},{"$ref":"#/parameters/offset"},{"$ref":"#/parameters/limit"},{"$ref":"#/parameters/preferCount"}],"responses":{"200":{"description":"OK","schema":{"items":{"$ref":"#/definitions/services"},"type":"array"}},"206":{"description":"Partial Content"}},"tags":["services"]},"post":{"parameters":[{"$ref":"#/parameters/body.services"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/preferPost"}],"responses":{"201":{"description":"Created"}},"tags":["services"]},"delete":{"parameters":[{"$ref":"#/parameters/rowFilter.services.id"},{"$ref":"#/parameters/rowFilter.services.name"},{"$ref":"#/parameters/rowFilter.services.description"},{"$ref":"#/parameters/rowFilter.services.base_price"},{"$ref":"#/parameters/rowFilter.services.price_per_km"},{"$ref":"#/parameters/rowFilter.services.maneuver_charge"},{"$ref":"#/parameters/rowFilter.services.tow_truck_type"},{"$ref":"#/parameters/rowFilter.services.created_at"},{"$ref":"#/parameters/rowFilter.services.updated_at"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["services"]},"patch":{"parameters":[{"$ref":"#/parameters/rowFilter.services.id"},{"$ref":"#/parameters/rowFilter.services.name"},{"$ref":"#/parameters/rowFilter.services.description"},{"$ref":"#/parameters/rowFilter.services.base_price"},{"$ref":"#/parameters/rowFilter.services.price_per_km"},{"$ref":"#/parameters/rowFilter.services.maneuver_charge"},{"$ref":"#/parameters/rowFilter.services.tow_truck_type"},{"$ref":"#/parameters/rowFilter.services.created_at"},{"$ref":"#/parameters/rowFilter.services.updated_at"},{"$ref":"#/parameters/body.services"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["services"]}},"/bookings":{"get":{"parameters":[{"$ref":"#/parameters/rowFilter.bookings.id"},{"$ref":"#/parameters/rowFilter.bookings.user_id"},{"$ref":"#/parameters/rowFilter.bookings.service_id"},{"$ref":"#/parameters/rowFilter.bookings.status"},{"$ref":"#/parameters/rowFilter.bookings.payment_status"},{"$ref":"#/parameters/rowFilter.bookings.pickup_location"},{"$ref":"#/parameters/rowFilter.bookings.dropoff_location"},{"$ref":"#/parameters/rowFilter.bookings.vehicle_details"},{"$ref":"#/parameters/rowFilter.bookings.distance"},{"$ref":"#/parameters/rowFilter.bookings.total_cost"},{"$ref":"#/parameters/rowFilter.bookings.pickup_datetime"},{"$ref":"#/parameters/rowFilter.bookings.additional_details"},{"$ref":"#/parameters/rowFilter.bookings.created_at"},{"$ref":"#/parameters/rowFilter.bookings.updated_at"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/order"},{"$ref":"#/parameters/range"},{"$ref":"#/parameters/rangeUnit"},{"$ref":"#/parameters/offset"},{"$ref":"#/parameters/limit"},{"$ref":"#/parameters/preferCount"}],"responses":{"200":{"description":"OK","schema":{"items":{"$ref":"#/definitions/bookings"},"type":"array"}},"206":{"description":"Partial Content"}},"tags":["bookings"]},"post":{"parameters":[{"$ref":"#/parameters/body.bookings"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/preferPost"}],"responses":{"201":{"description":"Created"}},"tags":["bookings"]},"delete":{"parameters":[{"$ref":"#/parameters/rowFilter.bookings.id"},{"$ref":"#/parameters/rowFilter.bookings.user_id"},{"$ref":"#/parameters/rowFilter.bookings.service_id"},{"$ref":"#/parameters/rowFilter.bookings.status"},{"$ref":"#/parameters/rowFilter.bookings.payment_status"},{"$ref":"#/parameters/rowFilter.bookings.pickup_location"},{"$ref":"#/parameters/rowFilter.bookings.dropoff_location"},{"$ref":"#/parameters/rowFilter.bookings.vehicle_details"},{"$ref":"#/parameters/rowFilter.bookings.distance"},{"$ref":"#/parameters/rowFilter.bookings.total_cost"},{"$ref":"#/parameters/rowFilter.bookings.pickup_datetime"},{"$ref":"#/parameters/rowFilter.bookings.additional_details"},{"$ref":"#/parameters/rowFilter.bookings.created_at"},{"$ref":"#/parameters/rowFilter.bookings.updated_at"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["bookings"]},"patch":{"parameters":[{"$ref":"#/parameters/rowFilter.bookings.id"},{"$ref":"#/parameters/rowFilter.bookings.user_id"},{"$ref":"#/parameters/rowFilter.bookings.service_id"},{"$ref":"#/parameters/rowFilter.bookings.status"},{"$ref":"#/parameters/rowFilter.bookings.payment_status"},{"$ref":"#/parameters/rowFilter.bookings.pickup_location"},{"$ref":"#/parameters/rowFilter.bookings.dropoff_location"},{"$ref":"#/parameters/rowFilter.bookings.vehicle_details"},{"$ref":"#/parameters/rowFilter.bookings.distance"},{"$ref":"#/parameters/rowFilter.bookings.total_cost"},{"$ref":"#/parameters/rowFilter.bookings.pickup_datetime"},{"$ref":"#/parameters/rowFilter.bookings.additional_details"},{"$ref":"#/parameters/rowFilter.bookings.created_at"},{"$ref":"#/parameters/rowFilter.bookings.updated_at"},{"$ref":"#/parameters/body.bookings"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["bookings"]}},"/smtp_settings":{"get":{"parameters":[{"$ref":"#/parameters/rowFilter.smtp_settings.id"},{"$ref":"#/parameters/rowFilter.smtp_settings.user_id"},{"$ref":"#/parameters/rowFilter.smtp_settings.is_custom_smtp"},{"$ref":"#/parameters/rowFilter.smtp_settings.smtp_host"},{"$ref":"#/parameters/rowFilter.smtp_settings.smtp_port"},{"$ref":"#/parameters/rowFilter.smtp_settings.smtp_user"},{"$ref":"#/parameters/rowFilter.smtp_settings.smtp_password"},{"$ref":"#/parameters/rowFilter.smtp_settings.from_email"},{"$ref":"#/parameters/rowFilter.smtp_settings.from_name"},{"$ref":"#/parameters/rowFilter.smtp_settings.created_at"},{"$ref":"#/parameters/rowFilter.smtp_settings.updated_at"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/order"},{"$ref":"#/parameters/range"},{"$ref":"#/parameters/rangeUnit"},{"$ref":"#/parameters/offset"},{"$ref":"#/parameters/limit"},{"$ref":"#/parameters/preferCount"}],"responses":{"200":{"description":"OK","schema":{"items":{"$ref":"#/definitions/smtp_settings"},"type":"array"}},"206":{"description":"Partial Content"}},"tags":["smtp_settings"]},"post":{"parameters":[{"$ref":"#/parameters/body.smtp_settings"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/preferPost"}],"responses":{"201":{"description":"Created"}},"tags":["smtp_settings"]},"delete":{"parameters":[{"$ref":"#/parameters/rowFilter.smtp_settings.id"},{"$ref":"#/parameters/rowFilter.smtp_settings.user_id"},{"$ref":"#/parameters/rowFilter.smtp_settings.is_custom_smtp"},{"$ref":"#/parameters/rowFilter.smtp_settings.smtp_host"},{"$ref":"#/parameters/rowFilter.smtp_settings.smtp_port"},{"$ref":"#/parameters/rowFilter.smtp_settings.smtp_user"},{"$ref":"#/parameters/rowFilter.smtp_settings.smtp_password"},{"$ref":"#/parameters/rowFilter.smtp_settings.from_email"},{"$ref":"#/parameters/rowFilter.smtp_settings.from_name"},{"$ref":"#/parameters/rowFilter.smtp_settings.created_at"},{"$ref":"#/parameters/rowFilter.smtp_settings.updated_at"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["smtp_settings"]},"patch":{"parameters":[{"$ref":"#/parameters/rowFilter.smtp_settings.id"},{"$ref":"#/parameters/rowFilter.smtp_settings.user_id"},{"$ref":"#/parameters/rowFilter.smtp_settings.is_custom_smtp"},{"$ref":"#/parameters/rowFilter.smtp_settings.smtp_host"},{"$ref":"#/parameters/rowFilter.smtp_settings.smtp_port"},{"$ref":"#/parameters/rowFilter.smtp_settings.smtp_user"},{"$ref":"#/parameters/rowFilter.smtp_settings.smtp_password"},{"$ref":"#/parameters/rowFilter.smtp_settings.from_email"},{"$ref":"#/parameters/rowFilter.smtp_settings.from_name"},{"$ref":"#/parameters/rowFilter.smtp_settings.created_at"},{"$ref":"#/parameters/rowFilter.smtp_settings.updated_at"},{"$ref":"#/parameters/body.smtp_settings"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["smtp_settings"]}},"/users":{"get":{"parameters":[{"$ref":"#/parameters/rowFilter.users.id"},{"$ref":"#/parameters/rowFilter.users.email"},{"$ref":"#/parameters/rowFilter.users.encrypted_password"},{"$ref":"#/parameters/rowFilter.users.role"},{"$ref":"#/parameters/rowFilter.users.created_at"},{"$ref":"#/parameters/rowFilter.users.updated_at"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/order"},{"$ref":"#/parameters/range"},{"$ref":"#/parameters/rangeUnit"},{"$ref":"#/parameters/offset"},{"$ref":"#/parameters/limit"},{"$ref":"#/parameters/preferCount"}],"responses":{"200":{"description":"OK","schema":{"items":{"$ref":"#/definitions/users"},"type":"array"}},"206":{"description":"Partial Content"}},"tags":["users"]},"post":{"parameters":[{"$ref":"#/parameters/body.users"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/preferPost"}],"responses":{"201":{"description":"Created"}},"tags":["users"]},"delete":{"parameters":[{"$ref":"#/parameters/rowFilter.users.id"},{"$ref":"#/parameters/rowFilter.users.email"},{"$ref":"#/parameters/rowFilter.users.encrypted_password"},{"$ref":"#/parameters/rowFilter.users.role"},{"$ref":"#/parameters/rowFilter.users.created_at"},{"$ref":"#/parameters/rowFilter.users.updated_at"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["users"]},"patch":{"parameters":[{"$ref":"#/parameters/rowFilter.users.id"},{"$ref":"#/parameters/rowFilter.users.email"},{"$ref":"#/parameters/rowFilter.users.encrypted_password"},{"$ref":"#/parameters/rowFilter.users.role"},{"$ref":"#/parameters/rowFilter.users.created_at"},{"$ref":"#/parameters/rowFilter.users.updated_at"},{"$ref":"#/parameters/body.users"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["users"]}},"/rpc/get_current_user_id":{"get":{"produces":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json"],"responses":{"200":{"description":"OK"}},"tags":["(rpc) get_current_user_id"]},"post":{"parameters":[{"in":"body","name":"args","required":true,"schema":{"type":"object"}},{"$ref":"#/parameters/preferParams"}],"produces":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json"],"responses":{"200":{"description":"OK"}},"tags":["(rpc) get_current_user_id"]}}},"definitions":{"profiles":{"required":["id","user_id","full_name","created_at"],"properties":{"id":{"default":"gen_random_uuid()","description":"Note:\nThis is a Primary Key.<pk/>","format":"uuid","type":"string"},"user_id":{"format":"uuid","type":"string"},"full_name":{"format":"text","type":"string"},"phone_number":{"format":"text","type":"string"},"created_at":{"default":"now()","format":"timestamp with time zone","type":"string"}},"type":"object"},"services":{"required":["id","name","base_price","price_per_km","maneuver_charge","tow_truck_type","created_at","updated_at"],"properties":{"id":{"default":"gen_random_uuid()","description":"Note:\nThis is a Primary Key.<pk/>","format":"uuid","type":"string"},"name":{"format":"text","type":"string"},"description":{"format":"text","type":"string"},"base_price":{"format":"numeric","type":"number"},"price_per_km":{"format":"numeric","type":"number"},"maneuver_charge":{"format":"numeric","type":"number"},"tow_truck_type":{"enum":["flatbed","wheel_lift","integrated","heavy_duty"],"format":"public.tow_truck_type","type":"string"},"created_at":{"default":"now()","format":"timestamp with time zone","type":"string"},"updated_at":{"default":"now()","format":"timestamp with time zone","type":"string"}},"type":"object"},"bookings":{"required":["id","user_id","service_id","status","payment_status","pickup_location","dropoff_location","vehicle_details","distance","total_cost","pickup_datetime","created_at","updated_at"],"properties":{"id":{"default":"extensions.uuid_generate_v4()","description":"Note:\nThis is a Primary Key.<pk/>","format":"uuid","type":"string"},"user_id":{"description":"Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>","format":"uuid","type":"string"},"service_id":{"description":"Note:\nThis is a Foreign Key to `services.id`.<fk table='services' column='id'/>","format":"uuid","type":"string"},"status":{"default":"pending","enum":["pending","confirmed","in_progress","completed","cancelled"],"format":"public.booking_status","type":"string"},"payment_status":{"default":"pending","enum":["pending","paid","failed","refunded"],"format":"public.payment_status","type":"string"},"pickup_location":{"format":"text","type":"string"},"dropoff_location":{"format":"text","type":"string"},"vehicle_details":{"format":"jsonb"},"distance":{"format":"numeric","type":"number"},"total_cost":{"format":"numeric","type":"number"},"pickup_datetime":{"format":"timestamp with time zone","type":"string"},"additional_details":{"format":"text","type":"string"},"created_at":{"default":"now()","format":"timestamp with time zone","type":"string"},"updated_at":{"default":"now()","format":"timestamp with time zone","type":"string"}},"type":"object"},"smtp_settings":{"required":["id","is_custom_smtp","created_at","updated_at"],"properties":{"id":{"default":"extensions.uuid_generate_v4()","description":"Note:\nThis is a Primary Key.<pk/>","format":"uuid","type":"string"},"user_id":{"format":"uuid","type":"string"},"is_custom_smtp":{"default":false,"format":"boolean","type":"boolean"},"smtp_host":{"format":"text","type":"string"},"smtp_port":{"format":"integer","type":"integer"},"smtp_user":{"format":"text","type":"string"},"smtp_password":{"format":"text","type":"string"},"from_email":{"format":"text","type":"string"},"from_name":{"format":"text","type":"string"},"created_at":{"default":"now()","format":"timestamp with time zone","type":"string"},"updated_at":{"default":"now()","format":"timestamp with time zone","type":"string"}},"type":"object"},"users":{"required":["id","email","encrypted_password","role","created_at","updated_at"],"properties":{"id":{"default":"extensions.uuid_generate_v4()","description":"Note:\nThis is a Primary Key.<pk/>","format":"uuid","type":"string"},"email":{"format":"text","type":"string"},"encrypted_password":{"format":"text","type":"string"},"role":{"default":"user","enum":["user","admin","super_admin"],"format":"public.user_role","type":"string"},"created_at":{"default":"now()","format":"timestamp with time zone","type":"string"},"updated_at":{"default":"now()","format":"timestamp with time zone","type":"string"}},"type":"object"}},"parameters":{"preferParams":{"name":"Prefer","description":"Preference","required":false,"enum":["params=single-object"],"in":"header","type":"string"},"preferReturn":{"name":"Prefer","description":"Preference","required":false,"enum":["return=representation","return=minimal","return=none"],"in":"header","type":"string"},"preferCount":{"name":"Prefer","description":"Preference","required":false,"enum":["count=none"],"in":"header","type":"string"},"preferPost":{"name":"Prefer","description":"Preference","required":false,"enum":["return=representation","return=minimal","return=none","resolution=ignore-duplicates","resolution=merge-duplicates"],"in":"header","type":"string"},"select":{"name":"select","description":"Filtering Columns","required":false,"in":"query","type":"string"},"on_conflict":{"name":"on_conflict","description":"On Conflict","required":false,"in":"query","type":"string"},"order":{"name":"order","description":"Ordering","required":false,"in":"query","type":"string"},"range":{"name":"Range","description":"Limiting and Pagination","required":false,"in":"header","type":"string"},"rangeUnit":{"name":"Range-Unit","description":"Limiting and Pagination","required":false,"default":"items","in":"header","type":"string"},"offset":{"name":"offset","description":"Limiting and Pagination","required":false,"in":"query","type":"string"},"limit":{"name":"limit","description":"Limiting and Pagination","required":false,"in":"query","type":"string"},"body.profiles":{"name":"profiles","description":"profiles","required":false,"in":"body","schema":{"$ref":"#/definitions/profiles"}},"rowFilter.profiles.id":{"name":"id","required":false,"in":"query","type":"string"},"rowFilter.profiles.user_id":{"name":"user_id","required":false,"in":"query","type":"string"},"rowFilter.profiles.full_name":{"name":"full_name","required":false,"in":"query","type":"string"},"rowFilter.profiles.phone_number":{"name":"phone_number","required":false,"in":"query","type":"string"},"rowFilter.profiles.created_at":{"name":"created_at","required":false,"in":"query","type":"string"},"body.services":{"name":"services","description":"services","required":false,"in":"body","schema":{"$ref":"#/definitions/services"}},"rowFilter.services.id":{"name":"id","required":false,"in":"query","type":"string"},"rowFilter.services.name":{"name":"name","required":false,"in":"query","type":"string"},"rowFilter.services.description":{"name":"description","required":false,"in":"query","type":"string"},"rowFilter.services.base_price":{"name":"base_price","required":false,"in":"query","type":"string"},"rowFilter.services.price_per_km":{"name":"price_per_km","required":false,"in":"query","type":"string"},"rowFilter.services.maneuver_charge":{"name":"maneuver_charge","required":false,"in":"query","type":"string"},"rowFilter.services.tow_truck_type":{"name":"tow_truck_type","required":false,"in":"query","type":"string"},"rowFilter.services.created_at":{"name":"created_at","required":false,"in":"query","type":"string"},"rowFilter.services.updated_at":{"name":"updated_at","required":false,"in":"query","type":"string"},"body.bookings":{"name":"bookings","description":"bookings","required":false,"in":"body","schema":{"$ref":"#/definitions/bookings"}},"rowFilter.bookings.id":{"name":"id","required":false,"in":"query","type":"string"},"rowFilter.bookings.user_id":{"name":"user_id","required":false,"in":"query","type":"string"},"rowFilter.bookings.service_id":{"name":"service_id","required":false,"in":"query","type":"string"},"rowFilter.bookings.status":{"name":"status","required":false,"in":"query","type":"string"},"rowFilter.bookings.payment_status":{"name":"payment_status","required":false,"in":"query","type":"string"},"rowFilter.bookings.pickup_location":{"name":"pickup_location","required":false,"in":"query","type":"string"},"rowFilter.bookings.dropoff_location":{"name":"dropoff_location","required":false,"in":"query","type":"string"},"rowFilter.bookings.vehicle_details":{"name":"vehicle_details","required":false,"in":"query","type":"string"},"rowFilter.bookings.distance":{"name":"distance","required":false,"in":"query","type":"string"},"rowFilter.bookings.total_cost":{"name":"total_cost","required":false,"in":"query","type":"string"},"rowFilter.bookings.pickup_datetime":{"name":"pickup_datetime","required":false,"in":"query","type":"string"},"rowFilter.bookings.additional_details":{"name":"additional_details","required":false,"in":"query","type":"string"},"rowFilter.bookings.created_at":{"name":"created_at","required":false,"in":"query","type":"string"},"rowFilter.bookings.updated_at":{"name":"updated_at","required":false,"in":"query","type":"string"},"body.smtp_settings":{"name":"smtp_settings","description":"smtp_settings","required":false,"in":"body","schema":{"$ref":"#/definitions/smtp_settings"}},"rowFilter.smtp_settings.id":{"name":"id","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.user_id":{"name":"user_id","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.is_custom_smtp":{"name":"is_custom_smtp","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.smtp_host":{"name":"smtp_host","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.smtp_port":{"name":"smtp_port","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.smtp_user":{"name":"smtp_user","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.smtp_password":{"name":"smtp_password","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.from_email":{"name":"from_email","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.from_name":{"name":"from_name","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.created_at":{"name":"created_at","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.updated_at":{"name":"updated_at","required":false,"in":"query","type":"string"},"body.users":{"name":"users","description":"users","required":false,"in":"body","schema":{"$ref":"#/definitions/users"}},"rowFilter.users.id":{"name":"id","required":false,"in":"query","type":"string"},"rowFilter.users.email":{"name":"email","required":false,"in":"query","type":"string"},"rowFilter.users.encrypted_password":{"name":"encrypted_password","required":false,"in":"query","type":"string"},"rowFilter.users.role":{"name":"role","required":false,"in":"query","type":"string"},"rowFilter.users.created_at":{"name":"created_at","required":false,"in":"query","type":"string"},"rowFilter.users.updated_at":{"name":"updated_at","required":false,"in":"query","type":"string"}},"externalDocs":{"description":"PostgREST Documentation","url":"https://postgrest.org/en/v12/references/api.html"}}
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\integrations\supabase\openapi.json
-{"swagger":"2.0","info":{"description":"","title":"standard public schema","version":"12.2.3 (519615d)"},"host":"rugvfnxozqzmpamnrgem.supabase.co:443","basePath":"/","schemes":["https"],"consumes":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json","text/csv"],"produces":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json","text/csv"],"paths":{"/":{"get":{"produces":["application/openapi+json","application/json"],"responses":{"200":{"description":"OK"}},"summary":"OpenAPI description (this document)","tags":["Introspection"]}},"/profiles":{"get":{"parameters":[{"$ref":"#/parameters/rowFilter.profiles.id"},{"$ref":"#/parameters/rowFilter.profiles.user_id"},{"$ref":"#/parameters/rowFilter.profiles.full_name"},{"$ref":"#/parameters/rowFilter.profiles.phone_number"},{"$ref":"#/parameters/rowFilter.profiles.created_at"},{"$ref":"#/parameters/rowFilter.profiles.updated_at"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/order"},{"$ref":"#/parameters/range"},{"$ref":"#/parameters/rangeUnit"},{"$ref":"#/parameters/offset"},{"$ref":"#/parameters/limit"},{"$ref":"#/parameters/preferCount"}],"responses":{"200":{"description":"OK","schema":{"items":{"$ref":"#/definitions/profiles"},"type":"array"}},"206":{"description":"Partial Content"}},"tags":["profiles"]},"post":{"parameters":[{"$ref":"#/parameters/body.profiles"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/preferPost"}],"responses":{"201":{"description":"Created"}},"tags":["profiles"]},"delete":{"parameters":[{"$ref":"#/parameters/rowFilter.profiles.id"},{"$ref":"#/parameters/rowFilter.profiles.user_id"},{"$ref":"#/parameters/rowFilter.profiles.full_name"},{"$ref":"#/parameters/rowFilter.profiles.phone_number"},{"$ref":"#/parameters/rowFilter.profiles.created_at"},{"$ref":"#/parameters/rowFilter.profiles.updated_at"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["profiles"]},"patch":{"parameters":[{"$ref":"#/parameters/rowFilter.profiles.id"},{"$ref":"#/parameters/rowFilter.profiles.user_id"},{"$ref":"#/parameters/rowFilter.profiles.full_name"},{"$ref":"#/parameters/rowFilter.profiles.phone_number"},{"$ref":"#/parameters/rowFilter.profiles.created_at"},{"$ref":"#/parameters/rowFilter.profiles.updated_at"},{"$ref":"#/parameters/body.profiles"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["profiles"]}},"/services":{"get":{"parameters":[{"$ref":"#/parameters/rowFilter.services.id"},{"$ref":"#/parameters/rowFilter.services.name"},{"$ref":"#/parameters/rowFilter.services.description"},{"$ref":"#/parameters/rowFilter.services.base_price"},{"$ref":"#/parameters/rowFilter.services.price_per_km"},{"$ref":"#/parameters/rowFilter.services.maneuver_charge"},{"$ref":"#/parameters/rowFilter.services.tow_truck_type"},{"$ref":"#/parameters/rowFilter.services.created_at"},{"$ref":"#/parameters/rowFilter.services.updated_at"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/order"},{"$ref":"#/parameters/range"},{"$ref":"#/parameters/rangeUnit"},{"$ref":"#/parameters/offset"},{"$ref":"#/parameters/limit"},{"$ref":"#/parameters/preferCount"}],"responses":{"200":{"description":"OK","schema":{"items":{"$ref":"#/definitions/services"},"type":"array"}},"206":{"description":"Partial Content"}},"tags":["services"]},"post":{"parameters":[{"$ref":"#/parameters/body.services"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/preferPost"}],"responses":{"201":{"description":"Created"}},"tags":["services"]},"delete":{"parameters":[{"$ref":"#/parameters/rowFilter.services.id"},{"$ref":"#/parameters/rowFilter.services.name"},{"$ref":"#/parameters/rowFilter.services.description"},{"$ref":"#/parameters/rowFilter.services.base_price"},{"$ref":"#/parameters/rowFilter.services.price_per_km"},{"$ref":"#/parameters/rowFilter.services.maneuver_charge"},{"$ref":"#/parameters/rowFilter.services.tow_truck_type"},{"$ref":"#/parameters/rowFilter.services.created_at"},{"$ref":"#/parameters/rowFilter.services.updated_at"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["services"]},"patch":{"parameters":[{"$ref":"#/parameters/rowFilter.services.id"},{"$ref":"#/parameters/rowFilter.services.name"},{"$ref":"#/parameters/rowFilter.services.description"},{"$ref":"#/parameters/rowFilter.services.base_price"},{"$ref":"#/parameters/rowFilter.services.price_per_km"},{"$ref":"#/parameters/rowFilter.services.maneuver_charge"},{"$ref":"#/parameters/rowFilter.services.tow_truck_type"},{"$ref":"#/parameters/rowFilter.services.created_at"},{"$ref":"#/parameters/rowFilter.services.updated_at"},{"$ref":"#/parameters/body.services"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["services"]}},"/bookings":{"get":{"parameters":[{"$ref":"#/parameters/rowFilter.bookings.id"},{"$ref":"#/parameters/rowFilter.bookings.user_id"},{"$ref":"#/parameters/rowFilter.bookings.service_id"},{"$ref":"#/parameters/rowFilter.bookings.status"},{"$ref":"#/parameters/rowFilter.bookings.payment_status"},{"$ref":"#/parameters/rowFilter.bookings.pickup_location"},{"$ref":"#/parameters/rowFilter.bookings.dropoff_location"},{"$ref":"#/parameters/rowFilter.bookings.vehicle_details"},{"$ref":"#/parameters/rowFilter.bookings.distance"},{"$ref":"#/parameters/rowFilter.bookings.total_cost"},{"$ref":"#/parameters/rowFilter.bookings.pickup_datetime"},{"$ref":"#/parameters/rowFilter.bookings.additional_details"},{"$ref":"#/parameters/rowFilter.bookings.created_at"},{"$ref":"#/parameters/rowFilter.bookings.updated_at"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/order"},{"$ref":"#/parameters/range"},{"$ref":"#/parameters/rangeUnit"},{"$ref":"#/parameters/offset"},{"$ref":"#/parameters/limit"},{"$ref":"#/parameters/preferCount"}],"responses":{"200":{"description":"OK","schema":{"items":{"$ref":"#/definitions/bookings"},"type":"array"}},"206":{"description":"Partial Content"}},"tags":["bookings"]},"post":{"parameters":[{"$ref":"#/parameters/body.bookings"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/preferPost"}],"responses":{"201":{"description":"Created"}},"tags":["bookings"]},"delete":{"parameters":[{"$ref":"#/parameters/rowFilter.bookings.id"},{"$ref":"#/parameters/rowFilter.bookings.user_id"},{"$ref":"#/parameters/rowFilter.bookings.service_id"},{"$ref":"#/parameters/rowFilter.bookings.status"},{"$ref":"#/parameters/rowFilter.bookings.payment_status"},{"$ref":"#/parameters/rowFilter.bookings.pickup_location"},{"$ref":"#/parameters/rowFilter.bookings.dropoff_location"},{"$ref":"#/parameters/rowFilter.bookings.vehicle_details"},{"$ref":"#/parameters/rowFilter.bookings.distance"},{"$ref":"#/parameters/rowFilter.bookings.total_cost"},{"$ref":"#/parameters/rowFilter.bookings.pickup_datetime"},{"$ref":"#/parameters/rowFilter.bookings.additional_details"},{"$ref":"#/parameters/rowFilter.bookings.created_at"},{"$ref":"#/parameters/rowFilter.bookings.updated_at"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["bookings"]},"patch":{"parameters":[{"$ref":"#/parameters/rowFilter.bookings.id"},{"$ref":"#/parameters/rowFilter.bookings.user_id"},{"$ref":"#/parameters/rowFilter.bookings.service_id"},{"$ref":"#/parameters/rowFilter.bookings.status"},{"$ref":"#/parameters/rowFilter.bookings.payment_status"},{"$ref":"#/parameters/rowFilter.bookings.pickup_location"},{"$ref":"#/parameters/rowFilter.bookings.dropoff_location"},{"$ref":"#/parameters/rowFilter.bookings.vehicle_details"},{"$ref":"#/parameters/rowFilter.bookings.distance"},{"$ref":"#/parameters/rowFilter.bookings.total_cost"},{"$ref":"#/parameters/rowFilter.bookings.pickup_datetime"},{"$ref":"#/parameters/rowFilter.bookings.additional_details"},{"$ref":"#/parameters/rowFilter.bookings.created_at"},{"$ref":"#/parameters/rowFilter.bookings.updated_at"},{"$ref":"#/parameters/body.bookings"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["bookings"]}},"/smtp_settings":{"get":{"parameters":[{"$ref":"#/parameters/rowFilter.smtp_settings.id"},{"$ref":"#/parameters/rowFilter.smtp_settings.user_id"},{"$ref":"#/parameters/rowFilter.smtp_settings.host"},{"$ref":"#/parameters/rowFilter.smtp_settings.port"},{"$ref":"#/parameters/rowFilter.smtp_settings.username"},{"$ref":"#/parameters/rowFilter.smtp_settings.password"},{"$ref":"#/parameters/rowFilter.smtp_settings.created_at"},{"$ref":"#/parameters/rowFilter.smtp_settings.updated_at"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/order"},{"$ref":"#/parameters/range"},{"$ref":"#/parameters/rangeUnit"},{"$ref":"#/parameters/offset"},{"$ref":"#/parameters/limit"},{"$ref":"#/parameters/preferCount"}],"responses":{"200":{"description":"OK","schema":{"items":{"$ref":"#/definitions/smtp_settings"},"type":"array"}},"206":{"description":"Partial Content"}},"tags":["smtp_settings"]},"post":{"parameters":[{"$ref":"#/parameters/body.smtp_settings"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/preferPost"}],"responses":{"201":{"description":"Created"}},"tags":["smtp_settings"]},"delete":{"parameters":[{"$ref":"#/parameters/rowFilter.smtp_settings.id"},{"$ref":"#/parameters/rowFilter.smtp_settings.user_id"},{"$ref":"#/parameters/rowFilter.smtp_settings.host"},{"$ref":"#/parameters/rowFilter.smtp_settings.port"},{"$ref":"#/parameters/rowFilter.smtp_settings.username"},{"$ref":"#/parameters/rowFilter.smtp_settings.password"},{"$ref":"#/parameters/rowFilter.smtp_settings.created_at"},{"$ref":"#/parameters/rowFilter.smtp_settings.updated_at"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["smtp_settings"]},"patch":{"parameters":[{"$ref":"#/parameters/rowFilter.smtp_settings.id"},{"$ref":"#/parameters/rowFilter.smtp_settings.user_id"},{"$ref":"#/parameters/rowFilter.smtp_settings.host"},{"$ref":"#/parameters/rowFilter.smtp_settings.port"},{"$ref":"#/parameters/rowFilter.smtp_settings.username"},{"$ref":"#/parameters/rowFilter.smtp_settings.password"},{"$ref":"#/parameters/rowFilter.smtp_settings.created_at"},{"$ref":"#/parameters/rowFilter.smtp_settings.updated_at"},{"$ref":"#/parameters/body.smtp_settings"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["smtp_settings"]}},"/users":{"get":{"parameters":[{"$ref":"#/parameters/rowFilter.users.id"},{"$ref":"#/parameters/rowFilter.users.email"},{"$ref":"#/parameters/rowFilter.users.encrypted_password"},{"$ref":"#/parameters/rowFilter.users.role"},{"$ref":"#/parameters/rowFilter.users.created_at"},{"$ref":"#/parameters/rowFilter.users.updated_at"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/order"},{"$ref":"#/parameters/range"},{"$ref":"#/parameters/rangeUnit"},{"$ref":"#/parameters/offset"},{"$ref":"#/parameters/limit"},{"$ref":"#/parameters/preferCount"}],"responses":{"200":{"description":"OK","schema":{"items":{"$ref":"#/definitions/users"},"type":"array"}},"206":{"description":"Partial Content"}},"tags":["users"]},"post":{"parameters":[{"$ref":"#/parameters/body.users"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/preferPost"}],"responses":{"201":{"description":"Created"}},"tags":["users"]},"delete":{"parameters":[{"$ref":"#/parameters/rowFilter.users.id"},{"$ref":"#/parameters/rowFilter.users.email"},{"$ref":"#/parameters/rowFilter.users.encrypted_password"},{"$ref":"#/parameters/rowFilter.users.role"},{"$ref":"#/parameters/rowFilter.users.created_at"},{"$ref":"#/parameters/rowFilter.users.updated_at"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["users"]},"patch":{"parameters":[{"$ref":"#/parameters/rowFilter.users.id"},{"$ref":"#/parameters/rowFilter.users.email"},{"$ref":"#/parameters/rowFilter.users.encrypted_password"},{"$ref":"#/parameters/rowFilter.users.role"},{"$ref":"#/parameters/rowFilter.users.created_at"},{"$ref":"#/parameters/rowFilter.users.updated_at"},{"$ref":"#/parameters/body.users"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["users"]}},"/password_failed_verification_attempts":{"get":{"parameters":[{"$ref":"#/parameters/rowFilter.password_failed_verification_attempts.user_id"},{"$ref":"#/parameters/rowFilter.password_failed_verification_attempts.last_failed_at"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/order"},{"$ref":"#/parameters/range"},{"$ref":"#/parameters/rangeUnit"},{"$ref":"#/parameters/offset"},{"$ref":"#/parameters/limit"},{"$ref":"#/parameters/preferCount"}],"responses":{"200":{"description":"OK","schema":{"items":{"$ref":"#/definitions/password_failed_verification_attempts"},"type":"array"}},"206":{"description":"Partial Content"}},"tags":["password_failed_verification_attempts"]},"post":{"parameters":[{"$ref":"#/parameters/body.password_failed_verification_attempts"},{"$ref":"#/parameters/select"},{"$ref":"#/parameters/preferPost"}],"responses":{"201":{"description":"Created"}},"tags":["password_failed_verification_attempts"]},"delete":{"parameters":[{"$ref":"#/parameters/rowFilter.password_failed_verification_attempts.user_id"},{"$ref":"#/parameters/rowFilter.password_failed_verification_attempts.last_failed_at"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["password_failed_verification_attempts"]},"patch":{"parameters":[{"$ref":"#/parameters/rowFilter.password_failed_verification_attempts.user_id"},{"$ref":"#/parameters/rowFilter.password_failed_verification_attempts.last_failed_at"},{"$ref":"#/parameters/body.password_failed_verification_attempts"},{"$ref":"#/parameters/preferReturn"}],"responses":{"204":{"description":"No Content"}},"tags":["password_failed_verification_attempts"]}},"/rpc/hook_password_verification_attempt":{"get":{"parameters":[{"format":"jsonb","in":"query","name":"event","required":true,"type":"string"}],"produces":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json"],"responses":{"200":{"description":"OK"}},"tags":["(rpc) hook_password_verification_attempt"]},"post":{"parameters":[{"in":"body","name":"args","required":true,"schema":{"properties":{"event":{"format":"jsonb"}},"required":["event"],"type":"object"}},{"$ref":"#/parameters/preferParams"}],"produces":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json"],"responses":{"200":{"description":"OK"}},"tags":["(rpc) hook_password_verification_attempt"]}},"/rpc/custom_access_token_hook":{"get":{"parameters":[{"format":"jsonb","in":"query","name":"event","required":true,"type":"string"}],"produces":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json"],"responses":{"200":{"description":"OK"}},"tags":["(rpc) custom_access_token_hook"]},"post":{"parameters":[{"in":"body","name":"args","required":true,"schema":{"properties":{"event":{"format":"jsonb"}},"required":["event"],"type":"object"}},{"$ref":"#/parameters/preferParams"}],"produces":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json"],"responses":{"200":{"description":"OK"}},"tags":["(rpc) custom_access_token_hook"]}},"/rpc/get_current_user_id":{"get":{"produces":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json"],"responses":{"200":{"description":"OK"}},"tags":["(rpc) get_current_user_id"]},"post":{"parameters":[{"in":"body","name":"args","required":true,"schema":{"type":"object"}},{"$ref":"#/parameters/preferParams"}],"produces":["application/json","application/vnd.pgrst.object+json;nulls=stripped","application/vnd.pgrst.object+json"],"responses":{"200":{"description":"OK"}},"tags":["(rpc) get_current_user_id"]}}},"definitions":{"profiles":{"required":["id","user_id","full_name","created_at","updated_at"],"properties":{"id":{"default":"extensions.uuid_generate_v4()","description":"Note:\nThis is a Primary Key.<pk/>","format":"uuid","type":"string"},"user_id":{"description":"Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>","format":"uuid","type":"string"},"full_name":{"format":"text","type":"string"},"phone_number":{"format":"text","type":"string"},"created_at":{"default":"now()","format":"timestamp with time zone","type":"string"},"updated_at":{"default":"now()","format":"timestamp with time zone","type":"string"}},"type":"object"},"services":{"required":["id","name","base_price","price_per_km","maneuver_charge","tow_truck_type","created_at","updated_at"],"properties":{"id":{"default":"gen_random_uuid()","description":"Note:\nThis is a Primary Key.<pk/>","format":"uuid","type":"string"},"name":{"format":"text","type":"string"},"description":{"format":"text","type":"string"},"base_price":{"format":"numeric","type":"number"},"price_per_km":{"format":"numeric","type":"number"},"maneuver_charge":{"format":"numeric","type":"number"},"tow_truck_type":{"enum":["flatbed","wheel_lift","integrated","heavy_duty"],"format":"public.tow_truck_type","type":"string"},"created_at":{"default":"now()","format":"timestamp with time zone","type":"string"},"updated_at":{"default":"now()","format":"timestamp with time zone","type":"string"}},"type":"object"},"bookings":{"required":["id","user_id","service_id","status","payment_status","pickup_location","dropoff_location","vehicle_details","distance","total_cost","pickup_datetime","created_at","updated_at"],"properties":{"id":{"default":"extensions.uuid_generate_v4()","description":"Note:\nThis is a Primary Key.<pk/>","format":"uuid","type":"string"},"user_id":{"description":"Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>","format":"uuid","type":"string"},"service_id":{"description":"Note:\nThis is a Foreign Key to `services.id`.<fk table='services' column='id'/>","format":"uuid","type":"string"},"status":{"default":"pending","enum":["pending","confirmed","in_progress","completed","cancelled"],"format":"public.booking_status","type":"string"},"payment_status":{"default":"pending","enum":["pending","paid","failed","refunded"],"format":"public.payment_status","type":"string"},"pickup_location":{"format":"text","type":"string"},"dropoff_location":{"format":"text","type":"string"},"vehicle_details":{"format":"jsonb"},"distance":{"format":"numeric","type":"number"},"total_cost":{"format":"numeric","type":"number"},"pickup_datetime":{"format":"timestamp with time zone","type":"string"},"additional_details":{"format":"text","type":"string"},"created_at":{"default":"now()","format":"timestamp with time zone","type":"string"},"updated_at":{"default":"now()","format":"timestamp with time zone","type":"string"}},"type":"object"},"smtp_settings":{"required":["id","user_id","host","port","username","password","created_at","updated_at"],"properties":{"id":{"default":"extensions.uuid_generate_v4()","description":"Note:\nThis is a Primary Key.<pk/>","format":"uuid","type":"string"},"user_id":{"description":"Note:\nThis is a Foreign Key to `users.id`.<fk table='users' column='id'/>","format":"uuid","type":"string"},"host":{"format":"text","type":"string"},"port":{"format":"integer","type":"integer"},"username":{"format":"text","type":"string"},"password":{"format":"text","type":"string"},"created_at":{"default":"now()","format":"timestamp with time zone","type":"string"},"updated_at":{"default":"now()","format":"timestamp with time zone","type":"string"}},"type":"object"},"users":{"required":["id","email","encrypted_password","role","created_at","updated_at"],"properties":{"id":{"default":"extensions.uuid_generate_v4()","description":"Note:\nThis is a Primary Key.<pk/>","format":"uuid","type":"string"},"email":{"format":"text","type":"string"},"encrypted_password":{"format":"text","type":"string"},"role":{"default":"user","enum":["user","admin","super_admin"],"format":"public.user_role","type":"string"},"created_at":{"default":"now()","format":"timestamp with time zone","type":"string"},"updated_at":{"default":"now()","format":"timestamp with time zone","type":"string"}},"type":"object"},"password_failed_verification_attempts":{"required":["user_id","last_failed_at"],"properties":{"user_id":{"description":"Note:\nThis is a Primary Key.<pk/>","format":"uuid","type":"string"},"last_failed_at":{"format":"timestamp with time zone","type":"string"}},"type":"object"}},"parameters":{"preferParams":{"name":"Prefer","description":"Preference","required":false,"enum":["params=single-object"],"in":"header","type":"string"},"preferReturn":{"name":"Prefer","description":"Preference","required":false,"enum":["return=representation","return=minimal","return=none"],"in":"header","type":"string"},"preferCount":{"name":"Prefer","description":"Preference","required":false,"enum":["count=none"],"in":"header","type":"string"},"preferPost":{"name":"Prefer","description":"Preference","required":false,"enum":["return=representation","return=minimal","return=none","resolution=ignore-duplicates","resolution=merge-duplicates"],"in":"header","type":"string"},"select":{"name":"select","description":"Filtering Columns","required":false,"in":"query","type":"string"},"on_conflict":{"name":"on_conflict","description":"On Conflict","required":false,"in":"query","type":"string"},"order":{"name":"order","description":"Ordering","required":false,"in":"query","type":"string"},"range":{"name":"Range","description":"Limiting and Pagination","required":false,"in":"header","type":"string"},"rangeUnit":{"name":"Range-Unit","description":"Limiting and Pagination","required":false,"default":"items","in":"header","type":"string"},"offset":{"name":"offset","description":"Limiting and Pagination","required":false,"in":"query","type":"string"},"limit":{"name":"limit","description":"Limiting and Pagination","required":false,"in":"query","type":"string"},"body.profiles":{"name":"profiles","description":"profiles","required":false,"in":"body","schema":{"$ref":"#/definitions/profiles"}},"rowFilter.profiles.id":{"name":"id","required":false,"in":"query","type":"string"},"rowFilter.profiles.user_id":{"name":"user_id","required":false,"in":"query","type":"string"},"rowFilter.profiles.full_name":{"name":"full_name","required":false,"in":"query","type":"string"},"rowFilter.profiles.phone_number":{"name":"phone_number","required":false,"in":"query","type":"string"},"rowFilter.profiles.created_at":{"name":"created_at","required":false,"in":"query","type":"string"},"rowFilter.profiles.updated_at":{"name":"updated_at","required":false,"in":"query","type":"string"},"body.services":{"name":"services","description":"services","required":false,"in":"body","schema":{"$ref":"#/definitions/services"}},"rowFilter.services.id":{"name":"id","required":false,"in":"query","type":"string"},"rowFilter.services.name":{"name":"name","required":false,"in":"query","type":"string"},"rowFilter.services.description":{"name":"description","required":false,"in":"query","type":"string"},"rowFilter.services.base_price":{"name":"base_price","required":false,"in":"query","type":"string"},"rowFilter.services.price_per_km":{"name":"price_per_km","required":false,"in":"query","type":"string"},"rowFilter.services.maneuver_charge":{"name":"maneuver_charge","required":false,"in":"query","type":"string"},"rowFilter.services.tow_truck_type":{"name":"tow_truck_type","required":false,"in":"query","type":"string"},"rowFilter.services.created_at":{"name":"created_at","required":false,"in":"query","type":"string"},"rowFilter.services.updated_at":{"name":"updated_at","required":false,"in":"query","type":"string"},"body.bookings":{"name":"bookings","description":"bookings","required":false,"in":"body","schema":{"$ref":"#/definitions/bookings"}},"rowFilter.bookings.id":{"name":"id","required":false,"in":"query","type":"string"},"rowFilter.bookings.user_id":{"name":"user_id","required":false,"in":"query","type":"string"},"rowFilter.bookings.service_id":{"name":"service_id","required":false,"in":"query","type":"string"},"rowFilter.bookings.status":{"name":"status","required":false,"in":"query","type":"string"},"rowFilter.bookings.payment_status":{"name":"payment_status","required":false,"in":"query","type":"string"},"rowFilter.bookings.pickup_location":{"name":"pickup_location","required":false,"in":"query","type":"string"},"rowFilter.bookings.dropoff_location":{"name":"dropoff_location","required":false,"in":"query","type":"string"},"rowFilter.bookings.vehicle_details":{"name":"vehicle_details","required":false,"in":"query","type":"string"},"rowFilter.bookings.distance":{"name":"distance","required":false,"in":"query","type":"string"},"rowFilter.bookings.total_cost":{"name":"total_cost","required":false,"in":"query","type":"string"},"rowFilter.bookings.pickup_datetime":{"name":"pickup_datetime","required":false,"in":"query","type":"string"},"rowFilter.bookings.additional_details":{"name":"additional_details","required":false,"in":"query","type":"string"},"rowFilter.bookings.created_at":{"name":"created_at","required":false,"in":"query","type":"string"},"rowFilter.bookings.updated_at":{"name":"updated_at","required":false,"in":"query","type":"string"},"body.smtp_settings":{"name":"smtp_settings","description":"smtp_settings","required":false,"in":"body","schema":{"$ref":"#/definitions/smtp_settings"}},"rowFilter.smtp_settings.id":{"name":"id","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.user_id":{"name":"user_id","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.host":{"name":"host","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.port":{"name":"port","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.username":{"name":"username","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.password":{"name":"password","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.created_at":{"name":"created_at","required":false,"in":"query","type":"string"},"rowFilter.smtp_settings.updated_at":{"name":"updated_at","required":false,"in":"query","type":"string"},"body.users":{"name":"users","description":"users","required":false,"in":"body","schema":{"$ref":"#/definitions/users"}},"rowFilter.users.id":{"name":"id","required":false,"in":"query","type":"string"},"rowFilter.users.email":{"name":"email","required":false,"in":"query","type":"string"},"rowFilter.users.encrypted_password":{"name":"encrypted_password","required":false,"in":"query","type":"string"},"rowFilter.users.role":{"name":"role","required":false,"in":"query","type":"string"},"rowFilter.users.created_at":{"name":"created_at","required":false,"in":"query","type":"string"},"rowFilter.users.updated_at":{"name":"updated_at","required":false,"in":"query","type":"string"},"body.password_failed_verification_attempts":{"name":"password_failed_verification_attempts","description":"password_failed_verification_attempts","required":false,"in":"body","schema":{"$ref":"#/definitions/password_failed_verification_attempts"}},"rowFilter.password_failed_verification_attempts.user_id":{"name":"user_id","required":false,"in":"query","type":"string"},"rowFilter.password_failed_verification_attempts.last_failed_at":{"name":"last_failed_at","required":false,"in":"query","type":"string"}},"externalDocs":{"description":"PostgREST Documentation","url":"https://postgrest.org/en/v12/references/api.html"}}
 
-
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\integrations\supabase\supabase.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\integrations\supabase\supabase.js
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
@@ -1753,7 +1360,7 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_API_KEY;
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\integrations\supabase\hooks\bookings.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\integrations\supabase\hooks\bookings.js
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabase';
 
@@ -1829,69 +1436,7 @@ export const useDeleteBooking = () => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\integrations\supabase\hooks\password_failed_verification_attempts.js
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../supabase';
-
-const fromSupabase = async (query) => {
-    const { data, error } = await query;
-    if (error) throw new Error(error.message);
-    return data;
-};
-
-/*
-### password_failed_verification_attempts
-
-| name           | type                     | format | required |
-|----------------|--------------------------|--------|----------|
-| user_id        | uuid                     | string | true     |
-| last_failed_at | timestamp with time zone | string | true     |
-
-Note: user_id is the Primary Key.
-*/
-
-export const usePasswordFailedVerificationAttempt = (userId) => useQuery({
-    queryKey: ['password_failed_verification_attempts', userId],
-    queryFn: () => fromSupabase(supabase.from('password_failed_verification_attempts').select('*').eq('user_id', userId).single()),
-});
-
-export const usePasswordFailedVerificationAttempts = () => useQuery({
-    queryKey: ['password_failed_verification_attempts'],
-    queryFn: () => fromSupabase(supabase.from('password_failed_verification_attempts').select('*')),
-});
-
-export const useAddPasswordFailedVerificationAttempt = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (newAttempt) => fromSupabase(supabase.from('password_failed_verification_attempts').insert([newAttempt])),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['password_failed_verification_attempts'] });
-        },
-    });
-};
-
-export const useUpdatePasswordFailedVerificationAttempt = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: ({ user_id, ...updateData }) => fromSupabase(supabase.from('password_failed_verification_attempts').update(updateData).eq('user_id', user_id)),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['password_failed_verification_attempts'] });
-        },
-    });
-};
-
-export const useDeletePasswordFailedVerificationAttempt = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (user_id) => fromSupabase(supabase.from('password_failed_verification_attempts').delete().eq('user_id', user_id)),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['password_failed_verification_attempts'] });
-        },
-    });
-};
-
-
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\integrations\supabase\hooks\profiles.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\integrations\supabase\hooks\profiles.js
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabase';
 
@@ -1957,7 +1502,7 @@ export const useDeleteProfile = () => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\integrations\supabase\hooks\services.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\integrations\supabase\hooks\services.js
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabase';
 
@@ -2024,7 +1569,7 @@ export const useDeleteService = () => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\integrations\supabase\hooks\smtp_settings.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\integrations\supabase\hooks\smtp_settings.js
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabase';
 
@@ -2096,7 +1641,7 @@ export const useDeleteSmtpSetting = () => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\integrations\supabase\hooks\users.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\integrations\supabase\hooks\users.js
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabase';
 
@@ -2160,90 +1705,125 @@ export const useDeleteUser = () => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\server\db.js
-import { supabase } from '../config/supabaseClient';
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\server\db.js
+import supabase from '../config/supabaseClient.js';
 
-export const getBookings = async () => {
-  const { data, error, count } = await supabase
+const handleSupabaseError = async (operation) => {
+  const maxRetries = 3;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await operation();
+    } catch (error) {
+      console.error('Supabase error:', error);
+      if (i === maxRetries - 1) throw new Error(`Failed after ${maxRetries} attempts: ${error.message}`);
+      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+    }
+  }
+};
+
+const executeQuery = (query) => handleSupabaseError(() => query());
+
+export const getUsers = () => executeQuery(() => supabase.from('users').select('id, email, role').order('email'));
+
+export const updateUser = (id, userData) => executeQuery(() => supabase.from('users').update(userData).eq('id', id).select());
+
+export const getBookings = (page = 1, limit = 50) => executeQuery(async () => {
+  const startIndex = (page - 1) * limit;
+  const { data, count } = await supabase
     .from('bookings')
-    .select('*', { count: 'exact' });
+    .select(`
+      id, created_at, status, total_cost, payment_status,
+      user:users(id, email),
+      service:services(id, name)
+    `, { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(startIndex, startIndex + limit - 1);
+  
+  return { data, count: count || 0, totalPages: Math.ceil((count || 0) / limit) };
+});
 
-  if (error) throw error;
-  return { data, count };
+export const createBooking = (bookingData) => executeQuery(() => supabase.from('bookings').insert([bookingData]).select());
+
+export const updateBooking = (id, bookingData) => executeQuery(() => supabase.from('bookings').update(bookingData).eq('id', id).select());
+
+export const deleteBooking = (id) => executeQuery(() => supabase.from('bookings').delete().eq('id', id));
+
+export const deleteUser = (id) => executeQuery(() => supabase.from('users').delete().eq('id', id));
+
+export const createAccount = async (email, password, userData) => {
+  return handleSupabaseError(async () => {
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: userData.fullName, phone_number: userData.phoneNumber } },
+    });
+    if (authError) throw authError;
+
+    if (authData.user) {
+      const [profileData, userData] = await Promise.all([
+        supabase.from('profiles').insert([{ ...userData, user_id: authData.user.id }]).select(),
+        supabase.from('users').insert([{ id: authData.user.id, email: email, role: 'user' }]).select()
+      ]);
+
+      if (profileData.error || userData.error) {
+        await supabase.auth.admin.deleteUser(authData.user.id);
+        throw profileData.error || userData.error;
+      }
+
+      return { user: userData.data[0], profile: profileData.data[0] };
+    }
+  });
 };
 
-export const saveDraftBooking = async (draftData) => {
-  const { data, error } = await supabase
-    .from('draft_bookings')
-    .insert(draftData)
-    .select();
+export const login = async (email, password) => {
+  return handleSupabaseError(async () => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
 
-  if (error) throw error;
-  return data[0];
+    const [userData, profileData] = await Promise.all([
+      supabase.from('users').select('*').eq('id', data.user.id).single(),
+      supabase.from('profiles').select('*').eq('user_id', data.user.id).single()
+    ]);
+
+    if (userData.error) throw userData.error;
+    if (profileData.error) throw profileData.error;
+
+    return { session: data.session, user: userData.data, profile: profileData.data };
+  });
 };
 
-export const createBooking = async (bookingData) => {
-  const { data, error } = await supabase
-    .from('bookings')
-    .insert({
-      ...bookingData,
-      additional_details: bookingData.additionalDetails, // Changed from additionalDetails to additional_details
-    })
-    .select();
+export const logout = () => handleSupabaseError(() => supabase.auth.signOut());
 
-  if (error) throw error;
-  return data[0];
+export const getCurrentUser = async () => {
+  return handleSupabaseError(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+
+    const [userData, profileData] = await Promise.all([
+      supabase.from('users').select('*').eq('id', user.id).single(),
+      supabase.from('profiles').select('*').eq('user_id', user.id).single()
+    ]);
+
+    if (userData.error) throw userData.error;
+    if (profileData.error) throw profileData.error;
+
+    return { user: userData.data, profile: profileData.data };
+  });
 };
 
-export const updateBooking = async (id, updateData) => {
-  const { data, error } = await supabase
-    .from('bookings')
-    .update({
-      ...updateData,
-      additional_details: updateData.additionalDetails, // Changed from additionalDetails to additional_details
-    })
-    .eq('id', id)
-    .select();
-
-  if (error) throw error;
-  return data[0];
+export const setupRealtimeSubscription = (table, onUpdate) => {
+  return supabase
+    .channel(`${table}_changes`)
+    .on('postgres_changes', { event: '*', schema: 'public', table: table }, onUpdate)
+    .subscribe();
 };
 
-export const deleteBooking = async (id) => {
-  const { error } = await supabase
-    .from('bookings')
-    .delete()
-    .eq('id', id);
-
-  if (error) throw error;
-  return true;
-};
-
-export const getPaidServicesWaiting = async () => {
-  const { data, error } = await supabase
-    .from('bookings')
-    .select('*')
-    .eq('payment_status', 'paid')
-    .eq('status', 'pending')
-    .order('created_at', { ascending: false });
-
-  if (error) throw error;
-  return data;
-};
-
-export const updateServiceStatus = async (id, newStatus) => {
-  const { data, error } = await supabase
-    .from('bookings')
-    .update({ status: newStatus })
-    .eq('id', id)
-    .select();
-
-  if (error) throw error;
-  return data[0];
-};
+export const subscribeToBookings = setupRealtimeSubscription.bind(null, 'bookings');
+export const subscribeToUsers = setupRealtimeSubscription.bind(null, 'users');
+export const subscribeToProfiles = setupRealtimeSubscription.bind(null, 'profiles');
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\server\server.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\server\server.js
 const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
@@ -2327,7 +1907,7 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 module.exports = app; // Export for testing purposes
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\server\config\config.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\server\config\config.js
 const config = {
   port: import.meta.env.PORT || 5000,
   supabaseUrl: import.meta.env.VITE_SUPABASE_PROJECT_URL,
@@ -2341,7 +1921,7 @@ const config = {
 export default config;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\server\controllers\adminController.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\server\controllers\adminController.js
 const supabase = require('../config/database');
 
 exports.createAdmin = async (req, res, next) => {
@@ -2392,7 +1972,7 @@ exports.updateService = async (req, res, next) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\server\controllers\bookingController.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\server\controllers\bookingController.js
 const supabase = require('../config/database');
 const { sendAdminNotification } = require('../../utils/adminNotification');
 const { logger } = require('../middleware/errorHandler');
@@ -2564,7 +2144,7 @@ exports.deleteBooking = async (req, res, next) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\server\middleware\errorHandler.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\server\middleware\errorHandler.js
 // Simple logger function compatible with both browser and Node.js
 const logger = {
   error: (...args) => console.error(...args),
@@ -2586,7 +2166,7 @@ const errorHandler = (err, req, res, next) => {
 module.exports = { errorHandler, logger };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\server\middleware\inputValidation.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\server\middleware\inputValidation.js
 const { body, validationResult } = require('express-validator');
 
 const addressValidation = (fieldName) => 
@@ -2612,7 +2192,7 @@ const validateBookingInput = [
 module.exports = { validateBookingInput };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\server\routes\adminRoutes.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\server\routes\adminRoutes.js
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
@@ -2624,7 +2204,7 @@ router.put('/services/:id', adminController.updateService);
 module.exports = router;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\server\routes\bookingRoutes.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\server\routes\bookingRoutes.js
 const express = require('express');
 const router = express.Router();
 const bookingController = require('../controllers/bookingController');
@@ -2639,7 +2219,7 @@ router.delete('/:id', bookingController.deleteBooking);
 module.exports = router;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\towingRequest\towingRequest.domain.facade.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\towingRequest\towingRequest.domain.facade.ts
 import { Injectable } from '@nestjs/common';
 import { TowingRequest } from './towingRequest.entity';
 
@@ -2685,7 +2265,7 @@ export class TowingRequestDomainFacade {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\towingRequest\towingRequest.domain.module.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\towingRequest\towingRequest.domain.module.ts
 import { Module } from '@nestjs/common';
 import { TowingRequestDomainFacade } from './towingRequest.domain.facade';
 
@@ -2696,7 +2276,7 @@ import { TowingRequestDomainFacade } from './towingRequest.domain.facade';
 export class TowingRequestDomainModule {}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\towingRequest\towingRequest.entity.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\towingRequest\towingRequest.entity.ts
 export class TowingRequest {
   id: string;
   userId: string;
@@ -2706,7 +2286,7 @@ export class TowingRequest {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\towingRequest\application\towingRequest.application.event.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\towingRequest\application\towingRequest.application.event.ts
 export namespace TowingRequestApplicationEvent {
   export class TowingRequestCreated {
     static readonly key = 'towingRequest.created';
@@ -2715,7 +2295,7 @@ export namespace TowingRequestApplicationEvent {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\towingRequest\application\towingRequest.application.module.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\towingRequest\application\towingRequest.application.module.ts
 import { Module } from '@nestjs/common';
 import { AuthenticationDomainModule } from '../authentication/authentication.domain.module';
 import { TowingRequestDomainModule } from '../towing-request/towingRequest.domain.module';
@@ -2746,7 +2326,7 @@ import { NewService } from '../new/new.service';
 export class TowingRequestApplicationModule {}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\towingRequest\application\towingRequest.controller.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\towingRequest\application\towingRequest.controller.ts
 import { Controller, Get, Post, Patch, Delete, Body, Param } from '@nestjs/common';
 import { EventService } from '../event/event.service';
 import { TowingRequestDomainFacade } from '../towingRequest/towingRequest.domain.facade';
@@ -2808,7 +2388,7 @@ export class TowingRequestController {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\towingRequest\application\towingRequest.dto.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\towingRequest\application\towingRequest.dto.ts
 import { IsString, IsNotEmpty, IsOptional, Matches } from 'class-validator';
 
 export class TowingRequestCreateDto {
@@ -2852,7 +2432,7 @@ export class TowingRequestUpdateDto {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\towingRequest\application\towingRequestByUser.controller.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\towingRequest\application\towingRequestByUser.controller.ts
 import { Controller, Get, Param } from '@nestjs/common';
 import { TowingRequestDomainFacade } from '../towingRequest/towingRequest.domain.facade';
 
@@ -2867,7 +2447,7 @@ export class TowingRequestByUserController {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\types\booking.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\types\booking.js
 export interface Booking {
   id: string;
   user_id: string;
@@ -2908,7 +2488,7 @@ export interface Service {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\types\index.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\types\index.ts
 // Global type declarations
 declare global {
   interface ImportMetaEnv {
@@ -2929,14 +2509,14 @@ declare global {
 export {};
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\user\user.domain.module.ts
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\user\user.domain.module.ts
 import { Module } from '@nestjs/common';
 
 @Module({})
 export class UserDomainModule {}
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\utils\accessibility.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\accessibility.js
 import React from 'react';
 import ReactDOM from 'react-dom';
 import axe from '@axe-core/react';
@@ -2948,7 +2528,7 @@ export const runAccessibilityChecks = () => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\utils\adminNotification.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\adminNotification.js
 import { supabase } from '../config/supabaseClient';
 
 export const sendAdminNotification = async (bookingData, totalCost) => {
@@ -2990,7 +2570,7 @@ export const sendAdminNotification = async (bookingData, totalCost) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\utils\adminUtils.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\adminUtils.js
 import { getUserRole } from '../config/supabase.config';
 
 export const isAdmin = async (userId) => {
@@ -3022,7 +2602,7 @@ export const isSuperAdmin = async (userId) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\utils\api.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\api.js
 import { supabase } from '../config/supabase.config';
 
 export const saveSMTPSettings = async (settings) => {
@@ -3035,7 +2615,7 @@ export const saveSMTPSettings = async (settings) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\utils\backup.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\backup.js
 import { supabase } from '../config/supabase.config';
 
 export const backupDatabase = async () => {
@@ -3065,7 +2645,7 @@ export const testRecovery = async (backupId) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\utils\diagnostics.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\diagnostics.js
 import { supabase } from '../config/supabase.config';
 
 export const runDiagnostics = async () => {
@@ -3129,7 +2709,7 @@ export const runDiagnostics = async () => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\utils\generateSitemap.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\generateSitemap.js
 import { writeFileSync } from 'fs';
 import { globby } from 'globby';
 
@@ -3165,7 +2745,7 @@ async function generateSitemap() {
 export default generateSitemap;
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\utils\imageOptimization.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\imageOptimization.js
 import { useState, useEffect } from 'react';
 
 export const useOptimizedImage = (src, options = {}) => {
@@ -3195,7 +2775,7 @@ export const useOptimizedImage = (src, options = {}) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\utils\insertSampleData.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\insertSampleData.js
 import { supabase } from '../config/supabase.config';
 import fs from 'fs';
 import path from 'path';
@@ -3228,7 +2808,7 @@ export const resetAndInsertSampleData = async () => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\utils\loadTesting.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\loadTesting.js
 import http from 'k6/http';
 import { sleep } from 'k6';
 
@@ -3243,12 +2823,10 @@ export default function () {
 }
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\utils\monitoring.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\monitoring.js
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 import ReactGA from "react-ga4";
-
-const MAX_ERROR_LENGTH = 1000; // Maximum length for error messages
 
 export const initializeMonitoring = () => {
   const sentryDsn = import.meta.env.VITE_SENTRY_DSN;
@@ -3256,22 +2834,7 @@ export const initializeMonitoring = () => {
     Sentry.init({
       dsn: sentryDsn,
       integrations: [new BrowserTracing()],
-      tracesSampleRate: 0.2, // Reduced from 1.0 to 0.2
-      beforeSend(event) {
-        // Truncate long error messages
-        if (event.message && event.message.length > MAX_ERROR_LENGTH) {
-          event.message = event.message.substring(0, MAX_ERROR_LENGTH) + '...';
-        }
-        // Remove potentially large objects from the extra data
-        if (event.extra) {
-          Object.keys(event.extra).forEach(key => {
-            if (typeof event.extra[key] === 'object' && event.extra[key] !== null) {
-              event.extra[key] = '[Object removed to reduce payload size]';
-            }
-          });
-        }
-        return event;
-      },
+      tracesSampleRate: 1.0,
     });
   } else {
     console.warn('Sentry DSN is not properly configured. Sentry will not be initialized.');
@@ -3301,23 +2864,8 @@ export const logEvent = (category, action, label) => {
   }
 };
 
-export const logError = (error) => {
-  if (Sentry.captureException) {
-    // Truncate error message if it's too long
-    const truncatedMessage = error.message && error.message.length > MAX_ERROR_LENGTH
-      ? error.message.substring(0, MAX_ERROR_LENGTH) + '...'
-      : error.message;
 
-    Sentry.captureException(new Error(truncatedMessage), {
-      extra: {
-        originalError: '[Original error object removed to reduce payload size]'
-      }
-    });
-  }
-};
-
-
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\utils\paymentProcessing.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\paymentProcessing.js
 import axios from 'axios';
 
 export const processPayment = async (amount, paymentMethodId) => {
@@ -3343,7 +2891,7 @@ export const processPayment = async (amount, paymentMethodId) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\utils\testPayment.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\testPayment.js
 export const testPayment = async (amount) => {
   // Simulate payment processing delay
   await new Promise(resolve => setTimeout(resolve, 1000));
@@ -3365,7 +2913,7 @@ export const testPayment = async (amount) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\utils\towTruckSelection.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\towTruckSelection.js
 export const towTruckTypes = {
   A: { perKm: 18.82, basePrice: 528.69, maneuverCharge: 1219.55 },
   C: { perKm: 23.47, basePrice: 721.79, maneuverCharge: 1524.21 },
@@ -3400,7 +2948,7 @@ export const getVehicleSize = (vehicleModel) => {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\utils\vehicleData.js
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\vehicleData.js
 export const vehicleBrands = [
   'Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan', 'Volkswagen', 'BMW', 'Mercedes-Benz',
   'Audi', 'Hyundai', 'Mazda', 'Subaru', 'Kia', 'Lexus', 'Volvo', 'Tesla', 'Porsche',
@@ -3416,18 +2964,18 @@ export const vehicleModels = {
   Volkswagen: ['Jetta', 'Passat', 'Tiguan', 'Atlas', 'Golf', 'ID.4', 'Arteon', 'Taos'],
   BMW: ['3 Series', '5 Series', 'X3', 'X5', '7 Series', 'M4', 'X1', 'X7'],
   'Mercedes-Benz': ['C-Class', 'E-Class', 'GLC', 'GLE', 'S-Class', 'A-Class', 'GLA', 'GLS'],
-  Audi: ['A4', 'A6', 'Q5', 'Q7', 'e-tron', 'A3', 'Q3', 'TT'],
-  Hyundai: ['Elantra', 'Sonata', 'Tucson', 'Santa Fe', 'Kona', 'Palisade', 'Venue', 'Ioniq'],
-  Mazda: ['Mazda3', 'Mazda6', 'CX-5', 'CX-9', 'MX-5 Miata', 'CX-30', 'CX-3', 'CX-50'],
-  Subaru: ['Outback', 'Forester', 'Impreza', 'Crosstrek', 'Legacy', 'Ascent', 'WRX', 'BRZ'],
-  Kia: ['Forte', 'Optima', 'Sportage', 'Sorento', 'Telluride', 'Soul', 'Stinger', 'Seltos'],
-  Lexus: ['RX', 'ES', 'NX', 'IS', 'GX', 'UX', 'LS', 'LC'],
-  Volvo: ['XC90', 'XC60', 'S60', 'V60', 'XC40', 'S90', 'V90', 'C40'],
+  Audi: ['A4', 'A6', 'Q5', 'Q7', 'e-tron', 'A3', 'Q3', 'TT', 'R8', 'S4', 'A5', 'Q8', 'RS6', 'A8', 'SQ5'],
+  Hyundai: ['Elantra', 'Sonata', 'Tucson', 'Santa Fe', 'Kona', 'Palisade', 'Venue', 'Ioniq', 'Veloster', 'Accent', 'Nexo', 'Azera', 'Genesis', 'Equus'],
+  Mazda: ['Mazda3', 'Mazda6', 'CX-5', 'CX-9', 'MX-5 Miata', 'CX-30', 'CX-3', 'CX-50', 'CX-8', 'RX-8', 'CX-7', 'Tribute', '5', '2'],
+  Subaru: ['Outback', 'Forester', 'Impreza', 'Crosstrek', 'Legacy', 'Ascent', 'WRX', 'BRZ', 'XV', 'Tribeca', 'Baja', 'SVX'],
+  Kia: ['Forte', 'Optima', 'Sportage', 'Sorento', 'Telluride', 'Soul', 'Stinger', 'Seltos', 'Niro', 'Carnival', 'K5', 'Cadenza', 'Rio', 'Sedona'],
+  Lexus: ['RX', 'ES', 'NX', 'IS', 'GX', 'UX', 'LS', 'LC', 'RC', 'LX', 'CT', 'GS', 'SC', 'HS'],
+  Volvo: ['XC90', 'XC60', 'S60', 'V60', 'XC40', 'S90', 'V90', 'C40', 'S40', 'C30', 'V40', 'S80'],
   Tesla: ['Model 3', 'Model S', 'Model X', 'Model Y', 'Cybertruck', 'Roadster'],
-  Porsche: ['911', 'Cayenne', 'Panamera', 'Macan', 'Taycan', 'Boxster', 'Cayman', '718'],
-  Jaguar: ['F-PACE', 'XF', 'E-PACE', 'I-PACE', 'XE', 'F-TYPE', 'XJ', 'XK'],
-  'Land Rover': ['Range Rover', 'Discovery', 'Defender', 'Evoque', 'Velar'],
-  Acura: ['TLX', 'RDX', 'MDX', 'ILX', 'NSX', 'RLX', 'TSX', 'RSX'],
+  Porsche: ['911', 'Cayenne', 'Panamera', 'Macan', 'Taycan', 'Boxster', 'Cayman', '718', '944', '928'],
+  Jaguar: ['F-PACE', 'XF', 'E-PACE', 'I-PACE', 'XE', 'F-TYPE', 'XJ', 'XK', 'S-Type', 'X-Type'],
+  'Land Rover': ['Range Rover', 'Discovery', 'Defender', 'Evoque', 'Velar', 'Freelander', 'LR2', 'LR3', 'LR4'],
+  Acura: ['TLX', 'RDX', 'MDX', 'ILX', 'NSX', 'RLX', 'TSX', 'RSX', 'ZDX', 'Integra'],
   RAM: ['1500', '2500', '3500', 'ProMaster', 'ProMaster City'],
   GMC: ['Sierra', 'Yukon', 'Terrain', 'Acadia', 'Canyon', 'Savana'],
   Jeep: ['Wrangler', 'Grand Cherokee', 'Cherokee', 'Compass', 'Renegade', 'Gladiator'],
@@ -3442,7 +2990,8 @@ export const vehicleSizes = {
 };
 
 
-// C:\Users\israe\Documents\GitHub\grua-booking-system1\src\utils\__tests__\towTruckSelection.test.js
+
+// C:\Users\israe\Documents\GitHub\grua-booking-system--38\src\utils\__tests__\towTruckSelection.test.js
 import { getTowTruckType, calculateTotalCost, getVehicleSize } from '../towTruckSelection';
 
 describe('towTruckSelection', () => {

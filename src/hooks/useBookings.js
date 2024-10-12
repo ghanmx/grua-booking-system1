@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getBookings } from '../server/db';
 import { useToast } from '@chakra-ui/react';
-import { logError } from '../utils/monitoring';
 
 export const useBookings = (page = 1, limit = 50) => {
   const toast = useToast();
@@ -11,13 +10,13 @@ export const useBookings = (page = 1, limit = 50) => {
     queryFn: async () => {
       try {
         const result = await getBookings(Number(page), Number(limit));
+        console.log('Bookings query result:', result);
         return result;
       } catch (error) {
         console.error('Error fetching bookings:', error);
-        logError(error);
         toast({
           title: 'Error fetching bookings',
-          description: 'Please try again later or contact support if the problem persists.',
+          description: `${error.message}. Please try again later or contact support if the problem persists.`,
           status: 'error',
           duration: 5000,
           isClosable: true,

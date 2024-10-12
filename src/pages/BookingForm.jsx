@@ -1,5 +1,5 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { Box, VStack, Heading, Text, Spinner, useToast, Alert, AlertIcon, AlertTitle, AlertDescription, SimpleGrid, useMediaQuery } from "@chakra-ui/react";
+import React, { lazy, Suspense, useState, useEffect } from 'react';
+import { Box, Spinner, useToast, Alert, AlertIcon, AlertTitle, AlertDescription } from "@chakra-ui/react";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { useQuery } from '@tanstack/react-query';
@@ -14,23 +14,11 @@ const PaymentWindow = lazy(() => import('../components/booking/PaymentWindow'));
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-const BookingGuide = () => (
-  <VStack spacing={4} align="start" p={6} bg="rgba(255,255,255,0.1)" borderRadius="md" backdropFilter="blur(10px)">
-    <Heading size="md">Booking Guide</Heading>
-    <Text>1. Enter your vehicle details</Text>
-    <Text>2. Set pickup and drop-off locations</Text>
-    <Text>3. Choose your service type</Text>
-    <Text>4. Review and confirm your booking</Text>
-    <Text>5. Complete the payment process</Text>
-  </VStack>
-);
-
 const BookingPage = () => {
   const toast = useToast();
   const [mapError, setMapError] = useState(false);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const [key, setKey] = useState(0);
-  const [isMobile] = useMediaQuery("(max-width: 48em)");
 
   const {
     formData,
@@ -120,45 +108,37 @@ const BookingPage = () => {
   }
 
   return (
-    <Box position="relative" minHeight="100vh" width="100%" overflow="hidden">
-      <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={8} p={4}>
-        <VStack spacing={8} align="stretch">
-          <Heading as="h1" size="xl">Book Your Tow</Heading>
-          <BookingGuide />
-          <Suspense fallback={<Spinner />}>
-            <BookingForm
-              formData={formData}
-              setFormData={setFormData}
-              handleChange={handleChange}
-              handleDateTimeChange={handleDateTimeChange}
-              handleBookingProcess={handleBookingProcess}
-              isLoading={createBookingMutation?.isLoading || false}
-              selectedTowTruck={selectedTowTruck}
-              totalCost={totalCost}
-              setTotalCost={setTotalCost}
-              distance={distance}
-              vehicleBrands={vehicleBrands}
-              vehicleModels={vehicleModels}
-              setIsPaymentWindowOpen={setIsPaymentWindowOpen}
-              mapError={mapError}
-              refreshMap={refreshMap}
-            />
-          </Suspense>
-        </VStack>
-        <Box height={{ base: "300px", md: "600px" }} position="relative">
-          <Suspense fallback={<Spinner />}>
-            <MapRoute
-              key={key}
-              setPickupAddress={(address) => handleAddressUpdate(address, true)}
-              setDropOffAddress={(address) => handleAddressUpdate(address, false)}
-              setDistance={setDistance}
-              setTotalCost={setTotalCost}
-              vehicleSize={formData.vehicleSize}
-              onError={handleMapError}
-            />
-          </Suspense>
-        </Box>
-      </SimpleGrid>
+    <Box position="relative" height="100vh" width="100vw">
+      <Suspense fallback={<Spinner />}>
+        <MapRoute
+          key={key}
+          setPickupAddress={(address) => handleAddressUpdate(address, true)}
+          setDropOffAddress={(address) => handleAddressUpdate(address, false)}
+          setDistance={setDistance}
+          setTotalCost={setTotalCost}
+          vehicleSize={formData.vehicleSize}
+          onError={handleMapError}
+        />
+      </Suspense>
+      <Suspense fallback={<Spinner />}>
+        <BookingForm
+          formData={formData}
+          setFormData={setFormData}
+          handleChange={handleChange}
+          handleDateTimeChange={handleDateTimeChange}
+          handleBookingProcess={handleBookingProcess}
+          isLoading={createBookingMutation?.isLoading || false}
+          selectedTowTruck={selectedTowTruck}
+          totalCost={totalCost}
+          setTotalCost={setTotalCost}
+          distance={distance}
+          vehicleBrands={vehicleBrands}
+          vehicleModels={vehicleModels}
+          setIsPaymentWindowOpen={setIsPaymentWindowOpen}
+          mapError={mapError}
+          refreshMap={refreshMap}
+        />
+      </Suspense>
       {isPaymentWindowOpen && (
         <Suspense fallback={<Spinner />}>
           <Elements stripe={stripePromise}>

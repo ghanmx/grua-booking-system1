@@ -7,70 +7,97 @@ export type Json =
   | Json[]
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          operationName?: string
+          query?: string
+          variables?: Json
+          extensions?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       bookings: {
         Row: {
-          id: string
-          user_id: string
-          service_id: string
-          status: Database["public"]["Enums"]["booking_status"]
-          payment_status: Database["public"]["Enums"]["payment_status"]
-          pickup_location: string
-          dropoff_location: string
-          vehicle_details: Json
-          distance: number
-          total_cost: number
-          pickup_datetime: string
           additional_details: string | null
           created_at: string
+          distance: number
+          dropoff_location: string
+          id: string
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          pickup_datetime: string
+          pickup_location: string
+          service_id: string
+          status: Database["public"]["Enums"]["booking_status"]
+          total_cost: number
           updated_at: string
+          user_id: string
+          vehicle_details: Json
         }
         Insert: {
+          additional_details?: string | null
+          created_at?: string
+          distance: number
+          dropoff_location: string
           id?: string
-          user_id: string
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          pickup_datetime: string
+          pickup_location: string
           service_id: string
           status?: Database["public"]["Enums"]["booking_status"]
-          payment_status?: Database["public"]["Enums"]["payment_status"]
-          pickup_location: string
-          dropoff_location: string
-          vehicle_details: Json
-          distance: number
           total_cost: number
-          pickup_datetime: string
-          additional_details?: string | null
-          created_at?: string
           updated_at?: string
+          user_id: string
+          vehicle_details: Json
         }
         Update: {
-          id?: string
-          user_id?: string
-          service_id?: string
-          status?: Database["public"]["Enums"]["booking_status"]
-          payment_status?: Database["public"]["Enums"]["payment_status"]
-          pickup_location?: string
-          dropoff_location?: string
-          vehicle_details?: Json
-          distance?: number
-          total_cost?: number
-          pickup_datetime?: string
           additional_details?: string | null
           created_at?: string
+          distance?: number
+          dropoff_location?: string
+          id?: string
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          pickup_datetime?: string
+          pickup_location?: string
+          service_id?: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          total_cost?: number
           updated_at?: string
+          user_id?: string
+          vehicle_details?: Json
         }
         Relationships: [
           {
             foreignKeyName: "bookings_service_id_fkey"
             columns: ["service_id"]
+            isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "bookings_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       password_failed_verification_attempts: {
@@ -259,7 +286,12 @@ export type Database = {
       }
     }
     Enums: {
-      booking_status: "pending" | "confirmed" | "in_progress" | "completed" | "cancelled"
+      booking_status:
+        | "pending"
+        | "confirmed"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
       payment_status: "pending" | "paid" | "failed" | "refunded"
       tow_truck_type: "flatbed" | "wheel_lift" | "integrated" | "heavy_duty"
       user_role: "user" | "admin" | "super_admin"
@@ -352,4 +384,3 @@ export type Enums<
   : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
     ? PublicSchema["Enums"][PublicEnumNameOrOptions]
     : never
-
